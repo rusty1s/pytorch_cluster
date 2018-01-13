@@ -8,8 +8,9 @@ def grid_cluster(position, size, batch=None):
 
     if batch is not None:
         batch = batch.type_as(position)
-        position = torch.cat([position, batch], dim=position.dim() - 1)
-        size = torch.cat([size, size.new(1).fill_(1)], dim=0)
+        size = torch.cat([size.new(1).fill_(1), size], dim=0)
+        dim = position.dim()
+        position = torch.cat([batch.unsqueeze(dim - 1), position], dim=dim - 1)
 
     dim = position.dim()
 
