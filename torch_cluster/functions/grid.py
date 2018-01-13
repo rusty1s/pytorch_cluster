@@ -5,17 +5,12 @@ from .utils import get_func
 
 def grid_cluster(position, size, batch=None):
     # TODO: Check types and sizes
-    print(batch.type())
-    print(position.type())
+
     if batch is not None:
         batch = batch.type_as(position)
         position = torch.cat([position, batch], dim=position.dim() - 1)
         size = torch.cat([size, size.new(1).fill_(1)], dim=0)
-    print(position)
-    # TODO: BATCH
 
-    # print(position[0])
-    # print(position[1])
     dim = position.dim()
 
     # Allow one-dimensional positions.
@@ -32,6 +27,7 @@ def grid_cluster(position, size, batch=None):
     while max.dim() > 1:
         max = max.max(dim=0)[0]
     c_max = torch.ceil(max / size.type_as(max)).long()
+    c_max = torch.clamp(c_max, min=1)
     C = c_max.prod()
 
     # Generate cluster tensor.
