@@ -3,8 +3,8 @@ import subprocess
 import torch
 from torch.utils.ffi import create_extension
 
-headers = []
-sources = []
+headers = ['torch_cluster/src/cpu.h']
+sources = ['torch_cluster/src/cpu.c']
 include_dirs = ['torch_cluster/src']
 define_macros = []
 extra_objects = []
