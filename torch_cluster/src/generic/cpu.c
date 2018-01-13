@@ -11,7 +11,7 @@ void cluster_(grid)(int C, THLongTensor *output, THTensor *position, THTensor *s
     tmp = C; c = 0;
     for (i = 0; i < d; i++) {
       tmp = tmp / *(count_data + i);
-      c += tmp * (int64_t)floor((float)(*(position_data + i * position_stride) / *(size_data + i)));
+      c += tmp * (int64_t)floor(*(position_data + i * position_stride) / *(size_data + i));
     }
     output_data[0] = c;
   )
