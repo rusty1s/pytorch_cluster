@@ -12,7 +12,7 @@ setup_requires = ['pytest-runner', 'cffi']
 tests_require = ['pytest', 'pytest-cov']
 
 setup(
-    name='torch_unique',
+    name='torch_cluster',
     version=__version__,
     description='PyTorch Geometric Deep Learning Graph Cluster Algorithms',
     author='Matthias Fey',
