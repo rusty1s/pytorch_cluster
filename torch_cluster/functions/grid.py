@@ -1,6 +1,6 @@
 import torch
 
-from .utils import get_func
+from .utils import get_func, consecutive
 
 
 def grid_cluster(position, size, batch=None):
@@ -43,5 +43,7 @@ def grid_cluster(position, size, batch=None):
     func = get_func('grid', position)
     func(C, cluster, position, size, c_max)
     cluster = cluster.squeeze(dim=-1)
+
+    cluster = consecutive(cluster)
 
     return cluster
