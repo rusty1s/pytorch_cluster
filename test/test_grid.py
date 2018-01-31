@@ -30,8 +30,9 @@ def test_grid_cluster_cpu(tensor):
 @pytest.mark.parametrize('tensor', tensors)
 def test_grid_cluster_gpu(tensor):  # pragma: no cover
     position = Tensor(tensor, [[0, 0], [9, 9], [2, 8], [2, 2], [8, 3]]).cuda()
-    size = torch.cuda.LongTensor([5, 5])
-    expected = torch.LongTensor([0, 3, 1, 0, 2])
+    print(position)
+    # size = torch.cuda.LongTensor([5, 5])
+    # expected = torch.LongTensor([0, 3, 1, 0, 2])
 
     # output = grid_cluster(position, size)
     # assert output.cpu().tolist() == expected.tolist()
