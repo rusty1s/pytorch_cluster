@@ -33,16 +33,16 @@ def test_grid_cluster_gpu(tensor):  # pragma: no cover
     size = torch.cuda.LongTensor([5, 5])
     expected = torch.LongTensor([0, 3, 1, 0, 2])
 
-    output = grid_cluster(position, size)
+    # output = grid_cluster(position, size)
     # assert output.cpu().tolist() == expected.tolist()
 
-    output = grid_cluster(position.expand(2, 5, 2), size)
-    # assert output.cpu().tolist() == expected.expand(2, 5).tolist()
+    # output = grid_cluster(position.expand(2, 5, 2), size)
+    # # assert output.cpu().tolist() == expected.expand(2, 5).tolist()
 
-    expected = torch.LongTensor([0, 1, 3, 2, 4])
-    batch = torch.cuda.LongTensor([0, 0, 1, 1, 1])
-    output = grid_cluster(position, size, batch)
-    # assert output.cpu().tolist() == expected.tolist()
+    # expected = torch.LongTensor([0, 1, 3, 2, 4])
+    # batch = torch.cuda.LongTensor([0, 0, 1, 1, 1])
+    # output = grid_cluster(position, size, batch)
+    # # assert output.cpu().tolist() == expected.tolist()
 
-    output = grid_cluster(position.expand(2, 5, 2), size, batch.expand(2, 5))
-    # assert output.cpu().tolist() == expected.expand(2, 5).tolist()
+    # output = grid_cluster(position.expand(2, 5, 2), size, batch.expand(2, 5))
+    # # assert output.cpu().tolist() == expected.expand(2, 5).tolist()
