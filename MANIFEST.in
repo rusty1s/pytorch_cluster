@@ -1,1 +1,8 @@
 include LICENSE
+include build.py
+include build.sh
+
+recursive-include torch_cluster/src *
+recursive-include torch_cluster/kernel *
+
+recursive-exclude torch_cluster/_ext *

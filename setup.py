@@ -2,8 +2,6 @@ from os import path as osp
 
 from setuptools import setup, find_packages
 
-import build  # noqa
-
 __version__ = '0.1.0'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
@@ -14,7 +12,8 @@ tests_require = ['pytest', 'pytest-cov']
 setup(
     name='torch_cluster',
     version=__version__,
-    description='PyTorch Geometric Deep Learning Graph Cluster Algorithms',
+    description='PyTorch Extension Library of Optimised Graph Cluster '
+    'Algorithms',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',
     url=url,
