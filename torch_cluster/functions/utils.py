@@ -14,11 +14,11 @@ def get_func(name, tensor):
 def get_type(max, cuda):
     if max <= 255:
         return torch.cuda.ByteTensor if cuda else torch.ByteTensor
-    elif max <= 32767:
+    elif max <= 32767:  # pragma: no cover
         return torch.cuda.ShortTensor if cuda else torch.ShortTensor
-    elif max <= 2147483647:
+    elif max <= 2147483647:  # pragma: no cover
         return torch.cuda.IntTensor if cuda else torch.IntTensor
-    else:
+    else:  # pragma: no cover
         return torch.cuda.LongTensor if cuda else torch.LongTensor
 
 
