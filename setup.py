@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 __version__ = '0.1.0'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
-install_requires = ['cffi']
+install_requires = ['cffi', 'torch-unique']
 setup_requires = ['pytest-runner', 'cffi']
 tests_require = ['pytest', 'pytest-cov']
 
