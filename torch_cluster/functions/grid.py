@@ -29,7 +29,7 @@ def grid_cluster(position, size, batch=None):
     max = position.max(dim=0)[0]
     while max.dim() > 1:
         max = max.max(dim=0)[0]
-    c_max = torch.ceil(max / size.type_as(max)).long()
+    c_max = torch.floor(max.double() / size.double() + 1).long()
     c_max = torch.clamp(c_max, min=1)
     C = c_max.prod()
 

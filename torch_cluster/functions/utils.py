@@ -2,6 +2,7 @@ import torch
 from torch_unique import unique
 
 from .._ext import ffi
+print(ffi.__dict__)
 
 
 def get_func(name, tensor):
