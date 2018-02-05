@@ -3,6 +3,7 @@
 #else
 
 void cluster_(grid)(THCState *state, int C, THCudaLongTensor *output, THCTensor *position, THCTensor *size, THCudaLongTensor *count) {
+  printf("drin");
 }
 
 #endif
