@@ -43,6 +43,10 @@ def grid_cluster(position, size, batch=None):
     func = get_func('grid', position)
     func(C, cluster, position, size, c_max)
     cluster = cluster.squeeze(dim=-1)
-    cluster = consecutive(cluster)
+    cluster, u = consecutive(cluster)
 
-    return cluster
+    if batch is None:
+        return cluster
+    else:
+        batch = (u / c_max[1:].prod()).long()
+        return cluster, batch
