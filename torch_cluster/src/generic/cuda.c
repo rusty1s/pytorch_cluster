@@ -2,8 +2,8 @@
 #define THC_GENERIC_FILE "generic/cuda.c"
 #else
 
-int64_t cluster_(grid)(THCudaLongTensor *output, THCTensor *position, THCTensor *size, THCTensor *maxPosition) {
-  return cluster_kernel_(grid)(state, output, position, size, maxPosition);
+void cluster_(grid)(int C, THCudaLongTensor *output, THCTensor *position, THCTensor *size, THCudaLongTensor *count) {
+  cluster_kernel_(grid)(state, C, output, position, size, count);
 }
 
 #endif

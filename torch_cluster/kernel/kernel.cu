@@ -12,18 +12,15 @@
 #include "THCGenerateAllTypes.h"
 
 template<typename Real, int Dims>
-__global__ void gridKernel(int64_t *output, TensorInfo<Real> position, Real *size, Real *maxPosition, const int N) {
+__global__ void gridKernel(int64_t *output, TensorInfo<Real> position, Real *size, int64_t *count, const int C, const int N) {
   KERNEL_LOOP(i, N) {
-    int positionOffset = 0;
+    int positionOffset = 0; int tmp = C; int64_t c = 0;
     IndexToOffset<Real, Dims>::compute(i, position, &positionOffset);
-
-    int D = position.size[position.dims - 1];
-    int weight = 1; int64_t cluster = 0;
-    for (int d = D - 1; d >= 0; d--) {
-      cluster += weight * (int64_t) (position.data[positionOffset + d] / size[d]);
-      weight *= (int64_t) (maxPosition[d] / size[d]) + 1;
+    for (int d = 0; d < position.size[position.dims - 1]; d++) {
+      tmp = tmp / count[d];
+      c += tmp * (int64_t) (position.data[positionOffset + d] / size[d]);
     }
-    output[i] = cluster;
+    output[i] = c;
   }
 }
 

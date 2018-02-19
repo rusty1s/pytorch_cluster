@@ -2,13 +2,13 @@
 extern "C" {
 #endif
 
-int64_t cluster_grid_kernel_Float (THCState *state, THCudaLongTensor *output, THCudaTensor       *position, THCudaTensor       *size, THCudaTensor       *maxPosition);
-int64_t cluster_grid_kernel_Double(THCState *state, THCudaLongTensor *output, THCudaDoubleTensor *position, THCudaDoubleTensor *size, THCudaDoubleTensor *maxPosition);
-int64_t cluster_grid_kernel_Byte  (THCState *state, THCudaLongTensor *output, THCudaByteTensor   *position, THCudaByteTensor   *size, THCudaByteTensor   *maxPosition);
-int64_t cluster_grid_kernel_Char  (THCState *state, THCudaLongTensor *output, THCudaCharTensor   *position, THCudaCharTensor   *size, THCudaCharTensor   *maxPosition);
-int64_t cluster_grid_kernel_Short (THCState *state, THCudaLongTensor *output, THCudaShortTensor  *position, THCudaShortTensor  *size, THCudaShortTensor  *maxPosition);
-int64_t cluster_grid_kernel_Int   (THCState *state, THCudaLongTensor *output, THCudaIntTensor    *position, THCudaIntTensor    *size, THCudaIntTensor    *maxPosition);
-int64_t cluster_grid_kernel_Long  (THCState *state, THCudaLongTensor *output, THCudaLongTensor   *position, THCudaLongTensor   *size, THCudaLongTensor   *maxPosition);
+void cluster_grid_kernel_Float (THCState *state, int C, THCudaLongTensor *output, THCudaTensor       *position, THCudaTensor       *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Double(THCState *state, int C, THCudaLongTensor *output, THCudaDoubleTensor *position, THCudaDoubleTensor *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Byte  (THCState *state, int C, THCudaLongTensor *output, THCudaByteTensor   *position, THCudaByteTensor   *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Char  (THCState *state, int C, THCudaLongTensor *output, THCudaCharTensor   *position, THCudaCharTensor   *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Short (THCState *state, int C, THCudaLongTensor *output, THCudaShortTensor  *position, THCudaShortTensor  *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Int   (THCState *state, int C, THCudaLongTensor *output, THCudaIntTensor    *position, THCudaIntTensor    *size, THCudaLongTensor *count);
+void cluster_grid_kernel_Long  (THCState *state, int C, THCudaLongTensor *output, THCudaLongTensor   *position, THCudaLongTensor   *size, THCudaLongTensor *count);
 
 #ifdef __cplusplus
 }

@@ -22,28 +22,31 @@ def grid_cluster(position, size, batch=None):
         size = torch.cat([size.new(1).fill_(1), size], dim=-1)
 
     # Translate to minimal positive positions.
-    p_min = position.min(dim=-2, keepdim=True)[0]
-    position = position - p_min
+    min = position.min(dim=-2, keepdim=True)[0]
+    position = position - min
 
-    # Compute maximal position for each dimension.
-    p_max = position.max(dim=0)[0]
-    while p_max.dim() > 1:
-        p_max = p_max.max(dim=0)[0]
+    # Compute cluster count for each dimension.
+    max = position.max(dim=0)[0]
+    while max.dim() > 1:
+        max = max.max(dim=0)[0]
+    c_max = torch.floor(max.double() / size.double() + 1).long()
+    c_max = torch.clamp(c_max, min=1)
+    C = c_max.prod()
 
     # Generate cluster tensor.
-    s = list(position.size())[:-1] + [1]
-    cluster = size.new(torch.Size(s)).long()
+    s = list(position.size())
+    s[-1] = 1
+    cluster = c_max.new(torch.Size(s))
 
     # Fill cluster tensor and reshape.
     size = size.type_as(position)
     func = get_func('grid', position)
-    C = func(cluster, position, size, p_max)
+    func(C, cluster, position, size, c_max)
     cluster = cluster.squeeze(dim=-1)
     cluster, u = consecutive(cluster)
 
     if batch is None:
         return cluster
     else:
-        print(p_max.tolist(), size.tolist(), C)
-        batch = (u / C).long()
+        batch = (u / c_max[1:].prod()).long()
         return cluster, batch
