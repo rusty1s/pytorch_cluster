@@ -21,7 +21,7 @@ def grid_cluster(position, size, batch=None, offset=None, fake_nodes=False):
         position = torch.cat([batch, position], dim=-1)
         size = torch.cat([size.new(1).fill_(1), size], dim=-1)
 
-    # Translate to minimal positive positions.
+    # Translate to minimal positive positions if no offset is passed.
     if offset is None:
         min = position.min(dim=-2, keepdim=True)[0]
         position = position - min
