@@ -42,7 +42,7 @@ def grid_cluster(position, size, batch=None):
     cluster, u = consecutive(cluster)
 
     if batch is None:
-        return cluster, None
+        return cluster
     else:
         print(p_max.tolist(), size.tolist(), C)
         batch = (u / C).long()
