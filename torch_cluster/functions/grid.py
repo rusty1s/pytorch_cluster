@@ -3,7 +3,7 @@ import torch
 from .utils import get_func, consecutive
 
 
-def grid_cluster(position, size, batch=None, fake_nodes=False, offset=None):
+def grid_cluster(position, size, batch=None, offset=None, fake_nodes=False):
     # Allow one-dimensional positions.
     if position.dim() == 1:
         position = position.unsqueeze(-1)
