@@ -27,7 +27,8 @@ def grid_cluster(position, size, batch=None, fake_nodes=False, offset=None):
         position = position - min
     else:
         position = position + offset
-        assert position.min() >= 0, 'Offset resulting in negative positions'
+        assert position.min() >= 0, (
+            'Passed offset resulting in unallowed negative positions')
 
     # Compute cluster count for each dimension.
     max = position.max(dim=0)[0]
