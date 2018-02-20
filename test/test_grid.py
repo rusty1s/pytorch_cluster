@@ -14,7 +14,7 @@ def test_grid_cluster_cpu(tensor):
     assert output.tolist() == expected.tolist()
 
     expected = torch.LongTensor([0, 1])
-    output, _ = grid_cluster(position, size, offset=0)
+    output, _ = grid_cluster(position, size, origin=0)
     assert output.tolist() == expected.tolist()
 
     position = Tensor(tensor, [0, 17, 2, 8, 3])
@@ -63,7 +63,7 @@ def test_grid_cluster_gpu(tensor):  # pragma: no cover
     assert output.cpu().tolist() == expected.tolist()
 
     expected = torch.LongTensor([0, 1])
-    output, _ = grid_cluster(position, size, offset=0)
+    output, _ = grid_cluster(position, size, origin=0)
     assert output.cpu().tolist() == expected.tolist()
 
     position = Tensor(tensor, [0, 17, 2, 8, 3]).cuda()

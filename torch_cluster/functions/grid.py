@@ -3,7 +3,7 @@ import torch
 from .utils import get_func, consecutive
 
 
-def grid_cluster(position, size, batch=None, offset=None, fake_nodes=False):
+def grid_cluster(position, size, batch=None, origin=None, fake_nodes=False):
     # Allow one-dimensional positions.
     if position.dim() == 1:
         position = position.unsqueeze(-1)
@@ -21,14 +21,14 @@ def grid_cluster(position, size, batch=None, offset=None, fake_nodes=False):
         position = torch.cat([batch, position], dim=-1)
         size = torch.cat([size.new(1).fill_(1), size], dim=-1)
 
-    # Translate to minimal positive positions if no offset is passed.
-    if offset is None:
+    # Translate to minimal positive positions if no origin was passed.
+    if origin is None:
         min = position.min(dim=-2, keepdim=True)[0]
         position = position - min
     else:
-        position = position + offset
+        position = position + origin
         assert position.min() >= 0, (
-            'Passed offset resulting in unallowed negative positions')
+            'Passed origin resulting in unallowed negative positions')
 
     # Compute cluster count for each dimension.
     max = position.max(dim=0)[0]
