@@ -50,7 +50,7 @@ def test_grid_cluster_cpu(tensor):
     output, C = grid_cluster(position, size, batch, fake_nodes=True)
     expected = torch.LongTensor([0, 5, 1, 0, 2, 6, 11, 7, 6, 8])
     assert output.tolist() == expected.tolist()
-    assert C == 6
+    assert C == 12
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
@@ -101,4 +101,4 @@ def test_grid_cluster_gpu(tensor):  # pragma: no cover
     output, C = grid_cluster(position, size, batch, fake_nodes=True)
     expected = torch.LongTensor([0, 5, 1, 0, 2, 6, 11, 7, 6, 8])
     assert output.cpu().tolist() == expected.tolist()
-    assert C == 6
+    assert C == 12

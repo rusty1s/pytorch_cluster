@@ -50,7 +50,7 @@ def grid_cluster(position, size, batch=None, origin=None, fake_nodes=False):
     cluster = cluster.squeeze(dim=-1)
 
     if fake_nodes:
-        return cluster, C // c_max[0]
+        return cluster, C
 
     cluster, u = consecutive(cluster)
     return cluster, None if batch is None else (u / (C // c_max[0])).long()
