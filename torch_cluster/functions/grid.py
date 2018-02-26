@@ -48,12 +48,13 @@ def _fixed_cluster_size(position, size, batch=None, end=None):
     if end is None:
         return _minimal_cluster_size(position, size)
 
-    eps = 0.000001  # Model [start, end).
+    eps = 0.000001  # Simulate [start, end) interval.
     if batch is None:
         cluster_size = ((end / size).float() - eps).long() + 1
     else:
         cluster_size = ((end / size[1:]).float() - eps).long() + 1
-        cluster_size = torch.cat([batch.max() + 1, cluster_size], dim=0)
+        max_batch = cluster_size.new(1).fill_(batch.max() + 1)
+        cluster_size = torch.cat([max_batch, cluster_size], dim=0)
 
     return cluster_size
 

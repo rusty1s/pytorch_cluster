@@ -37,6 +37,16 @@
     "batch": [0, 0, 0, 0, 0, 1, 1],
     "expected": [0, 5, 1, 0, 2, 6, 9],
     "expected_C": 6
+  },
+  {
+    "name": "Batch with start/end parameter",
+    "position": [[0, 0], [11, 9], [2, 8], [2, 2], [8, 3], [1, 1], [6, 6]],
+    "size": [5, 5],
+    "batch": [0, 0, 0, 0, 0, 1, 1],
+    "start": 0,
+    "end": 20,
+    "expected": [0, 9, 1, 0, 4, 16, 21],
+    "expected_C": 16
   }
 ]
 
