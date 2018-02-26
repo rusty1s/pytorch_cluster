@@ -1,0 +1,35 @@
+[
+  {
+    "name": "One-dimensional positions",
+    "position": [2, 16],
+    "size": [5],
+    "expected": [0, 1]
+  },
+  {
+    "name": "Start parameter",
+    "position": [2, 6],
+    "size": [5],
+    "start": 0,
+    "expected": [0, 1]
+  },
+  {
+    "name": "Consecutive cluster",
+    "position": [0, 17, 2, 8, 3],
+    "size": [5],
+    "expected": [0, 2, 0, 1, 0]
+  },
+  {
+    "name": "Two-dimensional positions",
+    "position": [[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]],
+    "size": [5, 5],
+    "expected": [0, 3, 1, 0, 2]
+  },
+  {
+    "name": "Batch",
+    "position": [[0, 0], [11, 9], [2, 8], [2, 2], [8, 3], [1, 1], [6, 6]],
+    "size": [5, 5],
+    "batch": [0, 0, 0, 0, 0, 1, 1],
+    "expected": [0, 3, 1, 0, 2, 4, 5],
+    "expected_batch": [0, 0, 0, 0, 1, 1]
+  }
+]
