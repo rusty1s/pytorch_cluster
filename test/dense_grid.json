@@ -36,7 +36,7 @@
     "size": [5, 5],
     "batch": [0, 0, 0, 0, 0, 1, 1],
     "expected": [0, 5, 1, 0, 2, 6, 9],
-    "expected_C": 6
+    "expected_C": 12
   },
   {
     "name": "Batch with start/end parameter",
@@ -46,7 +46,7 @@
     "start": 0,
     "end": 20,
     "expected": [0, 9, 1, 0, 4, 16, 21],
-    "expected_C": 16
+    "expected_C": 32
   }
 ]
 

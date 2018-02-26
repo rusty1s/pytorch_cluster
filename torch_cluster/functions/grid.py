@@ -88,9 +88,4 @@ def dense_grid_cluster(position, size, batch=None, start=None, end=None):
     position, size = _preprocess(position, size, batch, start)
     cluster_size = _fixed_cluster_size(position, size, batch, end)
     cluster, C = _grid_cluster(position, size, cluster_size)
-
-    if batch is None:
-        return cluster, C
-    else:
-        C = C // cluster_size[0]
-        return cluster, C
+    return cluster, C
