@@ -10,7 +10,7 @@
     "name": "Start parameter",
     "position": [2, 16],
     "size": [5],
-    "start": 0,
+    "start": -1,
     "expected": [0, 3],
     "expected_C": 4
   },
