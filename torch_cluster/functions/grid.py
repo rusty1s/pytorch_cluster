@@ -18,11 +18,12 @@ def _preprocess(position, size, batch=None, start=None):
 
     # Translate to minimal positive positions if no start was passed.
     if start is None:
-        position = position - position.min(dim=-2, keepdim=True)[0]
-    else:
+        min = []
+        for i in range(position.size(-1)):
+            min.append(position[:, i].min())
+        position = position - position.new(min)
+    elif start != 0:
         position = position - start
-        assert position.min() >= 0, (
-            'Passed origin resulting in unallowed negative positions')
 
     # If given, append batch to position tensor.
     if batch is not None:
@@ -37,10 +38,10 @@ def _preprocess(position, size, batch=None, start=None):
 
 
 def _minimal_cluster_size(position, size):
-    max = position.max(dim=0)[0]
-    while max.dim() > 1:
-        max = max.max(dim=0)[0]
-    cluster_size = (max / size).long() + 1
+    max = []
+    for i in range(position.size(-1)):
+        max.append(position[:, i].max())
+    cluster_size = (size.new(max) / size).long() + 1
     return cluster_size
 
 
