@@ -23,6 +23,8 @@ def _preprocess(position, size, batch=None, start=None):
             min.append(position[:, i].min())
         position = position - position.new(min)
     else:
+        assert start.numel() == size.numel(), (
+            'Start tensor must have same size as size tensor')
         position = position - start.type_as(position)
 
     # If given, append batch to position tensor.
@@ -48,6 +50,9 @@ def _minimal_cluster_size(position, size):
 def _fixed_cluster_size(position, size, batch=None, end=None):
     if end is None:
         return _minimal_cluster_size(position, size)
+
+    assert end.numel() == size.numel(), (
+        'End tensor must have same size as size tensor')
 
     end = end.type_as(size)
     eps = 0.000001  # Simulate [start, end) interval.
