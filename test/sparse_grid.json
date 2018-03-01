@@ -9,7 +9,7 @@
     "name": "Start parameter",
     "position": [2, 6],
     "size": [5],
-    "start": 0,
+    "start": [0],
     "expected": [0, 1]
   },
   {

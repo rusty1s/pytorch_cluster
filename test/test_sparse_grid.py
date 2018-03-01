@@ -18,16 +18,17 @@ def test_sparse_grid_cluster_cpu(tensor, i):
     position = Tensor(tensor, data[i]['position'])
     size = torch.LongTensor(data[i]['size'])
     batch = data[i].get('batch')
+    batch = None if batch is None else torch.LongTensor(batch)
     start = data[i].get('start')
+    start = None if start is None else torch.LongTensor(start)
     expected = torch.LongTensor(data[i]['expected'])
 
+    output = sparse_grid_cluster(position, size, batch, start)
+
     if batch is None:
-        output = sparse_grid_cluster(position, size, batch, start)
         assert output.tolist() == expected.tolist()
     else:
-        batch = torch.LongTensor(batch)
         expected_batch = torch.LongTensor(data[i]['expected_batch'])
-        output = sparse_grid_cluster(position, size, batch, start)
         assert output[0].tolist() == expected.tolist()
         assert output[1].tolist() == expected_batch.tolist()
 
@@ -38,15 +39,16 @@ def test_sparse_grid_cluster_gpu(tensor, i):  # pragma: no cover
     position = Tensor(tensor, data[i]['position']).cuda()
     size = torch.cuda.LongTensor(data[i]['size'])
     batch = data[i].get('batch')
+    batch = None if batch is None else torch.cuda.LongTensor(batch)
     start = data[i].get('start')
+    start = None if start is None else torch.cuda.LongTensor(start)
     expected = torch.LongTensor(data[i]['expected'])
 
+    output = sparse_grid_cluster(position, size, batch, start)
+
     if batch is None:
-        output = sparse_grid_cluster(position, size, batch, start)
         assert output.cpu().tolist() == expected.tolist()
     else:
-        batch = torch.cuda.LongTensor(batch)
         expected_batch = torch.LongTensor(data[i]['expected_batch'])
-        output = sparse_grid_cluster(position, size, batch, start)
         assert output[0].cpu().tolist() == expected.tolist()
         assert output[1].cpu().tolist() == expected_batch.tolist()

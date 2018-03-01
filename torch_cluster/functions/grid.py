@@ -22,8 +22,8 @@ def _preprocess(position, size, batch=None, start=None):
         for i in range(position.size(-1)):
             min.append(position[:, i].min())
         position = position - position.new(min)
-    elif start != 0:
-        position = position - start
+    else:
+        position = position - start.type_as(position)
 
     # If given, append batch to position tensor.
     if batch is not None:
@@ -49,6 +49,7 @@ def _fixed_cluster_size(position, size, batch=None, end=None):
     if end is None:
         return _minimal_cluster_size(position, size)
 
+    end = end.type_as(size)
     eps = 0.000001  # Simulate [start, end) interval.
     if batch is None:
         cluster_size = ((end / size).float() - eps).long() + 1

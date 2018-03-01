@@ -20,7 +20,9 @@ def test_dense_grid_cluster_cpu(tensor, i):
     batch = data[i].get('batch')
     batch = None if batch is None else torch.LongTensor(batch)
     start = data[i].get('start')
+    start = None if start is None else torch.LongTensor(start)
     end = data[i].get('end')
+    end = None if end is None else torch.LongTensor(end)
     expected = torch.LongTensor(data[i]['expected'])
     expected_C = data[i]['expected_C']
 
@@ -37,7 +39,9 @@ def test_dense_grid_cluster_gpu(tensor, i):  # pragma: no cover
     batch = data[i].get('batch')
     batch = None if batch is None else torch.cuda.LongTensor(batch)
     start = data[i].get('start')
+    start = None if start is None else torch.cuda.LongTensor(start)
     end = data[i].get('end')
+    end = None if end is None else torch.cuda.LongTensor(end)
     expected = torch.LongTensor(data[i]['expected'])
     expected_C = data[i]['expected_C']
 
