@@ -51,9 +51,6 @@ def _fixed_cluster_size(position, size, batch=None, end=None):
     if end is None:
         return _minimal_cluster_size(position, size)
 
-    assert end.numel() == size.numel(), (
-        'End tensor must have same size as size tensor')
-
     end = end.type_as(size)
     eps = 0.000001  # Simulate [start, end) interval.
     if batch is None:
