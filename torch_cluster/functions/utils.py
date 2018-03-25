@@ -26,7 +26,7 @@ def get_type(max, cuda):
         return torch.cuda.LongTensor if cuda else torch.LongTensor
 
 
-def consecutive(tensor, return_batch=None):
+def consecutive(tensor):
     size = tensor.size()
     u = unique(tensor.view(-1))
     len = u[-1] + 1
