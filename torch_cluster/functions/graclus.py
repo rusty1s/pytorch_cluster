@@ -2,21 +2,27 @@ from __future__ import division
 
 import torch
 
+# from .utils import get_func
 from .degree import node_degree
 
 
-def graclus_cluster(edge_index,
-                    num_nodes=None,
-                    edge_attr=None,
-                    batch=None,
-                    rid=None):
-
+def graclus_cluster(edge_index, num_nodes=None, edge_attr=None, rid=None):
     num_nodes = edge_index.max() + 1 if num_nodes is None else num_nodes
     rid = torch.randperm(num_nodes) if rid is None else rid
+    row, col = edge_index
 
+    # Compute edge-wise normalized cut.
     cut = normalized_cut(edge_index, num_nodes, edge_attr)
 
-    print(cut)
+    # Sort row and col indices based on the (possibly random) `rid`.
+    _, perm = rid[row].sort()
+    row, col, cut = row[perm], col[perm], cut[perm]
+    print(row, col)
+
+    cluster = edge_index.new(num_nodes).fill_(-1)
+    # func = get_func('graclus', cluster)
+    # func(cluster, row, col, cut)
+    return cluster
 
 
 def normalized_cut(edge_index, num_nodes, edge_attr=None):
