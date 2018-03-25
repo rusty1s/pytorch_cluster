@@ -8,20 +8,23 @@ void cluster_random(THLongTensor *output, THLongTensor *row, THLongTensor *col, 
   int64_t *col_data = col->storage->data + col->storageOffset;
   int64_t *degree_data = degree->storage->data + degree->storageOffset;
 
-  int64_t e = 0, row_value, col_value, i;
+  int64_t e = 0, row_value, col_value, i, value;
 
   while(e < THLongTensor_nElement(row)) {
     row_value = row_data[e];
     if (output_data[row_value] < 0) { // Node is unmatched.
+
       // Find next unmatched neighbor.
       col_value = -1;
       for (i = 0; i < degree_data[row_value]; i++) {
-        col_value = col_data[e + i];
-        if (output_data[col_value] < 0) break; // Neighbor found.
-        else col_value = -1;
+        value = col_data[e + i];
+        if (output_data[value] < 0) { // Neighbor found. Save and abort.
+          col_value = value;
+          break;
+        }
       }
 
-      // Set output.
+      // Set cluster output for new matched nodes (one or two).
       if (col_value < 0) {
         output_data[row_value] = row_value;
       }
@@ -31,6 +34,8 @@ void cluster_random(THLongTensor *output, THLongTensor *row, THLongTensor *col, 
         output_data[col_value] = i;
       }
     }
+
+    // Jump to next row.
     e += degree_data[row_value];
   }
 }
