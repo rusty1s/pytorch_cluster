@@ -3,14 +3,10 @@ from .degree import node_degree
 from .permute import permute
 
 
-def random_cluster(edge_index,
-                   batch=None,
-                   rid=None,
-                   perm_edges=True,
-                   num_nodes=None):
+def random_cluster(edge_index, batch=None, num_nodes=None):
 
     num_nodes = edge_index.max() + 1 if num_nodes is None else num_nodes
-    row, col = permute(edge_index, num_nodes, rid, perm_edges)
+    row, col = permute(edge_index, num_nodes)
     degree = node_degree(row, num_nodes, out=row.new())
 
     cluster = edge_index.new(num_nodes).fill_(-1)
