@@ -2,7 +2,7 @@ from __future__ import division
 
 import torch
 
-from .utils import get_func, consecutive
+from .utils import get_dynamic_func, consecutive
 
 
 def _preprocess(position, size, batch=None, start=None):
@@ -69,7 +69,7 @@ def _grid_cluster(position, size, cluster_size):
     cluster = cluster_size.new(torch.Size(list(position.size())[:-1]))
     cluster = cluster.unsqueeze(dim=-1)
 
-    func = get_func('grid', position)
+    func = get_dynamic_func('grid', position)
     func(C, cluster, position, size, cluster_size)
 
     cluster = cluster.squeeze(dim=-1)

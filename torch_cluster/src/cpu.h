@@ -6,4 +6,4 @@ void cluster_grid_Short (int C, THLongTensor *output, THShortTensor  *position, 
 void cluster_grid_Int   (int C, THLongTensor *output, THIntTensor    *position, THIntTensor    *size, THLongTensor *count);
 void cluster_grid_Long  (int C, THLongTensor *output, THLongTensor   *position, THLongTensor   *size, THLongTensor *count);
 
-void cluster_serial(THLongTensor *output, THLongTensor *row, THLongTensor *col);
+void cluster_random(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree);
