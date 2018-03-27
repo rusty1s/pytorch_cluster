@@ -2,7 +2,8 @@ from __future__ import division
 
 import torch
 
-from .utils import get_dynamic_func, consecutive
+from .utils.ffi import get_dynamic_func
+from .utils.consecutive import consecutive
 
 
 def _preprocess(position, size, batch=None, start=None):
