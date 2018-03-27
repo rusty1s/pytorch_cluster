@@ -8,8 +8,10 @@ from torch.utils.ffi import create_extension
 if osp.exists('build'):
     shutil.rmtree('build')
 
-headers = ['torch_cluster/src/cpu.h']
-sources = ['torch_cluster/src/cpu.c']
+files = ['serial', 'grid']
+
+headers = ['torch_cluster/src/{}_cpu.h'.format(f) for f in files]
+sources = ['torch_cluster/src/{}_cpu.c'.format(f) for f in files]
 include_dirs = ['torch_cluster/src']
 define_macros = []
 extra_objects = []

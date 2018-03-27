@@ -1,8 +1,6 @@
 #include <TH/TH.h>
 
-#define cluster_(NAME) TH_CONCAT_4(cluster_, NAME, _, Real)
-
-void cluster_random(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree) {
+void serial_cluster(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree) {
   int64_t *output_data = output->storage->data + output->storageOffset;
   int64_t *row_data = row->storage->data + row->storageOffset;
   int64_t *col_data = col->storage->data + col->storageOffset;
@@ -40,5 +38,4 @@ void cluster_random(THLongTensor *output, THLongTensor *row, THLongTensor *col, 
   }
 }
 
-#include "generic/cpu.c"
-#include "THGenerateAllTypes.h"
+
