@@ -24,7 +24,7 @@ if torch.cuda.is_available():
     sources += ['torch_cluster/src/{}_cuda.c'.format(f) for f in files]
     include_dirs += ['torch_cluster/kernel']
     define_macros += [('WITH_CUDA', None)]
-    extra_objects += ['torch_cluster/build/kernel.so']
+    extra_objects += ['torch_cluster/build/{}.so'.format(f) for f in files]
     with_cuda = True
 
 ffi = create_extension(

@@ -1,6 +1,6 @@
 #include <THC/THC.h>
 
-#include "kernel.h"
+#include "serial.h"
 
 #define cluster_(NAME) TH_CONCAT_4(cluster_, NAME, _cuda_, Real)
 #define cluster_kernel_(NAME) TH_CONCAT_4(cluster_, NAME, _kernel_, Real)

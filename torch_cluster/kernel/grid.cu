@@ -1,6 +1,6 @@
 #include <THC.h>
 
-#include "kernel.h"
+#include "grid.h"
 
 #include "common.cuh"
 #include "THCIndex.cuh"
@@ -24,17 +24,17 @@ __global__ void gridKernel(int64_t *output, TensorInfo<Real> position, Real *siz
   }
 }
 
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateFloatType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateDoubleType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateByteType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateCharType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateShortType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateIntType.h"
-#include "generic/kernel.cu"
+#include "generic/grid.cu"
 #include "THCGenerateLongType.h"
