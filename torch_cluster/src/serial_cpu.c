@@ -11,7 +11,7 @@
   int64_t e = 0, row_value, col_value, value; \
   while(e < THLongTensor_nElement(row)) { \
     row_value = row_data[e]; \
-    if (output_data[row_value] >= 0) { \
+    if (output_data[row_value] < 0) { \
       col_value = -1; \
       SELECT \
       if (col_value < 0) { \

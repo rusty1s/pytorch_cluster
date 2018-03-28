@@ -12,7 +12,8 @@ def _get_typed_func(name, tensor):
     return getattr(ffi, 'cluster_{}_{}{}'.format(name, cuda, typename))
 
 
-def ffi_serial(output, row, col, degree, weight=None):
+def ffi_serial(row, col, degree, weight=None):
+    output = row.new(degree.size(0)).fill_(-1)
     if weight is None:
         func = _get_func('serial', row)
         func(output, row, col, degree)
