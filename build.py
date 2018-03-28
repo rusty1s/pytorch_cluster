@@ -20,8 +20,8 @@ with_cuda = False
 if torch.cuda.is_available():
     subprocess.call(['./build.sh', osp.dirname(torch.__file__)])
 
-    headers += ['torch_cluster/src/cuda.h']
-    sources += ['torch_cluster/src/cuda.c']
+    headers += ['torch_cluster/src/{}_cuda.h'.format(f) for f in files]
+    sources += ['torch_cluster/src/{}_cuda.c'.format(f) for f in files]
     include_dirs += ['torch_cluster/kernel']
     define_macros += [('WITH_CUDA', None)]
     extra_objects += ['torch_cluster/build/kernel.so']

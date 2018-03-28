@@ -1,5 +1,5 @@
 #ifndef THC_GENERIC_FILE
-#define THC_GENERIC_FILE "generic/cuda.c"
+#define THC_GENERIC_FILE "generic/grid_cuda.c"
 #else
 
 void cluster_(grid)(int C, THCudaLongTensor *output, THCTensor *position, THCTensor *size, THCudaLongTensor *count) {
