@@ -81,7 +81,7 @@ def sparse_grid_cluster(position, size, batch=None, start=None):
     position, size, start = _preprocess(position, size, batch, start)
     cluster_size = _minimal_cluster_size(position, size)
     cluster, C = _grid_cluster(position, size, cluster_size)
-    cluster, u = consecutive(cluster)
+    cluster, u = consecutive(cluster, return_unique=True)
 
     if batch is None:
         return cluster
