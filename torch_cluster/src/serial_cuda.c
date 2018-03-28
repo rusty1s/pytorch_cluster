@@ -8,6 +8,7 @@
 extern THCState *state;
 
 void cluster_serial_cuda(THCudaLongTensor *output, THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree) {
+  cluster_serial_kernel(state, output, row, col, degree);
 }
 
 #include "generic/serial_cuda.c"
