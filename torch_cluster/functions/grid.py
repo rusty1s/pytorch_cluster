@@ -2,7 +2,7 @@ from __future__ import division
 
 import torch
 
-from .utils.ffi import get_typed_func
+from .utils.ffi import _get_typed_func
 from .utils.consecutive import consecutive
 
 
@@ -70,7 +70,7 @@ def _grid_cluster(position, size, cluster_size):
     cluster = cluster_size.new(torch.Size(list(position.size())[:-1]))
     cluster = cluster.unsqueeze(dim=-1)
 
-    func = get_typed_func('grid', position)
+    func = _get_typed_func('grid', position)
     func(C, cluster, position, size, cluster_size)
 
     cluster = cluster.squeeze(dim=-1)

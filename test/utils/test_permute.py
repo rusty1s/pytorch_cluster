@@ -27,6 +27,9 @@ def test_permute_cpu():
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
 def test_sort_gpu():  # pragma: no cover
+    # Note that `sort` is not stable on the GPU, so it does not preserve the
+    # relative ordering of equivalent row elements. Thus, the expected column
+    # vector differs from the CPU version (which is stable).
     row = torch.cuda.LongTensor([0, 1, 0, 2, 1, 2, 1, 3, 2, 3])
     col = torch.cuda.LongTensor([1, 0, 2, 0, 2, 1, 3, 1, 3, 2])
     row, col = sort(row, col)
@@ -38,6 +41,7 @@ def test_sort_gpu():  # pragma: no cover
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
 def test_permute_gpu():  # pragma: no cover
+    # Equivalent to `sort`, `permute` is not stable on the GPU (see above).
     row = torch.cuda.LongTensor([0, 1, 0, 2, 1, 2, 1, 3, 2, 3])
     col = torch.cuda.LongTensor([1, 0, 2, 0, 2, 1, 3, 1, 3, 2])
     node_rid = torch.cuda.LongTensor([2, 1, 3, 0])

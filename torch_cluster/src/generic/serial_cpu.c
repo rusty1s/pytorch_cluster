@@ -2,7 +2,7 @@
 #define TH_GENERIC_FILE "generic/serial_cpu.c"
 #else
 
-void cluster_(serial)(THLongTensor *output, THLongTensor *row, THLongTensor *col, THTensor *weight, THLongTensor *degree) {
+void cluster_(serial)(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree, THTensor *weight) {
   real *weight_data = weight->storage->data + weight->storageOffset;
   real max_weight, w;
   int64_t d, c;
