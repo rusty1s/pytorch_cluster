@@ -2,7 +2,7 @@
 #define TH_GENERIC_FILE "generic/grid_cpu.c"
 #else
 
-void grid_cluster(int C, THLongTensor *output, THTensor *position, THTensor *size, THLongTensor *count) {
+void cluster_(grid)(int C, THLongTensor *output, THTensor *position, THTensor *size, THLongTensor *count) {
   real *size_data = size->storage->data + size->storageOffset;
   int64_t *count_data = count->storage->data + count->storageOffset;
   int64_t D, d, i, c, tmp;

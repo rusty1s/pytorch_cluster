@@ -1,6 +1,6 @@
 #include <TH/TH.h>
 
-#define grid_cluster TH_CONCAT_2(grid_cluster_, Real)
+#define cluster_(NAME) TH_CONCAT_4(cluster_, NAME, _, Real)
 
 #include "generic/grid_cpu.c"
 #include "THGenerateAllTypes.h"

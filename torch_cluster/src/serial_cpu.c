@@ -1,6 +1,8 @@
 #include <TH/TH.h>
 
-void serial_cluster(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree) {
+#define cluster_(NAME) TH_CONCAT_4(cluster_, NAME, _, Real)
+
+void cluster_serial(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree) {
   int64_t *output_data = output->storage->data + output->storageOffset;
   int64_t *row_data = row->storage->data + row->storageOffset;
   int64_t *col_data = col->storage->data + col->storageOffset;
@@ -38,4 +40,5 @@ void serial_cluster(THLongTensor *output, THLongTensor *row, THLongTensor *col, 
   }
 }
 
-
+#include "generic/serial_cpu.c"
+#include "THGenerateAllTypes.h"
