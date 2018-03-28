@@ -7,17 +7,17 @@ def sort(row, col):
     return row, col
 
 
-def permute(edge_index, num_nodes, node_rid=None, edge_rid=None):
-    num_edges = edge_index.size(1)
+def permute(row, col, num_nodes, node_rid=None, edge_rid=None):
+    num_edges = row.size(0)
 
     # Randomly reorder row and column indices.
     if edge_rid is None:
-        edge_rid = torch.randperm(num_edges).type_as(edge_index)
-    row, col = edge_index[:, edge_rid]
+        edge_rid = torch.randperm(num_edges).type_as(row)
+    row, col = row[edge_rid], col[edge_rid]
 
     # Randomly change row indices to new values.
     if node_rid is None:
-        node_rid = torch.randperm(num_nodes).type_as(edge_index)
+        node_rid = torch.randperm(num_nodes).type_as(row)
     row = node_rid[row]
 
     # Sort row and column indices based on changed values.
@@ -26,4 +26,4 @@ def permute(edge_index, num_nodes, node_rid=None, edge_rid=None):
     # Revert previous row value changes to old indices.
     row = node_rid.sort()[1][row]
 
-    return torch.stack([row, col], dim=0)
+    return row, col
