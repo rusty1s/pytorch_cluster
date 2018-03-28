@@ -4,15 +4,13 @@ from torch_cluster.functions.utils.permute import sort, permute
 
 
 def test_sort_cpu():
-    edge_index = torch.LongTensor([
-        [0, 1, 0, 2, 1, 2, 1, 3, 2, 3],
-        [1, 0, 2, 0, 2, 1, 3, 1, 3, 2],
-    ])
-    expected_edge_index = [
-        [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
-        [1, 2, 0, 2, 3, 0, 1, 3, 1, 2],
-    ]
-    assert sort(edge_index).tolist() == expected_edge_index
+    row = torch.LongTensor([0, 1, 0, 2, 1, 2, 1, 3, 2, 3])
+    col = torch.LongTensor([1, 0, 2, 0, 2, 1, 3, 1, 3, 2])
+    row, col = sort(row, col)
+    expected_row = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3]
+    expected_col = [1, 2, 0, 2, 3, 0, 1, 3, 1, 2]
+    assert row.tolist() == expected_row
+    assert col.tolist() == expected_col
 
 
 def test_permute_cpu():
@@ -34,12 +32,13 @@ def test_permute_cpu():
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
 def test_sort_gpu():  # pragma: no cover
-    edge_index = torch.cuda.LongTensor([
-        [0, 1, 0, 2, 1, 2, 1, 3, 2, 3],
-        [1, 0, 2, 0, 2, 1, 3, 1, 3, 2],
-    ])
+    row = torch.cuda.LongTensor([0, 1, 0, 2, 1, 2, 1, 3, 2, 3])
+    col = torch.cuda.LongTensor([1, 0, 2, 0, 2, 1, 3, 1, 3, 2])
+    row, col = sort(row, col)
     expected_row = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3]
-    assert sort(edge_index)[0].cpu().tolist() == expected_row
+    expected_col = [1, 2, 0, 2, 3, 0, 1, 3, 1, 2]
+    assert row.cpu().tolist() == expected_row
+    assert col.cpu().tolist() == expected_col
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')

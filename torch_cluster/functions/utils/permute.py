@@ -1,11 +1,10 @@
 import torch
 
 
-def sort(edge_index):
-    row, col = edge_index
+def sort(row, col):
     row, perm = row.sort()
     col = col[perm]
-    return torch.stack([row, col], dim=0)
+    return row, col
 
 
 def permute(edge_index, num_nodes, node_rid=None, edge_rid=None):
@@ -22,7 +21,7 @@ def permute(edge_index, num_nodes, node_rid=None, edge_rid=None):
     row = node_rid[row]
 
     # Sort row and column indices based on changed values.
-    row, col = sort(torch.stack([row, col], dim=0))
+    row, col = sort(row, col)
 
     # Revert previous row value changes to old indices.
     row = node_rid.sort()[1][row]

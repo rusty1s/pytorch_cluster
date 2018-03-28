@@ -20,4 +20,3 @@ void cluster_(serial)(THLongTensor *output, THLongTensor *row, THLongTensor *col
 }
 
 #endif
-
