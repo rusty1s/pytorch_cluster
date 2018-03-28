@@ -14,13 +14,21 @@ def _get_type(max_value, cuda):
 
 
 def consecutive(x):
-    size = x.size()
+    initial_size = x.size()
+
+    # Compute unique vector.
     u = unique(x.view(-1))
-    len = u[-1] + 1
-    max = u.size(0)
-    type = _get_type(max, x.is_cuda)
-    arg = type(len)
-    arg[u] = torch.arange(0, max, out=type(max))
-    x = arg[x.view(-1)]
-    x = x.view(size).long()
+
+    # Compute mask with mask[u[0]] = 0, mask[u[1]] = 1, ...
+    # As mask can get very big (dependent on the maximum value in `x`, we want
+    # to take the least possible amount of space on disk (`_get_type`).
+    max_value = u[-1] + 1
+    mask = _get_type(u.size(0), x.is_cuda)(max_value)
+    mask[u] = torch.arange(0, u.size(0), out=mask.new())
+
+    # Select the values in `mask` based on `x` and reshape to initial size.
+    x = mask[x.view(-1)]
+    x = x.view(initial_size)
+    x = x.long()
+
     return x
