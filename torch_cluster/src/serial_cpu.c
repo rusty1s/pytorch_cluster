@@ -12,16 +12,11 @@
   while(e < THLongTensor_nElement(row)) { \
     row_value = row_data[e]; \
     if (output_data[row_value] < 0) { \
-      col_value = -1; \
+      col_value = row_value; \
       SELECT \
-      if (col_value < 0) { \
-        output_data[row_value] = row_value; \
-      } \
-      else { \
-        v = row_value < col_value ? row_value : col_value; \
-        output_data[row_value] = v; \
-        output_data[col_value] = v; \
-      } \
+      v = row_value < col_value ? row_value : col_value; \
+      output_data[row_value] = v; \
+      output_data[col_value] = v; \
     } \
     e += degree_data[row_value]; \
   } \
