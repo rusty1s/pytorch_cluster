@@ -8,7 +8,9 @@
 extern THCState *state;
 
 void cluster_serial_cuda(THCudaLongTensor *output, THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree) {
-  cluster_serial_kernel(state, output, row, col, degree);
+  int bla = assignColor(state, output);
+  printf("RETURN TYPE IS %i \n", bla);
+  /* cluster_serial_kernel(state, output, row, col, degree); */
 }
 
 #include "generic/serial_cuda.c"

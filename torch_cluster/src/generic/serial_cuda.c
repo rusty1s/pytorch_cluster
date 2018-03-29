@@ -3,7 +3,7 @@
 #else
 
 void cluster_(serial)(THCudaLongTensor *output, THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree, THCTensor *weight) {
-  cluster_kernel_(serial)(state, output, row, col, degree, weight);
+  int bla = assignColor(state, output);
 }
 
 #endif

@@ -1,5 +1,6 @@
+import pytest
 import torch
-from torch_cluster.functions.utils.ffi import ffi_serial, ffi_grid
+from torch_cluster.functions.utils.ffi import ffi_serial, ffi_grid, _get_func
 
 
 def test_serial_cpu():
@@ -23,3 +24,22 @@ def test_grid_cpu():
     cluster = ffi_grid(position, size, count)
     expected_cluster = [0, 5, 1, 0, 2]
     assert cluster.tolist() == expected_cluster
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
+def test_assign_color_gpu():
+    output = torch.cuda.LongTensor(60000).fill_(-1)
+    func = _get_func('serial', output)
+    func(output, output, output, output)
+    print((output + 2).sum() / output.size(0))
+    print((output + 2)[:10])
+
+    # print(torch.initial_seed())
+    # torch.cuda.manual_seed(2)
+    # bla = torch.bernoulli(torch.cuda.FloatTensor(10).fill_(0.2))
+    # print(bla)
+    # print(bla.sum() / bla.size(0))
+    # func = ffi.()
+    # # return getattr(ffi, 'cluster_{}{}'.format(name, cuda))
+    # print('drin')
+    # pass

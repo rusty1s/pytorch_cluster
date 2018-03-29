@@ -2,6 +2,8 @@
 extern "C" {
 #endif
 
+int assignColor(THCState *state, THCudaLongTensor *color);
+
 void cluster_serial_kernel(THCState *state, THCudaLongTensor *output, THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree);
 
 void cluster_serial_kernel_Float (THCState *state, THCudaLongTensor *output, THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree,       THCudaTensor *weight);
