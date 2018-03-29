@@ -4,16 +4,17 @@
 
 void cluster_(serial)(THLongTensor *output, THLongTensor *row, THLongTensor *col, THLongTensor *degree, THTensor *weight) {
   real *weight_data = weight->storage->data + weight->storageOffset;
-  real max_weight, w;
+  real weight_value, w;
   int64_t d, c;
   SERIAL(output, row, col, degree,
-    max_weight = 0;
-    for (d = 0; d < degree_data[row_value]; d++) {
+    weight_value = 0;
+    for (d = 0; d < degree_data[row_value]; d++) {  // Iterate over neighbors.
       c = col_data[e + d];
       w = weight_data[e + d];
-      if (output_data[c] < 0 && w >= max_weight) {
+      if (output_data[c] < 0 && w >= weight_value) {
+        // Neighbor is unmatched and edge has a higher weight.
         col_value = c;
-        max_weight = w;
+        weight_value = w;
       }
     }
   )

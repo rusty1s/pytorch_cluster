@@ -1,5 +1,5 @@
 import torch
-from torch_cluster.functions.utils.ffi import ffi_serial
+from torch_cluster.functions.utils.ffi import ffi_serial, ffi_grid
 
 
 def test_serial_cpu():
@@ -13,4 +13,13 @@ def test_serial_cpu():
     weight = torch.Tensor([1, 2, 1, 3, 2, 2, 3, 3, 2, 3])
     cluster = ffi_serial(row, col, degree, weight)
     expected_cluster = [0, 1, 0, 1]
+    assert cluster.tolist() == expected_cluster
+
+
+def test_grid_cpu():
+    position = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+    size = torch.Tensor([5, 5])
+    count = torch.LongTensor([3, 2])
+    cluster = ffi_grid(position, size, count)
+    expected_cluster = [0, 5, 1, 0, 2]
     assert cluster.tolist() == expected_cluster

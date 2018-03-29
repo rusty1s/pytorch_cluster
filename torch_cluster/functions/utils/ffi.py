@@ -24,7 +24,10 @@ def ffi_serial(row, col, degree, weight=None):
         return output
 
 
-def ffi_grid(C, output, position, size, count):
+def ffi_grid(position, size, count):
+    C = count.prod()
+    output = count.new(position.size(0), 1)
     func = _get_typed_func('grid', position)
     func(C, output, position, size, count)
+    output = output.squeeze(-1)
     return output
