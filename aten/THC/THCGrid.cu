@@ -1,11 +1,11 @@
 #include "THCGrid.h"
 
-#include "common.h"
+#include "common.cuh"
 #include "THCNumerics.cuh"
 
 template<typename T>
 __global__ void gridKernel(int64_t *cluster, TensorInfo<T> posInfo, T *size,
-                           int64_t *count, const int nNodes) {
+                           int64_t *count, ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
     T *pos = posInfo.data + i * posInfo.stride[0];
     int64_t coef = 1, value = 0;

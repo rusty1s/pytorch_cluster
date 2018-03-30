@@ -1,5 +1,5 @@
 #ifndef THC_GENERIC_FILE
-#define THC_GENERIC_FILE "generic/common.h"
+#define THC_GENERIC_FILE "generic/common.cuh"
 #else
 
 TensorInfo<real> THCTensor_(getTensorInfo)(THCState *state, THCTensor *tensor) {
