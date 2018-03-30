@@ -3,10 +3,10 @@
 #else
 
 void THGrid_(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor *count) {
-  int64_t *clusterData = DATA(cluster);
-  real *posData = DATA(pos);
-  real *sizeData = DATA(size);
-  int64_t *countData = DATA(count);
+  int64_t *clusterData = THTensor_getData(cluster);
+  real *posData = THTensor_getData(pos);
+  real *sizeData = THTensor_getData(size);
+  int64_t *countData = THTensor_getData(count);
 
   ptrdiff_t n, d; int64_t coef, value;
   for (n = 0; n < THTensor_(size)(pos, 0); n++) {

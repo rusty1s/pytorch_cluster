@@ -1,14 +1,15 @@
 #include <TH/TH.h>
 
+#include "common.h"
+
 #define THGreedy_ TH_CONCAT_3(TH,Real,Greedy)
-#define DATA(TENSOR) TENSOR->storage->data + TENSOR->storageOffset
 
 #define TH_GREEDY_CLUSTER(cluster, row, col, deg, SELECT) { \
   THLongTensor_fill(cluster, -1); \
-  int64_t *clusterData = DATA(cluster); \
-  int64_t *rowData = DATA(row); \
-  int64_t *colData = DATA(col); \
-  int64_t *degData = DATA(deg); \
+  int64_t *clusterData = THTensor_getData(cluster); \
+  int64_t *rowData = THTensor_getData(row); \
+  int64_t *colData = THTensor_getData(col); \
+  int64_t *degData = THTensor_getData(deg); \
   ptrdiff_t rowIdx = 0, neighborIdx; \
   int64_t rowValue, colValue, clusterValue, tmp; \
   while(rowIdx < THLongTensor_nElement(row)) { \
