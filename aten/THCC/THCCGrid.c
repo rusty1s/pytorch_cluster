@@ -3,7 +3,7 @@
 #include "THCGrid.h"
 
 #define THCCGrid_ TH_CONCAT_3(THCC,Real,Grid)
-#define THCGrid_ TH_CONCAT_3(THC,CReal,Grid)
+#define THCGrid_ TH_CONCAT_3(TH,CReal,Grid)
 
 extern THCState *state;
 

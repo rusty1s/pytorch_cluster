@@ -3,7 +3,7 @@
 #include "THCGreedy.h"
 
 #define THCCGreedy_ TH_CONCAT_3(THCC,Real,Greedy)
-#define THCGreedy_ TH_CONCAT_3(THC,CReal,Greedy)
+#define THCGreedy_ TH_CONCAT_3(TH,CReal,Greedy)
 
 extern THCState *state;
 
