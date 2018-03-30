@@ -10,3 +10,4 @@ func = ffi.THCCFloatGrid
 print(func)
 
 func(cluster, pos, size, count)
+print(cluster)
