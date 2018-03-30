@@ -12,7 +12,7 @@ void THGrid_(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor 
   for (n = 0; n < THTensor_(size)(pos, 0); n++) {
     coef = 1; value = 0;
     for (d = 0; d < THTensor_(size)(pos, 1); d++) {
-      value += coef * (int64_t) (*(posData + d * pos->stride[1]) / sizeData[d]);
+      value += coef * (int64_t) (posData[d * pos->stride[1]] / sizeData[d]);
       coef *= countData[d];
     }
     posData += pos->stride[0];
