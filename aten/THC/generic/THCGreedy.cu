@@ -8,5 +8,3 @@ void THCGreedy_(THCState *state, THCudaLongTensor *cluster, THCudaLongTensor *ro
 }
 
 #endif  // THC_GENERIC_FILE
-
-
