@@ -11,8 +11,10 @@ if osp.exists('build'):
 files = ['serial', 'grid']
 
 headers = ['torch_cluster/src/{}_cpu.h'.format(f) for f in files]
+headers += ['aten/TH/THGreedy.h', 'aten/TH/THGrid.h']
 sources = ['torch_cluster/src/{}_cpu.c'.format(f) for f in files]
-include_dirs = ['torch_cluster/src']
+sources += ['aten/TH/THGreedy.c', 'aten/TH/THGrid.c']
+include_dirs = ['torch_cluster/src', 'aten/TH']
 define_macros = []
 extra_objects = []
 with_cuda = False
