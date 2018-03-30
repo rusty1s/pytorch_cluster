@@ -2,7 +2,7 @@
 #define TH_GENERIC_FILE "generic/THGrid.c"
 #else
 
-void THGrid_(cluster)(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor *count) {
+void THGrid_(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor *count) {
   int64_t *clusterData = DATA(cluster);
   real *posData = DATA(pos);
   real *sizeData = DATA(size);

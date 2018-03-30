@@ -2,8 +2,8 @@
 #define TH_GENERIC_FILE "generic/THGreedy.c"
 #else
 
-void THGreedy_(cluster)(THLongTensor *cluster, THLongTensor *row, THLongTensor *col,
-                        THLongTensor *deg, THTensor *weight) {
+void THGreedy_(THLongTensor *cluster, THLongTensor *row, THLongTensor *col, THLongTensor *deg,
+               THTensor *weight) {
   real *weightData = DATA(weight);
   real maxWeight = 0, tmpWeight;
   TH_GREEDY_CLUSTER(cluster, row, col, deg,

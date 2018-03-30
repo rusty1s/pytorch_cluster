@@ -3,13 +3,10 @@
 
 #include <THC/THC.h>
 
-#define THCGreedy_(NAME) TH_CONCAT_4(TH,CReal,Greedy_,NAME)
+#define THCGreedy_ TH_CONCAT_3(TH,CReal,Greedy)
 
-void THCGreedy_cluster(THCState *state,
-                       THCudaLongTensor *cluster,
-                       THCudaLongTensor *row,
-                       THCudaLongTensor *col,
-                       THCudaLongTensor *deg);
+void THCGreedy(THCState *state, THCudaLongTensor *cluster, THCudaLongTensor *row,
+               THCudaLongTensor *col, THCudaLongTensor *deg);
 
 #include "generic/THCGreedy.h"
 #include "THC/THCGenerateAllTypes.h"
