@@ -1,6 +1,5 @@
-This directory contains the low-level tensor libraries.
-There are multiple variants of the library, summarized here:
-
-* TH = TorcH
-* THC = TorcH Cuda
-* THCC = TorcH Cuda Connect
+| Library  |                                    |
+|----------|------------------------------------|
+| **TH**   | **T**orc**H**                      |
+| **THC**  | **T**orc**H** **C**uda             |
+| **THCC** | **T**orc**H** **C**uda **C**onnect |
