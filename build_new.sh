@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Compiling kernel..."
+
+if [ -z "$1" ]; then TORCH=$(python -c "import os; import torch; print(os.path.dirname(torch.__file__))"); else TORCH="$1"; fi
+SRC_DIR=aten/THC
+BUILD_DIR=aten/build
+
+mkdir -p $BUILD_DIR
+for i in THCGreedy THCGrid; do
+  $(which nvcc) -c -o "$BUILD_DIR/$i.so" "$SRC_DIR/$i.cu" -arch=sm_52 -Xcompiler -fPIC -shared "-I$TORCH/lib/include/TH" "-I$TORCH/lib/include" "-I$SRC_DIR"
+done
