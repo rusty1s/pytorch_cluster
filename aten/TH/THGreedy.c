@@ -1,20 +1,24 @@
 #include <TH/TH.h>
 
 #define THGreedy_(NAME) TH_CONCAT_4(TH,Real,Greedy_,NAME)
+#define DATA(TENSOR) TENSOR->storage->data + TENSOR->storageOffset
 
 #define TH_GREEDY_CLUSTER(cluster, row, col, deg, SELECT) { \
-  int64_t *clusterData = cluster->storage->data + cluster->storageOffset; \
-  int64_t *rowData = row->storage->data + row->storageOffset; \
-  int64_t *colData = col->storage->data + col->storageOffset; \
-  int64_t *degData = deg->storage->data + deg->storageOffset; \
+  THLongTensor_fill(cluster, -1); \
+  int64_t *clusterData = DATA(cluster); \
+  int64_t *rowData = DATA(row); \
+  int64_t *colData = DATA(col); \
+  int64_t *degData = DATA(deg); \
   ptrdiff_t rowIdx = 0, neighborIdx; \
   int64_t rowValue, colValue, clusterValue, tmp; \
   while(rowIdx < THLongTensor_nElement(row)) { \
     rowValue = rowData[rowIdx]; \
+    printf("rowValue = %lli, ", rowValue); \
     if (clusterData[rowValue] < 0) { \
       colValue = rowValue; \
       SELECT \
       clusterValue = rowValue < colValue ? rowValue : colValue; \
+      printf("%lli", clusterValue); \
       clusterData[rowValue] = clusterValue; \
       clusterData[colValue] = clusterValue; \
     } \

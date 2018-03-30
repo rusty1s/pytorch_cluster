@@ -4,7 +4,7 @@
 
 void THGreedy_(cluster)(THLongTensor *cluster, THLongTensor *row, THLongTensor *col,
                         THLongTensor *deg, THTensor *weight) {
-  real *weightData = weight->storage->data + weight->storageOffset;
+  real *weightData = DATA(weight);
   real maxWeight = 0, tmpWeight;
   TH_GREEDY_CLUSTER(cluster, row, col, deg,
     for (neighborIdx = rowIdx; neighborIdx < rowIdx + degData[rowValue]; neighborIdx++) {

@@ -3,20 +3,21 @@
 #else
 
 void THGrid_(cluster)(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor *count) {
-  real *sizeData = size->storage->data + size->storageOffset;
-  int64_t *countData = count->storage->data + count->storageOffset;
-  int64_t dims = THLongTensor_nElement(count);
-  THLongTensor_unsqueeze1d(cluster, NULL, 1);
-  ptrdiff_t d; int64_t coef, value;
-  TH_TENSOR_DIM_APPLY2(int64_t, cluster, real, pos, 1,
+  int64_t *clusterData = DATA(cluster);
+  real *posData = DATA(pos);
+  real *sizeData = DATA(size);
+  int64_t *countData = DATA(count);
+
+  ptrdiff_t n, d; int64_t coef, value;
+  for (n = 0; n < THTensor_(size)(pos, 0); n++) {
     coef = 1; value = 0;
-    for (d = 0; d < dims; d++) {
-      value += coef * (int64_t) (*(pos_data + d * pos_stride) / sizeData[d]);
+    for (d = 0; d < THTensor_(size)(pos, 1); d++) {
+      value += coef * (int64_t) (*(posData + d * pos->stride[1]) / sizeData[d]);
       coef *= countData[d];
     }
-    cluster_data[0] = value;
-  )
-  THLongTensor_squeeze1d(cluster, NULL, 1);
+    posData += pos->stride[0];
+    clusterData[n] = value;
+  }
 }
 
 #endif  // TH_GENERIC_FILE
