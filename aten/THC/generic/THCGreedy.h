@@ -1,5 +1,5 @@
 #ifndef THC_GENERIC_FILE
-#define THC_GENERIC_FILE "generic/THCGreedy.cu"
+#define THC_GENERIC_FILE "generic/THCGreedy.h"
 #else
 
 void THCGreedy_(cluster)(THCState *state,
@@ -7,10 +7,7 @@ void THCGreedy_(cluster)(THCState *state,
                          THCudaLongTensor *row,
                          THCudaLongTensor *col,
                          THCudaLongTensor *deg,
-                         THCTensor *weight) {
-  printf("THCGreedy_cluster dynamic drin");
-}
+                         THCTensor *weight);
 
 #endif  // THC_GENERIC_FILE
-
 
