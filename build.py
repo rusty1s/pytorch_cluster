@@ -8,7 +8,7 @@ from torch.utils.ffi import create_extension
 if osp.exists('build'):
     shutil.rmtree('build')
 
-files = ['Greedy', 'Grid']
+files = ['Graclus', 'Grid']
 
 headers = ['aten/TH/TH{}.h'.format(f) for f in files]
 sources = ['aten/TH/TH{}.c'.format(f) for f in files]

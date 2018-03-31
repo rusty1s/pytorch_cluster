@@ -2,11 +2,11 @@
 #define TH_GENERIC_FILE "generic/THGrid.c"
 #else
 
-void THGrid_(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor *count) {
-  int64_t *clusterData = THTensor_getData(cluster);
-  real *posData = THTensor_getData(pos);
-  real *sizeData = THTensor_getData(size);
-  int64_t *countData = THTensor_getData(count);
+void THTensor_(grid)(THLongTensor *self, THTensor *pos, THTensor *size, THLongTensor *count) {
+  int64_t *selfData = THLongTensor_data(self);
+  real *posData = THTensor_(data)(pos);
+  real *sizeData = THTensor_(data)(size);
+  int64_t *countData = THLongTensor_data(count);
 
   ptrdiff_t n, d; int64_t coef, value;
   for (n = 0; n < THTensor_(size)(pos, 0); n++) {
@@ -16,7 +16,7 @@ void THGrid_(THLongTensor *cluster, THTensor *pos, THTensor *size, THLongTensor 
       coef *= countData[d];
     }
     posData += pos->stride[0];
-    clusterData[n] = value;
+    selfData[n] = value;
   }
 }
 
