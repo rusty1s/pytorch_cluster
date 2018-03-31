@@ -1,10 +1,4 @@
-void THCDegree(THCState *state, THCudaLongTensor *self, THCudaLongTensor *index) {
-  int nEdges = THCudaLongTensor_nElement(state, index);
-  THCudaLongTensor *one = THCudaLongTensor_newWithSize1d(state, nEdges);
-  THCudaLongTensor_fill(state, one, 1);
+#define THCTensor_(NAME) TH_CONCAT_4(TH,CReal,Tensor_,NAME)
 
-  THCudaLongTensor_fill(state, self, 0);
-  THCudaLongTensor_scatterAdd(state, self, 0, index, one);
-
-  THCudaLongTensor_free(state, one);
-}
+#include "generic/THCDegree.cu"
+#include "THC/THCGenerateAllTypes.h"

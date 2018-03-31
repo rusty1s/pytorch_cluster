@@ -16,7 +16,7 @@ void THCGreedy(THCState *state, THCudaLongTensor *cluster, THCudaLongTensor *row
   THCudaLongTensor *prop = THCudaLongTensor_newClone(state, cluster);
 
   THCudaLongTensor *deg = THCudaLongTensor_newWithSize1d(state, nNodes);
-  THCDegree(state, deg, row);
+  THCudaLongTensor_degree(state, deg, row);
 
   THCudaLongTensor *cumDeg = THCudaLongTensor_newWithSize1d(state, nNodes);
   THCudaLongTensor_cumsum(state, cumDeg, deg, 0);
