@@ -1,14 +1,14 @@
 #include "common.cuh"
 
 __global__ void proposeKernel(int64_t *color, int64_t *prop, int64_t *row, int64_t *col,
-                              int64_t *deg, int64_t *cumDeg, ptrdiff_t nNodes) {
+                              int64_t *degree, int64_t *cumDegree, ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
-    if (color[i] != -1) continue; // Only visit blue nodes.
+    if (color[i] != -1) continue;  // Only visit blue nodes.
     ptrdiff_t c;
-    for (ptrdiff_t e = cumDeg[i] - deg[i]; e < cumDeg[i]; e++) {
+    for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
       c = col[e];
       if (color[c] == -2) {  // Red neighbor found.
-        prop[i] = c;  // Propose!
+        prop[i] = c;  // Propose neighbor.
         break;
       }
     }
@@ -17,14 +17,10 @@ __global__ void proposeKernel(int64_t *color, int64_t *prop, int64_t *row, int64
 }
 
 void THCGreedy_propose(THCState *state, THCudaLongTensor *color, THCudaLongTensor *prop,
-                       THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *deg,
-                       THCudaLongTensor *cumDeg) {
-  ptrdiff_t nNodes = THCudaLongTensor_nElement(state, color);
-  int64_t *colorData = THCudaLongTensor_data(state, color);
-  int64_t *propData = THCudaLongTensor_data(state, prop);
-  int64_t *rowData = THCudaLongTensor_data(state, row);
-  int64_t *colData = THCudaLongTensor_data(state, col);
-  int64_t *degData = THCudaLongTensor_data(state, deg);
-  int64_t *cumDegData = THCudaLongTensor_data(state, cumDeg);
-  KERNEL_RUN(proposeKernel, nNodes, colorData, propData, rowData, colData, degData, cumDegData);
+                       THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree,
+                       THCudaLongTensor *cumDegree) {
+  KERNEL_RUN(proposeKernel, THCudaLongTensor_nElement(state, color),
+             THCudaLongTensor_data(state, color), THCudaLongTensor_data(state, prop),
+             THCudaLongTensor_data(state, row), THCudaLongTensor_data(state, col),
+             THCudaLongTensor_data(state, degree), THCudaLongTensor_data(state, cumDegree))
 }
