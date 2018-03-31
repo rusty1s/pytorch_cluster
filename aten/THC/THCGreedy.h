@@ -10,7 +10,7 @@ extern "C" {
 #endif  // __cplusplus
 
 void THCGreedy(THCState *state, THCudaLongTensor *cluster, THCudaLongTensor *row,
-               THCudaLongTensor *col, THCudaLongTensor *deg);
+               THCudaLongTensor *col);
 
 #include "generic/THCGreedy.h"
 #include "THC/THCGenerateAllTypes.h"

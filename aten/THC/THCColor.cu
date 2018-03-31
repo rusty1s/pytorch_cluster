@@ -14,8 +14,6 @@ __global__ void assignColorKernel(int64_t *color, curandStateMtgp32 *state, uint
 }
 
 int THCGreedy_assignColor(THCState *state, THCudaLongTensor *color) {
-  THCAssertSameGPU(THCudaLongTensor_checkGPU(state, 1, color));
-
   int64_t *colorData = THCudaLongTensor_data(state, color);
   ptrdiff_t nNodes = THCudaLongTensor_nElement(state, color);
   uint8_t* d_done; cudaMalloc(&d_done, sizeof(uint8_t)); cudaMemset(d_done, 1, sizeof(uint8_t));

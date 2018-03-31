@@ -3,8 +3,8 @@
 #else
 
 void THCCGreedy_(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,
-                 THCudaLongTensor *deg, THCTensor *weight) {
-  THCGreedy_(state, cluster, row, col, deg, weight);
+                 THCTensor *weight) {
+  THCGreedy_(state, cluster, row, col, weight);
 }
 
 #endif

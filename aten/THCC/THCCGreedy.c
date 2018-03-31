@@ -7,9 +7,8 @@
 
 extern THCState *state;
 
-void THCCGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,
-                THCudaLongTensor *deg) {
-  THCGreedy(state, cluster, row, col, deg);
+void THCCGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col) {
+  THCGreedy(state, cluster, row, col);
 }
 
 #include "generic/THCCGreedy.c"
