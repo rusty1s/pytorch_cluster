@@ -5,5 +5,6 @@ void   THCCCharGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLo
 void  THCCShortGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,  THCudaShortTensor *weight);
 void    THCCIntGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,    THCudaIntTensor *weight);
 void   THCCLongGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,   THCudaLongTensor *weight);
+void  THCCHalfGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,    THCudaHalfTensor *weight);
 void  THCCFloatGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col,       THCudaTensor *weight);
 void THCCDoubleGreedy(THCudaLongTensor *cluster, THCudaLongTensor *row, THCudaLongTensor *col, THCudaDoubleTensor *weight);

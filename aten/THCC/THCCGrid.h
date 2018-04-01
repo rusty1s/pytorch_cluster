@@ -3,5 +3,6 @@ void   THCCCharGrid(THCudaLongTensor *cluster,   THCudaCharTensor *pos,   THCuda
 void  THCCShortGrid(THCudaLongTensor *cluster,  THCudaShortTensor *pos,  THCudaShortTensor *size, THCudaLongTensor *count);
 void    THCCIntGrid(THCudaLongTensor *cluster,    THCudaIntTensor *pos,    THCudaIntTensor *size, THCudaLongTensor *count);
 void   THCCLongGrid(THCudaLongTensor *cluster,   THCudaLongTensor *pos,   THCudaLongTensor *size, THCudaLongTensor *count);
+void  THCCHalfGrid(THCudaLongTensor *cluster,    THCudaHalfTensor *pos,   THCudaHalfTensor *size, THCudaLongTensor *count);
 void  THCCFloatGrid(THCudaLongTensor *cluster,       THCudaTensor *pos,       THCudaTensor *size, THCudaLongTensor *count);
 void THCCDoubleGrid(THCudaLongTensor *cluster, THCudaDoubleTensor *pos, THCudaDoubleTensor *size, THCudaLongTensor *count);
