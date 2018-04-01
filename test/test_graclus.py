@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from torch_cluster import graclus_cluster
 
-from .tensor import cpu_tensors, cuda_tensors
+from .tensor import cpu_tensors
 
 tests = [{
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
