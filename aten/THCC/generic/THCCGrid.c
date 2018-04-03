@@ -2,9 +2,9 @@
 #define THC_GENERIC_FILE "generic/THCCGrid.c"
 #else
 
-void THCCGrid_(THCudaLongTensor *cluster, THCTensor *pos, THCTensor *size,
-               THCudaLongTensor *count) {
-  THCGrid_(state, cluster, pos, size, count);
+void THCCTensor_(grid)(THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
+                       THCudaLongTensor *count) {
+  THCTensor_(grid)(state, self, pos, size, count);
 }
 
 #endif

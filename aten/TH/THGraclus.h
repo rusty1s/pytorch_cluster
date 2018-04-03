@@ -1,4 +1,4 @@
-void THTensor_graclus(THLongTensor *self, THLongTensor *row, THLongTensor *col);
+void       THTensor_graclus(THLongTensor *self, THLongTensor *row, THLongTensor *col);
 
 void   THByteTensor_graclus(THLongTensor *self, THLongTensor *row, THLongTensor *col,   THByteTensor *weight);
 void   THCharTensor_graclus(THLongTensor *self, THLongTensor *row, THLongTensor *col,   THCharTensor *weight);

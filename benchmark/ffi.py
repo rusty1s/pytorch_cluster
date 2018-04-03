@@ -1,13 +1,21 @@
+import time
 import torch
 from torch_cluster._ext import ffi
 
-cluster = torch.cuda.LongTensor(5)
-pos = torch.cuda.FloatTensor([[1, 1], [3, 3], [1, 1], [5, 5], [3, 3]])
-size = torch.cuda.FloatTensor([2, 2])
-count = torch.cuda.LongTensor([3, 3])
+cluster = torch.cuda.LongTensor(4)
+row = torch.cuda.LongTensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
+col = torch.cuda.LongTensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2])
+# deg = torch.cuda.LongTensor([2, 3, 3, 2])
 
-func = ffi.THCCFloatGrid
+func = ffi.THCCGreedy
 print(func)
 
-func(cluster, pos, size, count)
+a = 0
+torch.cuda.synchronize()
+t = time.perf_counter()
+# for i in range(100):
+func(cluster, row, col)
+# a += cluster.sum() / cluster.size(0)
+torch.cuda.synchronize()
+print(time.perf_counter() - t)
 print(cluster)

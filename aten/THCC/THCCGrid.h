@@ -1,8 +1,8 @@
-void   THCCByteGrid(THCudaLongTensor *cluster,   THCudaByteTensor *pos,   THCudaByteTensor *size, THCudaLongTensor *count);
-void   THCCCharGrid(THCudaLongTensor *cluster,   THCudaCharTensor *pos,   THCudaCharTensor *size, THCudaLongTensor *count);
-void  THCCShortGrid(THCudaLongTensor *cluster,  THCudaShortTensor *pos,  THCudaShortTensor *size, THCudaLongTensor *count);
-void    THCCIntGrid(THCudaLongTensor *cluster,    THCudaIntTensor *pos,    THCudaIntTensor *size, THCudaLongTensor *count);
-void   THCCLongGrid(THCudaLongTensor *cluster,   THCudaLongTensor *pos,   THCudaLongTensor *size, THCudaLongTensor *count);
-void  THCCHalfGrid(THCudaLongTensor *cluster,    THCudaHalfTensor *pos,   THCudaHalfTensor *size, THCudaLongTensor *count);
-void  THCCFloatGrid(THCudaLongTensor *cluster,       THCudaTensor *pos,       THCudaTensor *size, THCudaLongTensor *count);
-void THCCDoubleGrid(THCudaLongTensor *cluster, THCudaDoubleTensor *pos, THCudaDoubleTensor *size, THCudaLongTensor *count);
+void   THCCByteTensor_grid(THCudaLongTensor *self,   THCudaByteTensor *pos,   THCudaByteTensor *size, THCudaLongTensor *count);
+void   THCCCharTensor_grid(THCudaLongTensor *self,   THCudaCharTensor *pos,   THCudaCharTensor *size, THCudaLongTensor *count);
+void  THCCShortTensor_grid(THCudaLongTensor *self,  THCudaShortTensor *pos,  THCudaShortTensor *size, THCudaLongTensor *count);
+void    THCCIntTensor_grid(THCudaLongTensor *self,    THCudaIntTensor *pos,    THCudaIntTensor *size, THCudaLongTensor *count);
+void   THCCLongTensor_grid(THCudaLongTensor *self,   THCudaLongTensor *pos,   THCudaLongTensor *size, THCudaLongTensor *count);
+void   THCCHalfTensor_grid(THCudaLongTensor *self,   THCudaHalfTensor *pos,   THCudaHalfTensor *size, THCudaLongTensor *count);
+void  THCCFloatTensor_grid(THCudaLongTensor *self,       THCudaTensor *pos,       THCudaTensor *size, THCudaLongTensor *count);
+void THCCDoubleTensor_grid(THCudaLongTensor *self, THCudaDoubleTensor *pos, THCudaDoubleTensor *size, THCudaLongTensor *count);
