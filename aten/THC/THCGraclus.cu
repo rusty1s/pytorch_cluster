@@ -22,14 +22,10 @@ void THCTensor_graclus(THCState *state, THCudaLongTensor *self, THCudaLongTensor
   THCudaLongTensor *cumDegree = THCudaLongTensor_newWithSize1d(state, nNodes);
   THCudaLongTensor_cumsum(state, cumDegree, degree, 0);
 
-  THCTensor_color(state, self);
-  THCTensor_propose(state, self, prop, row, col, degree, cumDegree);
-  THCTensor_response(state, self, prop, row, col, degree, cumDegree);
-
-  /* while(!THCTensor_assignColor(state, self)) { */
-  /*   THCTensor_propose(state, self, prop, row, col, degree, cumDegree); */
-  /*   THCTensor_response(state, self, prop, row, col, degree, cumDegree); */
-  /* }; */
+  while(!THCTensor_color(state, self)) {
+    THCTensor_propose(state, self, prop, row, col, degree, cumDegree);
+    THCTensor_response(state, self, prop, row, col, degree, cumDegree);
+  };
 
   THCudaLongTensor_free(state, prop);
   THCudaLongTensor_free(state, degree);
