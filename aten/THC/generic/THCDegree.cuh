@@ -14,4 +14,13 @@ void THCTensor_(degree)(THCState *state, THCTensor *self, THCudaLongTensor *inde
   THCTensor_(free)(state, one);
 }
 
+void THCTensor_(cumDegree)(THCState *state, THCTensor *self, THCudaLongTensor *index) {
+  ptrdiff_t nEdges = THCudaLongTensor_nElement(state, index);
+
+  real *selfData = THCTensor_(data)(state, self);
+  int64_t *indexData = THCudaLongTensor_data(state, index);
+
+  KERNEL_RUN(cumDegreeKernel, nEdges - 1, selfData, indexData);
+}
+
 #endif  // THC_GENERIC_FILE
