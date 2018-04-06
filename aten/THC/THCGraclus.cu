@@ -20,7 +20,7 @@ void THCTensor_graclus(THCState *state, THCudaLongTensor *self, THCudaLongTensor
   THCudaLongTensor_degree(state, degree, row);
 
   THCudaLongTensor *cumDegree = THCudaLongTensor_newWithSize1d(state, nNodes);
-  THCudaLongTensor_cumDegree(state, cumDegree, row);
+  THCudaLongTensor_cumDegree(state, self, row);
 
   while(!THCTensor_color(state, self)) {
     THCTensor_propose(state, self, prop, row, col, degree, cumDegree);

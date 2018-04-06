@@ -20,7 +20,7 @@ void THCTensor_(cumDegree)(THCState *state, THCTensor *self, THCudaLongTensor *i
   real *selfData = THCTensor_(data)(state, self);
   int64_t *indexData = THCudaLongTensor_data(state, index);
 
-  KERNEL_RUN(cumDegreeKernel, nEdges - 1, selfData, indexData);
+  KERNEL_RUN(cumDegreeKernel, nEdges, selfData, indexData);
 }
 
 #endif  // THC_GENERIC_FILE
