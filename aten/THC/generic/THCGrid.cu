@@ -2,17 +2,17 @@
 #define THC_GENERIC_FILE "generic/THCGrid.cu"
 #else
 
-void THCGrid_(THCState *state, THCudaLongTensor *cluster, THCTensor *pos, THCTensor *size,
-              THCudaLongTensor *count) {
-  THCAssertSameGPU(THCTensor_(checkGPU)(state, 4, cluster, pos, size, count));
+void THCTensor_(grid)(THCState *state, THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
+                      THCudaLongTensor *count) {
+  THCAssertSameGPU(THCTensor_(checkGPU)(state, 4, self, pos, size, count));
 
-  int64_t *clusterData = THCudaLongTensor_data(state, cluster);
+  int64_t *selfData = THCudaLongTensor_data(state, self);
   TensorInfo<real> posInfo = THCTensor_(getTensorInfo)(state, pos);
   real *sizeData = THCTensor_(data)(state, size);
   int64_t *countData = THCudaLongTensor_data(state, count);
 
-  ptrdiff_t nNodes = THCudaLongTensor_nElement(state, cluster);
-  KERNEL_REAL_RUN(gridKernel, nNodes, clusterData, posInfo, sizeData, countData);
+  ptrdiff_t nNodes = THCudaLongTensor_nElement(state, self);
+  KERNEL_REAL_RUN(gridKernel, nNodes, selfData, posInfo, sizeData, countData);
 }
 
 #endif  // THC_GENERIC_FILE

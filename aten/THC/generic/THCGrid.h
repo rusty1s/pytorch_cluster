@@ -2,7 +2,7 @@
 #define THC_GENERIC_FILE "generic/THCGrid.h"
 #else
 
-void THCGrid_(THCState *state, THCudaLongTensor *cluster, THCTensor *pos, THCTensor *size,
-              THCudaLongTensor *count);
+void THCTensor_(grid)(THCState *state, THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
+                      THCudaLongTensor *count);
 
 #endif  // THC_GENERIC_FILE

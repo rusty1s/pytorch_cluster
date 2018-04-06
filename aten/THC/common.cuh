@@ -1,8 +1,6 @@
 #ifndef THC_COMMON_INC
 #define THC_COMMON_INC
 
-#define THCTensor_(NAME) TH_CONCAT_4(TH,CReal,Tensor_,NAME)
-
 #define KERNEL_LOOP(I, N) \
   for (ptrdiff_t I = blockIdx.x * blockDim.x + threadIdx.x; I < N; I += blockDim.x * gridDim.x)
 

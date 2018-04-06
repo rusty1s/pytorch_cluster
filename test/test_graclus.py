@@ -48,3 +48,11 @@ def test_graclus_cluster_cpu(tensor, i):
 
     cluster = graclus_cluster(row, col, weight)
     assert_correct_graclus(row, col, cluster)
+
+
+def test_graclus_cluster_gpu():
+    row = torch.cuda.LongTensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
+    col = torch.cuda.LongTensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2])
+
+    cluster = graclus_cluster(row, col)
+    print(cluster.cpu().tolist())

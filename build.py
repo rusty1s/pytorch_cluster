@@ -17,15 +17,15 @@ define_macros = []
 extra_objects = []
 with_cuda = False
 
-# if torch.cuda.is_available():
-#     subprocess.call(['./build_new.sh', osp.dirname(torch.__file__)])
+if torch.cuda.is_available():
+    subprocess.call(['./build_new.sh', osp.dirname(torch.__file__)])
 
-#     headers += ['aten/THCC/THCC{}.h'.format(f) for f in files]
-#     sources += ['aten/THCC/THCC{}.c'.format(f) for f in files]
-#     include_dirs += ['aten/THC', 'aten/THCC']
-#     define_macros += [('WITH_CUDA', None)]
-#     extra_objects += ['aten/build/THC.so']
-#     with_cuda = True
+    headers += ['aten/THCC/THCC{}.h'.format(f) for f in files]
+    sources += ['aten/THCC/THCC{}.c'.format(f) for f in files]
+    include_dirs += ['aten/THCC']
+    define_macros += [('WITH_CUDA', None)]
+    extra_objects += ['aten/build/THC.so']
+    with_cuda = True
 
 ffi = create_extension(
     name='torch_cluster._ext.ffi',

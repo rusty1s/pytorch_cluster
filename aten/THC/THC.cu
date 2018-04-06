@@ -1,2 +1,2 @@
-#include "THCGreedy.cu"
+#include "THCGraclus.cu"
 #include "THCGrid.cu"

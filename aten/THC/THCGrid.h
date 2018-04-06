@@ -3,8 +3,6 @@
 
 #include <THC/THC.h>
 
-#define THCGrid_ TH_CONCAT_3(TH,CReal,Grid)
-
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus

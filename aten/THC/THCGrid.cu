@@ -4,7 +4,7 @@
 #include "THCNumerics.cuh"
 
 template<typename T>
-__global__ void gridKernel(int64_t *cluster, TensorInfo<T> posInfo, T *size,
+__global__ void gridKernel(int64_t *self, TensorInfo<T> posInfo, T *size,
                            int64_t *count, ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
     T *pos = posInfo.data + i * posInfo.stride[0];
@@ -13,7 +13,7 @@ __global__ void gridKernel(int64_t *cluster, TensorInfo<T> posInfo, T *size,
       value += coef * THCNumerics<T>::floor(THCNumerics<T>::div(pos[d], size[d]));
       coef *= count[d];
     }
-    cluster[i] = value;
+    self[i] = value;
   }
 }
 
