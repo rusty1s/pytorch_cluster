@@ -1,8 +1,6 @@
 #ifndef THC_COLOR_INC
 #define THC_COLOR_INC
 
-#include <curand_kernel.h>
-
 #include "common.cuh"
 
 #define BLUE_PROB 0.53406
