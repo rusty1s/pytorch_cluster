@@ -31,13 +31,13 @@ __global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *ro
       c = col[e];
       tmp = weight[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
-      // Propose to current maximum weighted red neighbor.
+      // Find maximum weighted red neighbor.
       if (color[c] == -2 && THCNumerics<T>::gt(tmp, maxWeight)) {
         matchedValue = c;
         maxWeight = tmp;
       }
     }
-    prop[i] = matchedValue;
+    prop[i] = matchedValue;  // Propose.
     if (isDead) { color[i] = i; }  // Mark node as dead.
   }
 }

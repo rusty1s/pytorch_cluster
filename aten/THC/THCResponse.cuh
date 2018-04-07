@@ -34,13 +34,13 @@ __global__ void weightedResponseKernel(int64_t *color, int64_t *prop, int64_t *r
       c = col[e];
       tmp = weight[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
-      // Match maximum weighted blue neighbor, who proposed to i.
+      // Find maximum weighted blue neighbor, who proposed to i.
       if (color[c] == -1 && prop[c] == i && THCNumerics<T>::gt(tmp, maxWeight)) {
         matchedValue = c;
         maxWeight = tmp;
       }
     }
-    if (matchedValue >= 0) {
+    if (matchedValue >= 0) {  // Match neighbors.
       color[i] = min(i, matchedValue);
       color[matchedValue] = min(i, matchedValue);
     }
