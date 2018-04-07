@@ -15,6 +15,44 @@
 
 This package consists of a small extension library of highly optimised graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
 All included operations work on varying data types and are implemented both for CPU and GPU.
+The package consists of the following operations:
+
+* **Graclus:** Greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its optionally edge weight).
+
+```python
+import torch
+from torch_cluster import graclus_cluster
+
+row = torch.LongTensor([0, 1, 1, 2])
+col = torch.LongTensor([1, 0, 2, 1])
+weight = torch.Tensor([1, 1, 1, 1])  # Optional edge weights.
+
+cluster = graclus_cluster(row, col, weight)
+```
+
+```
+print(cluster)
+ 0  0  1
+[torch.LongTensor of size 3]
+```
+
+* **Grid:** Voxel grid clustering algorithm, which overlays a regular grid of user-defined size over the point cloud and clusters all points within a voxel.
+
+```python
+import torch
+from torch_cluster import grid_cluster
+
+pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+size = torch.Tensor([5, 5])
+
+cluster = grid_cluster(pos, size)
+```
+
+```
+print(cluster)
+ 0  5  3  0  1
+[torch.LongTensor of size 5]
+```
 
 ## Installation
 
