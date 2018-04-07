@@ -4,7 +4,7 @@
 
 void THCCTensor_(grid)(THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
                        THCudaLongTensor *count) {
-  /* THCTensor_(grid)(state, self, pos, size, count); */
+  THCTensor_(grid)(state, self, pos, size, count);
 }
 
 #endif
