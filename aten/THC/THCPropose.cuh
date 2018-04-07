@@ -17,6 +17,15 @@ __global__ void proposeKernel(int64_t *color, int64_t *prop, int64_t *row, int64
   }
 }
 
+template<typename T>
+__global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *row, int64_t *col,
+                                      T *weight, int64_t *degree, int64_t *cumDegree,
+                                      ptrdiff_t nNodes) {
+  KERNEL_LOOP(i, nNodes) {
+  }
+}
+
+
 void THCTensor_propose(THCState *state, THCudaLongTensor *color, THCudaLongTensor *prop,
                        THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree,
                        THCudaLongTensor *cumDegree) {
@@ -25,5 +34,8 @@ void THCTensor_propose(THCState *state, THCudaLongTensor *color, THCudaLongTenso
              THCudaLongTensor_data(state, row), THCudaLongTensor_data(state, col),
              THCudaLongTensor_data(state, degree), THCudaLongTensor_data(state, cumDegree));
 }
+
+#include "generic/THCPropose.cuh"
+#include "THC/THCGenerateAllTypes.h"
 
 #endif  // THC_PROPOSE_INC
