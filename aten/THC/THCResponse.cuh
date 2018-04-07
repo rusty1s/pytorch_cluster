@@ -7,8 +7,7 @@ __global__ void responseKernel(int64_t *color, int64_t *prop, int64_t *row, int6
                                int64_t *degree, int64_t *cumDegree, ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
     if (color[i] != -2) { continue; }  // Only visit red nodes.
-    ptrdiff_t c;  // int64_t neighborColor, minValue;
-    bool isDead = true;
+    ptrdiff_t c; bool isDead = true;
     for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
       c = col[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
@@ -27,6 +26,27 @@ __global__ void weightedResponseKernel(int64_t *color, int64_t *prop, int64_t *r
                                        T *weight, int64_t *degree, int64_t *cumDegree,
                                        ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
+    if (color[i] != -2) { continue; }  // Only visit red nodes.
+    ptrdiff_t c; bool isDead = true;
+    T maxWeight, tmp;
+    ptrdiff_t matchedValue;
+    for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
+      maxWeight = ScalarConvert<int, T>::to(0);
+      matchedValue = -1;
+      c = col[e];
+      tmp = weight[e];
+      if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
+      // Match maximum weighted blue neighbor, who proposed to i.
+      if (color[c] == -1 && prop[c] == i && THCNumerics<T>::gt(tmp, maxWeight)) {
+        matchedValue = c;
+        maxWeight = tmp;
+      }
+    }
+    if (matchedValue >= 0) {
+      color[i] = min(i, matchedValue);
+      color[c] = min(i, matchedValue);
+    }
+    if (isDead) { color[i] = i; }  // Mark node as dead.
   }
 }
 

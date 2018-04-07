@@ -7,11 +7,10 @@ void THCTensor_(graclus)(THCState *state, THCudaLongTensor *self, THCudaLongTens
   THCAssertSameGPU(THCTensor_(checkGPU)(state, 4, self, row, col, weight));
 
   THC_TENSOR_GRACLUS(state, self, row,
-    /* while(!THCudaLongTensor_color(state, self)) { */
-      THCudaLongTensor_color(state, self);
+    while(!THCudaLongTensor_color(state, self)) {
       THCTensor_(propose)(state, self, prop, row, col, weight, degree, cumDegree);
       THCTensor_(response)(state, self, prop, row, col, weight, degree, cumDegree);
-    /* } */
+    }
   )
 }
 

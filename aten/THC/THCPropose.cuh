@@ -2,6 +2,7 @@
 #define THC_PROPOSE_INC
 
 #include "common.cuh"
+#include "THCNumerics.cuh"
 
 __global__ void proposeKernel(int64_t *color, int64_t *prop, int64_t *row, int64_t *col,
                               int64_t *degree, int64_t *cumDegree, ptrdiff_t nNodes) {
@@ -22,6 +23,24 @@ __global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *ro
                                       T *weight, int64_t *degree, int64_t *cumDegree,
                                       ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
+    if (color[i] != -1) { continue; }  // Only visit blue nodes.
+    ptrdiff_t c; bool isDead = true;
+    T maxWeight, tmp;
+    int64_t matchedValue;
+    for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
+      maxWeight = ScalarConvert<int, T>::to(0);
+      matchedValue = -1;
+      c = col[e];
+      tmp = weight[e];
+      if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
+      // Propose to current maximum weighted red neighbor.
+      if (color[c] == -2 && THCNumerics<T>::gt(tmp, maxWeight)) {
+        matchedValue = c;
+        maxWeight = tmp;
+      }
+    }
+    if (matchedValue >= 0) { prop[i] = matchedValue; }
+    if (isDead) { color[i] = i; }  // Mark node as dead.
   }
 }
 

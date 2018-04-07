@@ -16,6 +16,7 @@
 template<typename T>
 struct THCNumerics {
   static inline __host__ __device__ T div(T a, T b) { return a / b; }
+  static inline __host__ __device__ bool gt(T a, T b) { return a > b; }
   static inline __host__ __device__ int floor(T a) { return a; }
 };
 
@@ -23,6 +24,7 @@ struct THCNumerics {
 template<>
 struct THCNumerics<half> {
   static inline __host__ __device__ half div(half a, half b) { return f2h(h2f(a) / h2f(b)); }
+  static inline __host__ __device__ bool gt(half a, half b) { return h2f(a) > h2f(b); }
   static inline __host__ __device__ int floor(half a) { return (int) h2f(a); }
 };
 #endif  // CUDA_HALF_TENSOR

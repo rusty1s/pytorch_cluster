@@ -4,7 +4,7 @@
 
 void THCCTensor_(graclus)(THCudaLongTensor *self, THCudaLongTensor *row, THCudaLongTensor *col,
                          THCTensor *weight) {
-  /* THCTensor_(graclus)(state, self, row, col, weight); */
+  THCTensor_(graclus)(state, self, row, col, weight);
 }
 
 #endif
