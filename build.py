@@ -18,7 +18,7 @@ extra_objects = []
 with_cuda = False
 
 if torch.cuda.is_available():
-    subprocess.call(['./build_new.sh', osp.dirname(torch.__file__)])
+    subprocess.call(['./build.sh', osp.dirname(torch.__file__)])
 
     headers += ['aten/THCC/THCC{}.h'.format(f) for f in files]
     sources += ['aten/THCC/THCC{}.c'.format(f) for f in files]
