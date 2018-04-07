@@ -62,7 +62,6 @@ Then run:
 
 ```
 pip install cffi torch-cluster
-python setup.py install
 ```
 
 ## Running tests
