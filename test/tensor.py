@@ -3,4 +3,4 @@ cpu_tensors = [
     'FloatTensor', 'DoubleTensor'
 ]
 
-cuda_tensors = ['cuda.{}'.format(t) for t in cpu_tensors + ['HalfTensor']]
+gpu_tensors = ['cuda.{}'.format(t) for t in cpu_tensors + ['HalfTensor']]

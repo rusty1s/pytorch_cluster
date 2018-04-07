@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from torch_cluster import graclus_cluster
 
-from .tensor import cpu_tensors
+from .tensor import cpu_tensors, gpu_tensors
 
 tests = [{
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
@@ -20,6 +20,7 @@ tests = [{
 
 def assert_correct_graclus(row, col, cluster):
     row, col, cluster = row.numpy(), col.numpy(), cluster.numpy()
+    n_nodes = cluster.shape[0]
 
     # Every node was assigned a cluster.
     assert cluster.min() >= 0
@@ -27,6 +28,9 @@ def assert_correct_graclus(row, col, cluster):
     # There are no more than two nodes in each cluster.
     _, count = np.unique(cluster, return_counts=True)
     assert (count > 2).max() == 0
+
+    # Cluster value is minimal.
+    assert (cluster <= np.arange(n_nodes, dtype=row.dtype)).sum() == n_nodes
 
     # Corresponding clusters must be adjacent.
     for n in range(cluster.shape[0]):
@@ -50,9 +54,16 @@ def test_graclus_cluster_cpu(tensor, i):
     assert_correct_graclus(row, col, cluster)
 
 
-def test_graclus_cluster_gpu():
-    row = torch.cuda.LongTensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
-    col = torch.cuda.LongTensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2])
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
+@pytest.mark.parametrize('tensor,i', product(gpu_tensors, range(len(tests))))
+def test_graclus_cluster_gpu(tensor, i):
+    data = tests[i]
 
-    cluster = graclus_cluster(row, col)
-    print(cluster.cpu().tolist())
+    row = torch.cuda.LongTensor(data['row'])
+    col = torch.cuda.LongTensor(data['col'])
+
+    weight = data['weight']
+    weight = weight if weight is None else getattr(torch.cuda, tensor)(weight)
+
+    cluster = graclus_cluster(row, col, weight)
+    assert_correct_graclus(row, col, cluster)
