@@ -1,37 +1,38 @@
 #ifndef THC_COLOR_INC
 #define THC_COLOR_INC
 
+#include <curand_kernel.h>
+
 #include "common.cuh"
 
-#define BLUE_PROBABILITY 0.53406
+#define BLUE_PROB 0.53406
 
-__global__ void colorKernel(int64_t *self, int64_t *bernoulli, uint8_t *done, ptrdiff_t nNodes) {
+__device__ int d_done;
+__global__ void initDoneKernel() { d_done = 1; }
+
+__global__ void colorKernel(int64_t *self, uint8_t *bernoulli, ptrdiff_t nNodes) {
   KERNEL_LOOP(i, nNodes) {
     if (self[i] < 0) {
       self[i] = bernoulli[i] - 2;
-      *done = 0;
+      d_done = 0;
     }
   }
 }
 
-int THCTensor_color(THCState *state, THCudaLongTensor *self) {
+int THCudaLongTensor_color(THCState *state, THCudaLongTensor *self) {
+  initDoneKernel<<<1, 1>>>();
+
   ptrdiff_t nNodes = THCudaLongTensor_nElement(state, self);
-  THCudaLongTensor *bernoulli = THCudaLongTensor_newWithSize1d(state, nNodes);
-  THCudaLongTensor_bernoulli(state, bernoulli, BLUE_PROBABILITY);
+
+  THCudaByteTensor *bernoulli = THCudaByteTensor_newWithSize1d(state, nNodes);
+  THCudaByteTensor_bernoulli(state, bernoulli, BLUE_PROB);
 
   int64_t *selfData = THCudaLongTensor_data(state, self);
-  int64_t *bernoulliData = THCudaLongTensor_data(state, bernoulli);
+  uint8_t *bernoulliData = THCudaByteTensor_data(state, bernoulli);
 
-  uint8_t* d_done;
-  cudaMalloc(&d_done, sizeof(uint8_t));
-  cudaMemset(d_done, 1, sizeof(uint8_t));
+  KERNEL_RUN(colorKernel, nNodes, selfData, bernoulliData);
 
-  KERNEL_RUN(colorKernel, nNodes, selfData, bernoulliData, d_done);
-
-  uint8_t done;
-  cudaMemcpy(&done, d_done, sizeof(uint8_t), cudaMemcpyDeviceToHost);
-  cudaFree(d_done);
-
+  int done; cudaMemcpyFromSymbol(&done, d_done, sizeof(done), 0, cudaMemcpyDeviceToHost);
   return done;
 }
 

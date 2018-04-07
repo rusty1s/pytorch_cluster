@@ -5,8 +5,7 @@
   for (ptrdiff_t I = blockIdx.x * blockDim.x + threadIdx.x; I < N; I += blockDim.x * gridDim.x)
 
 const int MAX_DIMS = 25;
-/* const int NUM_THREADS = 1024; */
-const int NUM_THREADS = 256;
+const int NUM_THREADS = 1024;
 
 inline int GET_BLOCKS(int N) {
   return (N + NUM_THREADS - 1) / NUM_THREADS;
