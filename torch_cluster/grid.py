@@ -2,9 +2,8 @@ from .utils.ffi import grid
 
 
 def grid_cluster(pos, size, start=None, end=None):
-    """Voxel grid clustering algorithm, which overlays a regular grid of
-    user-defined size over the point cloud and clusters all points within a
-    voxel.
+    """A clustering algorithm, which overlays a regular grid of user-defined
+    size over a point cloud and clusters all points within a voxel.
 
     Args:
         pos (Tensor): D-dimensional position of points.

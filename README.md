@@ -14,10 +14,26 @@
 --------------------------------------------------------------------------------
 
 This package consists of a small extension library of highly optimised graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
-All included operations work on varying data types and are implemented both for CPU and GPU.
 The package consists of the following operations:
 
-* **Graclus:** Greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its edge weight).
+* **[Graclus](#graclus)**
+* **[VoxelGrid](#voxelgrid)**
+
+All included operations work on varying data types and are implemented both for CPU and GPU.
+
+## Installation
+
+Check that `nvcc` is accessible from terminal, e.g. `nvcc --version`.
+If not, add cuda (`/usr/local/cuda/bin`) to your `$PATH`.
+Then run:
+
+```
+pip install cffi torch-cluster
+```
+
+## Graclus
+
+A greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its edge weight).
 
 ```python
 import torch
@@ -36,7 +52,9 @@ print(cluster)
 [torch.LongTensor of size 3]
 ```
 
-* **Grid:** Voxel grid clustering algorithm, which overlays a regular grid of user-defined size over the point cloud and clusters all points within a voxel.
+## VoxelGrid
+
+A clustering algorithm, which overlays a regular grid of user-defined size over a point cloud and clusters all points within a voxel.
 
 ```python
 import torch
@@ -52,16 +70,6 @@ cluster = grid_cluster(pos, size)
 print(cluster)
  0  5  3  0  1
 [torch.LongTensor of size 5]
-```
-
-## Installation
-
-Check that `nvcc` is accessible from terminal, e.g. `nvcc --version`.
-If not, add cuda (`/usr/local/cuda/bin`) to your `$PATH`.
-Then run:
-
-```
-pip install cffi torch-cluster
 ```
 
 ## Running tests

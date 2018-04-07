@@ -3,7 +3,7 @@ from .utils.ffi import graclus
 
 
 def graclus_cluster(row, col, weight=None, num_nodes=None):
-    """Greedy clustering algorithm of picking an unmarked vertex and matching
+    """A greedy clustering algorithm of picking an unmarked vertex and matching
     it with one its unmarked neighbors (that maximizes its edge weight).
 
     Args:
