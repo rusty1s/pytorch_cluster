@@ -6,12 +6,13 @@ void THCTensor_(grid)(THCState *state, THCudaLongTensor *self, THCTensor *pos, T
                       THCudaLongTensor *count) {
   THCAssertSameGPU(THCTensor_(checkGPU)(state, 4, self, pos, size, count));
 
+  ptrdiff_t nNodes = THCudaLongTensor_nElement(state, self);
+
   int64_t *selfData = THCudaLongTensor_data(state, self);
   TensorInfo<real> posInfo = THCTensor_(getTensorInfo)(state, pos);
   real *sizeData = THCTensor_(data)(state, size);
   int64_t *countData = THCudaLongTensor_data(state, count);
 
-  ptrdiff_t nNodes = THCudaLongTensor_nElement(state, self);
   KERNEL_REAL_RUN(gridKernel, nNodes, selfData, posInfo, sizeData, countData);
 }
 
