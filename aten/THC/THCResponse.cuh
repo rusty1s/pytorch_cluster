@@ -42,7 +42,7 @@ __global__ void weightedResponseKernel(int64_t *color, int64_t *prop, int64_t *r
     }
     if (matchedValue >= 0) {
       color[i] = min(i, matchedValue);
-      color[c] = min(i, matchedValue);
+      color[matchedValue] = min(i, matchedValue);
     }
     if (isDead) { color[i] = i; }  // Mark node as dead.
   }
