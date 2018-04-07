@@ -25,11 +25,9 @@ __global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *ro
   KERNEL_LOOP(i, nNodes) {
     if (color[i] != -1) { continue; }  // Only visit blue nodes.
     ptrdiff_t c; bool isDead = true;
-    T maxWeight, tmp;
-    int64_t matchedValue;
+    T maxWeight = ScalarConvert<int, T>::to(0), tmp;
+    int64_t matchedValue = -1;
     for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
-      maxWeight = ScalarConvert<int, T>::to(0);
-      matchedValue = -1;
       c = col[e];
       tmp = weight[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
@@ -39,11 +37,10 @@ __global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *ro
         maxWeight = tmp;
       }
     }
-    if (matchedValue >= 0) { prop[i] = matchedValue; }
+    prop[i] = matchedValue;
     if (isDead) { color[i] = i; }  // Mark node as dead.
   }
 }
-
 
 void THCTensor_propose(THCState *state, THCudaLongTensor *color, THCudaLongTensor *prop,
                        THCudaLongTensor *row, THCudaLongTensor *col, THCudaLongTensor *degree,

@@ -28,11 +28,9 @@ __global__ void weightedResponseKernel(int64_t *color, int64_t *prop, int64_t *r
   KERNEL_LOOP(i, nNodes) {
     if (color[i] != -2) { continue; }  // Only visit red nodes.
     ptrdiff_t c; bool isDead = true;
-    T maxWeight, tmp;
-    ptrdiff_t matchedValue;
+    T maxWeight = ScalarConvert<int, T>::to(0), tmp;
+    ptrdiff_t matchedValue = -1;
     for (ptrdiff_t e = cumDegree[i] - degree[i]; e < cumDegree[i]; e++) {
-      maxWeight = ScalarConvert<int, T>::to(0);
-      matchedValue = -1;
       c = col[e];
       tmp = weight[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
