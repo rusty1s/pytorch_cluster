@@ -17,7 +17,7 @@ This package consists of a small extension library of highly optimised graph clu
 All included operations work on varying data types and are implemented both for CPU and GPU.
 The package consists of the following operations:
 
-* **Graclus:** Greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its optionally edge weight).
+* **Graclus:** Greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its edge weight).
 
 ```python
 import torch
