@@ -56,7 +56,7 @@ def test_graclus_cluster_cpu(tensor, i):
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
 @pytest.mark.parametrize('tensor,i', product(tensors, range(len(tests))))
-def test_graclus_cluster_gpu(tensor, i):
+def test_graclus_cluster_gpu(tensor, i):  # pragma: no cover
     data = tests[i]
 
     row = torch.cuda.LongTensor(data['row'])
