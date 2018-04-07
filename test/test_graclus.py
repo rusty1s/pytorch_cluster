@@ -10,7 +10,6 @@ from .tensor import tensors
 tests = [{
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
     'col': [1, 2, 0, 2, 3, 0, 1, 3, 1, 2],
-    'weight': None,
 }, {
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
     'col': [1, 2, 0, 2, 3, 0, 1, 3, 1, 2],
@@ -47,7 +46,7 @@ def test_graclus_cluster_cpu(tensor, i):
     row = torch.LongTensor(data['row'])
     col = torch.LongTensor(data['col'])
 
-    weight = data['weight']
+    weight = data.get('weight')
     weight = weight if weight is None else getattr(torch, tensor)(weight)
 
     cluster = graclus_cluster(row, col, weight)
@@ -62,7 +61,7 @@ def test_graclus_cluster_gpu(tensor, i):  # pragma: no cover
     row = torch.cuda.LongTensor(data['row'])
     col = torch.cuda.LongTensor(data['col'])
 
-    weight = data['weight']
+    weight = data.get('weight')
     weight = weight if weight is None else getattr(torch.cuda, tensor)(weight)
 
     cluster = graclus_cluster(row, col, weight)
