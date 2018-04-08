@@ -12,7 +12,7 @@ tests_require = ['pytest', 'pytest-cov']
 setup(
     name='torch_cluster',
     version=__version__,
-    description='PyTorch Extension Library of Optimised Graph Cluster '
+    description='PyTorch Extension Library of Optimized Graph Cluster '
     'Algorithms',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',

@@ -13,7 +13,7 @@
 
 --------------------------------------------------------------------------------
 
-This package consists of a small extension library of highly optimised graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
+This package consists of a small extension library of highly optimized graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
 The package consists of the following clustering algorithms:
 
 * **[Graclus](#graclus)**
