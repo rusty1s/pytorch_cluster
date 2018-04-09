@@ -4,4 +4,4 @@
 #include "THCGraclus.h"
 #include "THCGrid.h"
 
-#endif
+#endif  // THC_INC
