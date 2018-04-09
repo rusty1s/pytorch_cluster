@@ -8,4 +8,3 @@ void THCCTensor_(grid)(THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
 }
 
 #endif
-
