@@ -7,4 +7,4 @@ void THCCTensor_(graclus)(THCudaLongTensor *self, THCudaLongTensor *row, THCudaL
   THCTensor_(graclus)(state, self, row, col, weight);
 }
 
-#endif
+#endif  // THC_GENERIC_FILE

@@ -7,4 +7,4 @@ void THCCTensor_(grid)(THCudaLongTensor *self, THCTensor *pos, THCTensor *size,
   THCTensor_(grid)(state, self, pos, size, count);
 }
 
-#endif
+#endif  // THC_GENERIC_FILE
