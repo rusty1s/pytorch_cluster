@@ -24,7 +24,7 @@ if torch.cuda.is_available():
     sources += ['aten/THCC/THCC{}.c'.format(f) for f in files]
     include_dirs += ['aten/THCC']
     define_macros += [('WITH_CUDA', None)]
-    extra_objects += ['aten/build/THC.so']
+    extra_objects += ['torch_cluster/_ext/THC.so']
     with_cuda = True
 
 ffi = create_extension(
