@@ -32,7 +32,7 @@ __global__ void weightedProposeKernel(int64_t *color, int64_t *prop, int64_t *ro
       tmp = weight[e];
       if (isDead && color[c] < 0) { isDead = false; }  // Unmatched neighbor found.
       // Find maximum weighted red neighbor.
-      if (color[c] == -2 && THCNumerics<T>::gt(tmp, maxWeight)) {
+      if (color[c] == -2 && THCNumerics<T>::gte(tmp, maxWeight)) {
         matchedValue = c;
         maxWeight = tmp;
       }
