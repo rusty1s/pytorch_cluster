@@ -1,3 +1,4 @@
+from .utils.loop import remove_self_loops
 from .utils.perm import randperm, sort_row, randperm_sort_row
 from .utils.ffi import graclus
 
@@ -19,7 +20,6 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         >>> weight = torch.Tensor([1, 1, 1, 1])
         >>> cluster = graclus_cluster(row, col, weight)
     """
-
     num_nodes = row.max() + 1 if num_nodes is None else num_nodes
 
     if row.is_cuda:  # pragma: no cover
@@ -28,6 +28,7 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         row, col = randperm(row, col)
         row, col = randperm_sort_row(row, col, num_nodes)
 
+    row, col = remove_self_loops(row, col)
     cluster = row.new(num_nodes)
     graclus(cluster, row, col, weight)
 
