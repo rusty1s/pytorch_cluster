@@ -20,7 +20,8 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         >>> weight = torch.Tensor([1, 1, 1, 1])
         >>> cluster = graclus_cluster(row, col, weight)
     """
-    num_nodes = row.max() + 1 if num_nodes is None else num_nodes
+
+    num_nodes = row.max().item() + 1 if num_nodes is None else num_nodes
 
     if row.is_cuda:  # pragma: no cover
         row, col = sort_row(row, col)
