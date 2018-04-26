@@ -1,10 +1,9 @@
 from itertools import product
 
 import pytest
-import torch
 from torch_cluster import grid_cluster
 
-from .tensor import tensors
+from .utils import dtypes, devices, tensor
 
 tests = [{
     'pos': [2, 6],
@@ -27,36 +26,12 @@ tests = [{
 }]
 
 
-@pytest.mark.parametrize('tensor,i', product(tensors, range(len(tests))))
-def test_grid_cluster_cpu(tensor, i):
-    data = tests[i]
-
-    pos = getattr(torch, tensor)(data['pos'])
-    size = getattr(torch, tensor)(data['size'])
-
-    start = data.get('start')
-    start = start if start is None else getattr(torch, tensor)(start)
-
-    end = data.get('end')
-    end = end if end is None else getattr(torch, tensor)(end)
+@pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
+def test_grid_cluster_cpu(test, dtype, device):
+    pos = tensor(test['pos'], dtype, device)
+    size = tensor(test['size'], dtype, device)
+    start = tensor(test.get('start'), dtype, device)
+    end = tensor(test.get('end'), dtype, device)
 
     cluster = grid_cluster(pos, size, start, end)
-    assert cluster.tolist() == data['cluster']
-
-
-@pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
-@pytest.mark.parametrize('tensor,i', product(tensors, range(len(tests))))
-def test_grid_cluster_gpu(tensor, i):  # pragma: no cover
-    data = tests[i]
-
-    pos = getattr(torch.cuda, tensor)(data['pos'])
-    size = getattr(torch.cuda, tensor)(data['size'])
-
-    start = data.get('start')
-    start = start if start is None else getattr(torch.cuda, tensor)(start)
-
-    end = data.get('end')
-    end = end if end is None else getattr(torch.cuda, tensor)(end)
-
-    cluster = grid_cluster(pos, size, start, end)
-    assert cluster.tolist() == data['cluster']
+    assert cluster.tolist() == test['cluster']

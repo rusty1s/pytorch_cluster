@@ -3,7 +3,7 @@ from .._ext import ffi
 
 def get_func(name, is_cuda, tensor=None):
     prefix = 'THCC' if is_cuda else 'TH'
-    prefix += 'Tensor' if tensor is None else type(tensor).__name__
+    prefix += 'Tensor' if tensor is None else tensor.type().split('.')[-1]
     return getattr(ffi, '{}_{}'.format(prefix, name))
 
 

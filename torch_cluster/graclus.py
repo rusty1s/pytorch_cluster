@@ -29,7 +29,7 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         row, col = randperm_sort_row(row, col, num_nodes)
 
     row, col = remove_self_loops(row, col)
-    cluster = row.new(num_nodes)
+    cluster = row.new_empty((num_nodes, ))
     graclus(cluster, row, col, weight)
 
     return cluster

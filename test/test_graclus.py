@@ -2,10 +2,9 @@ from itertools import product
 
 import pytest
 import torch
-import numpy as np
 from torch_cluster import graclus_cluster
 
-from .tensor import tensors
+from .utils import dtypes, devices, tensor
 
 tests = [{
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
@@ -18,51 +17,34 @@ tests = [{
 
 
 def assert_correct_graclus(row, col, cluster):
-    row, col = row.cpu().numpy(), col.cpu().numpy()
-    cluster, n_nodes = cluster.cpu().numpy(), cluster.size(0)
+    row, col, cluster = row.to('cpu'), col.to('cpu'), cluster.to('cpu')
+    n = cluster.size(0)
 
     # Every node was assigned a cluster.
     assert cluster.min() >= 0
 
     # There are no more than two nodes in each cluster.
-    _, count = np.unique(cluster, return_counts=True)
+    _, index = torch.unique(cluster, return_inverse=True)
+    count = torch.zeros_like(cluster)
+    count.scatter_add_(0, index, torch.ones_like(cluster))
     assert (count > 2).max() == 0
 
     # Cluster value is minimal.
-    assert (cluster <= np.arange(n_nodes, dtype=row.dtype)).sum() == n_nodes
+    assert (cluster <= torch.arange(n, dtype=cluster.dtype)).sum() == n
 
     # Corresponding clusters must be adjacent.
-    for n in range(cluster.shape[0]):
-        x = cluster[col[row == n]] == cluster[n]  # Neighbors with same cluster
-        y = cluster == cluster[n]  # Nodes with same cluster
-        y[n] = 0  # Do not look at cluster of node `n`.
+    for i in range(n):
+        x = cluster[col[row == i]] == cluster[i]  # Neighbors with same cluster
+        y = cluster == cluster[i]  # Nodes with same cluster.
+        y[i] = 0  # Do not look at cluster of `i`.
         assert x.sum() == y.sum()
 
 
-@pytest.mark.parametrize('tensor,i', product(tensors, range(len(tests))))
-def test_graclus_cluster_cpu(tensor, i):
-    data = tests[i]
-
-    row = torch.LongTensor(data['row'])
-    col = torch.LongTensor(data['col'])
-
-    weight = data.get('weight')
-    weight = weight if weight is None else getattr(torch, tensor)(weight)
-
-    cluster = graclus_cluster(row, col, weight)
-    assert_correct_graclus(row, col, cluster)
-
-
-@pytest.mark.skipif(not torch.cuda.is_available(), reason='no CUDA')
-@pytest.mark.parametrize('tensor,i', product(tensors, range(len(tests))))
-def test_graclus_cluster_gpu(tensor, i):  # pragma: no cover
-    data = tests[i]
-
-    row = torch.cuda.LongTensor(data['row'])
-    col = torch.cuda.LongTensor(data['col'])
-
-    weight = data.get('weight')
-    weight = weight if weight is None else getattr(torch.cuda, tensor)(weight)
+@pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
+def test_graclus_cluster_cpu(test, dtype, device):
+    row = tensor(test['row'], torch.long, device)
+    col = tensor(test['col'], torch.long, device)
+    weight = tensor(test.get('weight'), dtype, device)
 
     cluster = graclus_cluster(row, col, weight)
     assert_correct_graclus(row, col, cluster)
