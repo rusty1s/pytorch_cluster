@@ -27,7 +27,7 @@ tests = [{
 
 
 @pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
-def test_grid_cluster_cpu(test, dtype, device):
+def test_grid_cluster(test, dtype, device):
     pos = tensor(test['pos'], dtype, device)
     size = tensor(test['size'], dtype, device)
     start = tensor(test.get('start'), dtype, device)

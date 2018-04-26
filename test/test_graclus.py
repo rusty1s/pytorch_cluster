@@ -41,7 +41,7 @@ def assert_correct_graclus(row, col, cluster):
 
 
 @pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
-def test_graclus_cluster_cpu(test, dtype, device):
+def test_graclus_cluster(test, dtype, device):
     row = tensor(test['row'], torch.long, device)
     col = tensor(test['col'], torch.long, device)
     weight = tensor(test.get('weight'), dtype, device)
