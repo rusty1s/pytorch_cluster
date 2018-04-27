@@ -1,23 +1,27 @@
 #include <torch/torch.h>
 
 
-at::Tensor degree(at::Tensor index, int64_t num_nodes) {
-  auto one = at::ones_like(index);
-  auto zero = at::zeros(torch::CPU(at::kLong), { num_nodes });
-  return zero.scatter_add_(0, index, one);
-}
-
-
-at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
-  auto cluster = at::empty(torch::CPU(at::kLong), { num_nodes }).fill_(-1);
-  auto deg = degree(row, num_nodes);
-
+inline std::tuple<at::Tensor, at::Tensor> randperm(at::Tensor row, at::Tensor col) {
   /* at::Tensor perm; */
   /* std::tie(row, perm) = row.sort(); */
   /* col = col.index_select(0, perm); */
 
   /* TODO: randperm */
   /* TODO: randperm_sort_row */
+  return { row, col };
+}
+
+
+inline at::Tensor degree(at::Tensor index, int64_t num_nodes) {
+  auto zero = at::zeros(torch::CPU(at::kLong), { num_nodes });
+  return zero.scatter_add_(0, index, at::ones_like(index));
+}
+
+
+at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
+  std::tie(row, col) = randperm(row, col);
+  auto deg = degree(row, num_nodes);
+  auto cluster = at::empty(torch::CPU(at::kLong), { num_nodes }).fill_(-1);
 
   auto *row_data = row.data<int64_t>();
   auto *col_data = col.data<int64_t>();
