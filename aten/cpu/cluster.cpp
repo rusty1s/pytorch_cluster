@@ -36,7 +36,8 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
       for (d_idx = 0; d_idx < deg_data[r]; d_idx++) {
         c = col_data[e_idx + d_idx];
         if (cluster_data[c] < 0) {
-          cluster_data[c] = r;
+          cluster_data[r] = std::min(r, c);
+          cluster_data[c] = std::min(r, c);
           break;
         }
       }
