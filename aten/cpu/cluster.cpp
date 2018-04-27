@@ -7,9 +7,6 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, at::Tensor weight) {
 
 
 at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start, at::Tensor end) {
-  if (!start.defined()) start = std::get<0>(pos.min(1));
-  if (!end.defined()) end = std::get<0>(pos.max(1));
-
   size = size.toType(pos.type());
   start = start.toType(pos.type());
   end = end.toType(pos.type());
@@ -30,7 +27,6 @@ at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start, at::Tensor en
 
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("graclus", &graclus, "Graclus (CPU)", py::arg("row"), py::arg("col"), py::arg("weight"));
-  m.def("grid", &grid, "Grid (CPU)", py::arg("pos"), py::arg("size"), py::arg("start"),
-        py::arg("end"));
+  m.def("graclus", &graclus, "Graclus (CPU)");
+  m.def("grid", &grid, "Grid (CPU)");
 }
