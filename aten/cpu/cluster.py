@@ -25,5 +25,7 @@ def graclus_cluster(row, col, num_nodes):
 row = torch.tensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
 col = torch.tensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2])
 print(row)
-
-print(graclus_cluster(row, col, 4))
+print(col)
+print('-----------------')
+cluster = graclus_cluster(row, col, 4)
+print(cluster)
