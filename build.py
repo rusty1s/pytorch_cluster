@@ -1,12 +1,8 @@
 import os.path as osp
-import shutil
 import subprocess
 
 import torch
 from torch.utils.ffi import create_extension
-
-if osp.exists('build'):
-    shutil.rmtree('build')
 
 files = ['Graclus', 'Grid']
 

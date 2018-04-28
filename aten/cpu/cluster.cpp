@@ -1,15 +1,15 @@
 #include <torch/torch.h>
 
-
-inline std::tuple<at::Tensor, at::Tensor> remove_self_loops(at::Tensor row, at::Tensor col) {
+inline std::tuple<at::Tensor, at::Tensor> remove_self_loops(at::Tensor row,
+                                                            at::Tensor col) {
   auto mask = row != col;
   row = row.masked_select(mask);
   col = col.masked_select(mask);
   return {row, col};
 }
 
-
-inline std::tuple<at::Tensor, at::Tensor> randperm(at::Tensor row, at::Tensor col, int64_t num_nodes) {
+inline std::tuple<at::Tensor, at::Tensor>
+randperm(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   // Randomly reorder row and column indices.
   auto perm = at::randperm(torch::CPU(at::kLong), row.size(0));
   row = row.index_select(0, perm);
@@ -29,12 +29,10 @@ inline std::tuple<at::Tensor, at::Tensor> randperm(at::Tensor row, at::Tensor co
   return {row, col};
 }
 
-
 inline at::Tensor degree(at::Tensor index, int64_t num_nodes) {
   auto zero = at::zeros(torch::CPU(at::kLong), {num_nodes});
   return zero.scatter_add_(0, index, at::ones_like(index));
 }
-
 
 at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   std::tie(row, col) = remove_self_loops(row, col);
@@ -68,8 +66,8 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   return cluster;
 }
 
-
-at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start, at::Tensor end) {
+at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start,
+                at::Tensor end) {
   size = size.toType(pos.type());
   start = start.toType(pos.type());
   end = end.toType(pos.type());
@@ -87,7 +85,6 @@ at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start, at::Tensor en
 
   return cluster;
 }
-
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("graclus", &graclus, "Graclus (CPU)");
