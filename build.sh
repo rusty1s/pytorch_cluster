@@ -7,4 +7,4 @@ SRC_DIR=aten/THC
 BUILD_DIR=torch_cluster/_ext
 
 mkdir -p $BUILD_DIR
-$(which nvcc) "-I$TORCH/lib/include" "-I$TORCH/lib/include/TH" "-I$TORCH/lib/include/THC" "-I$SRC_DIR" -c "$SRC_DIR/THC.cu" -o "$BUILD_DIR/THC.o" --compiler-options '-fPIC' -std=c++11
+$(which nvcc) "-I$TORCH/lib/include" "-I$TORCH/lib/include/TH" "-I$TORCH/lib/include/THC" "-I$SRC_DIR" -c "$SRC_DIR/THC.cu" -o "$BUILD_DIR/THC.so" --compiler-options '-fPIC' -std=c++11
