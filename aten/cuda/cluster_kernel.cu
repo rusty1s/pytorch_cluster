@@ -32,7 +32,7 @@ at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
   const int threads = 1024;
   const dim3 blocks((num_nodes + threads - 1) / threads);
 
-  AT_DISPATCH_ALL_TYPES(pos.type(), "unique", [&] {
+  AT_DISPATCH_ALL_TYPES(pos.type(), "grid_cuda_kernel", [&] {
     auto cluster_data = cluster.data<int64_t>();
     auto pos_info = at::cuda::detail::getTensorInfo<scalar_t, int>(pos);
     auto size_data = size.data<scalar_t>();
