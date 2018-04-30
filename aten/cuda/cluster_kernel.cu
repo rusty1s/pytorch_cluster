@@ -5,10 +5,10 @@ template <typename scalar_t>
 __global__ void grid_cuda_kernel(
     int64_t *cluster, const at::cuda::detail::TensorInfo<scalar_t, int> pos,
     const scalar_t *__restrict__ size, const scalar_t *__restrict__ start,
-    const scalar_t *__restrict__ end, const size_t n) {
+    const scalar_t *__restrict__ end, const size_t num_nodes) {
   const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
   const size_t stride = blockDim.x * gridDim.x;
-  for (ptrdiff_t i = index; i < n; i += stride) {
+  for (ptrdiff_t i = index; i < num_nodes; i += stride) {
     int64_t c = 0, k = 1;
     scalar_t tmp;
     for (ptrdiff_t d = 0; d < pos.sizes[1]; d++) {
