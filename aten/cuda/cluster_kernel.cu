@@ -5,10 +5,11 @@
 #define BLOCKS(N) (N + THREADS - 1) / THREADS
 
 template <typename scalar_t>
-__global__ void grid_cuda_kernel(
-    int64_t *cluster, at::cuda::detail::TensorInfo<scalar_t, int> pos,
-    scalar_t *__restrict__ size, scalar_t *__restrict__ start,
-    scalar_t *__restrict__ end, size_t num_nodes) {
+__global__ void
+grid_cuda_kernel(int64_t *cluster,
+                 at::cuda::detail::TensorInfo<scalar_t, int> pos,
+                 scalar_t *__restrict__ size, scalar_t *__restrict__ start,
+                 scalar_t *__restrict__ end, size_t num_nodes) {
   const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
   const size_t stride = blockDim.x * gridDim.x;
   for (ptrdiff_t i = index; i < num_nodes; i += stride) {
@@ -26,7 +27,7 @@ __global__ void grid_cuda_kernel(
 at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
                      at::Tensor end) {
   auto num_nodes = pos.size(0);
-  auto cluster = at::empty(pos.type().toType(at::kLong), {num_nodes});
+  auto cluster = at::empty(pos.type().toScalarType(at::kLong), {num_nodes});
 
   AT_DISPATCH_ALL_TYPES(pos.type(), "grid_cuda_kernel", [&] {
     grid_cuda_kernel<scalar_t><<<BLOCKS(num_nodes), THREADS>>>(
