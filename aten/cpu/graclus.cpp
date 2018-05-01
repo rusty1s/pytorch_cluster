@@ -65,7 +65,3 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int num_nodes) {
 
   return cluster;
 }
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("graclus", &graclus, "Graclus (CPU)");
-}

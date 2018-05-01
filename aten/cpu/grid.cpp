@@ -19,5 +19,3 @@ at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start,
 
   return cluster;
 }
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) { m.def("grid", &grid, "Grid (CPU)"); }
