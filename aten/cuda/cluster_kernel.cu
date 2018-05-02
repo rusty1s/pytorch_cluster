@@ -33,7 +33,7 @@ at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
         cluster.data<int64_t>(),
         at::cuda::detail::getTensorInfo<scalar_t, int>(pos),
         size.toType(pos.type()).data<scalar_t>(),
-        start..toType(pos.type()).data<scalar_t>(),
+        start.toType(pos.type()).data<scalar_t>(),
         end.toType(pos.type()).data<scalar_t>(), num_nodes);
   });
 
