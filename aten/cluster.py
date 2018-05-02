@@ -12,7 +12,8 @@ def grid(pos, size, start=None, end=None):
 
 
 def graclus(row, col, num_nodes):
-    return cluster_cpu.graclus(row, col, num_nodes)
+    lib = cluster_cuda if pos.is_cuda else cluster_cpu
+    return lib.graclus(row, col, num_nodes)
 
 
 device = torch.device('cuda')
@@ -23,10 +24,11 @@ print('size', size.tolist())
 cluster = grid(pos, size)
 print('result', cluster.tolist(), cluster.dtype, cluster.device)
 
-row = torch.tensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
-col = torch.tensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2])
-print(row)
-print(col)
 print('-----------------')
+
+row = torch.tensor([0, 0, 1, 1, 1, 2, 2, 2, 3, 3], device=device)
+col = torch.tensor([1, 2, 0, 2, 3, 0, 1, 3, 1, 2], device=device)
+print('row', row.tolist())
+print('col', col.tolist())
 cluster = graclus(row, col, 4)
-print(cluster)
+print('result', cluster.tolist(), cluster.dtype, cluster.device)

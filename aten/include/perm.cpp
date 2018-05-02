@@ -1,4 +1,5 @@
-#include "perm.h"
+#ifndef PERM_INC
+#define PERM_INC
 
 #include <torch/torch.h>
 
@@ -22,3 +23,5 @@ randperm(at::Tensor row, at::Tensor col, int num_nodes) {
 
   return {row, col};
 }
+
+#endif // PERM_INC

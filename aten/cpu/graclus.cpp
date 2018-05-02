@@ -7,9 +7,9 @@
 at::Tensor graclus(at::Tensor row, at::Tensor col, int num_nodes) {
   std::tie(row, col) = remove_self_loops(row, col);
   std::tie(row, col) = randperm(row, col, num_nodes);
+  auto deg = degree(row, num_nodes, row.type().scalarType());
 
   auto cluster = at::full(row.type(), {num_nodes}, -1);
-  auto deg = degree(row, num_nodes, row.type().scalarType());
 
   auto *row_data = row.data<int64_t>();
   auto *col_data = col.data<int64_t>();
