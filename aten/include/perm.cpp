@@ -1,5 +1,4 @@
-#ifndef PERM_CPP
-#define PERM_CPP
+#include "perm.h"
 
 #include <torch/torch.h>
 
@@ -23,5 +22,3 @@ randperm(at::Tensor row, at::Tensor col, int num_nodes) {
 
   return {row, col};
 }
-
-#endif // PERM_CPP

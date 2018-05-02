@@ -1,8 +1,8 @@
 #include <torch/torch.h>
 
-#include "degree.cpp"
-#include "loop.cpp"
-#include "perm.cpp"
+#include "../include/degree.cpp"
+#include "../include/loop.cpp"
+#include "../include/perm.cpp"
 
 at::Tensor graclus(at::Tensor row, at::Tensor col, int num_nodes) {
   std::tie(row, col) = remove_self_loops(row, col);

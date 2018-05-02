@@ -1,5 +1,4 @@
-#ifndef DEGREE_CPP
-#define DEGREE_CPP
+#include "degree.h"
 
 #include <torch/torch.h>
 
@@ -9,5 +8,3 @@ inline at::Tensor degree(at::Tensor index, int num_nodes,
   auto one = at::full(zero.type(), {index.size(0)}, 1);
   return zero.scatter_add_(0, index, one);
 }
-
-#endif // DEGREE_CPP
