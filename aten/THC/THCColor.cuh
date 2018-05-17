@@ -30,7 +30,9 @@ int THCudaLongTensor_color(THCState *state, THCudaLongTensor *self) {
 
   KERNEL_RUN(colorKernel, nNodes, selfData, bernoulliData);
 
+  THCudaByteTensor_free(state, bernoulli);
   int done; cudaMemcpyFromSymbol(&done, d_done, sizeof(done), 0, cudaMemcpyDeviceToHost);
+
   return done;
 }
 
