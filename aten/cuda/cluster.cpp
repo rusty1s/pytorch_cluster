@@ -1,11 +1,15 @@
 #include <torch/torch.h>
 
-#define CHECK_CUDA(x) AT_ASSERT(x.type().is_cuda(), #x " must be a CUDA tensor")
+at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start,
+                at::Tensor end);
 
-#include "graclus.cpp"
-#include "grid.cpp"
+at::Tensor graclus(at::Tensor row, at::Tensor col, int num_nodes);
+
+at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
+                            int num_nodes);
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("graclus", &graclus, "Graclus (CUDA)");
   m.def("grid", &grid, "Grid (CUDA)");
+  m.def("graclus", &graclus, "Graclus (CUDA)");
+  m.def("weighted_graclus", &weighted_graclus, "Weightes Graclus (CUDA)");
 }
