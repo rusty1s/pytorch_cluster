@@ -16,7 +16,7 @@
 This package consists of a small extension library of highly optimized graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
 The package consists of the following clustering algorithms:
 
-* **[Graclus](#graclus)**
+* **[Graclus](#graclus)** from Dhillon *et al.*: [Weighted Graph Cuts without Eigenvectors: A Multilevel Approach](http://www.cs.utexas.edu/users/inderjit/public_papers/multilevel_pami.pdf) (PAMI 2007)
 * **[VoxelGrid](#voxelgrid)**
 
 All included operations work on varying data types and are implemented both for CPU and GPU.
@@ -34,6 +34,7 @@ pip install cffi torch-cluster
 ## Graclus
 
 A greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its edge weight).
+The GPU algorithm is adapted from Fagginger Auer and Bisseling: [A GPU Algorithm for Greedy Graph Matching](http://www.staff.science.uu.nl/~bisse101/Articles/match12.pdf) (LNCS 2012)
 
 ```python
 import torch
