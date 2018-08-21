@@ -39,10 +39,11 @@ $ echo $CPATH
 Then run:
 
 ```
-pip install cffi torch-cluster
+pip install torch-cluster
 ```
 
 If you are running into any installation problems, please create an [issue](https://github.com/rusty1s/pytorch_cluster/issues).
+Be sure to import `torch` first before using this package to resolve symbols the dynamic linker must see.
 
 ## Graclus
 
@@ -62,7 +63,7 @@ cluster = graclus_cluster(row, col, weight)
 
 ```
 print(cluster)
-tensor([ 0,  0,  1])
+tensor([0, 0, 1])
 ```
 
 ## VoxelGrid
@@ -81,7 +82,7 @@ cluster = grid_cluster(pos, size)
 
 ```
 print(cluster)
-tensor([ 0,  5,  3,  0,  1])
+tensor([0, 5, 3, 0, 1])
 ```
 
 ## Running tests
