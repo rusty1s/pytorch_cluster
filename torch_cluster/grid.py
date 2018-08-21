@@ -1,4 +1,8 @@
-from .utils.ffi import grid
+import torch
+import grid_cpu
+
+if torch.cuda.is_available():
+    import grid_cuda
 
 
 def grid_cluster(pos, size, start=None, end=None):
@@ -8,9 +12,9 @@ def grid_cluster(pos, size, start=None, end=None):
     Args:
         pos (Tensor): D-dimensional position of points.
         size (Tensor): Size of a voxel in each dimension.
-        start (Tensor or int, optional): Start position of the grid (in each
+        start (Tensor, optional): Start position of the grid (in each
             dimension). (default: :obj:`None`)
-        end (Tensor or int, optional): End position of the grid (in each
+        end (Tensor, optional): End position of the grid (in each
             dimension). (default: :obj:`None`)
 
     Examples::
@@ -21,18 +25,12 @@ def grid_cluster(pos, size, start=None, end=None):
     """
 
     pos = pos.unsqueeze(-1) if pos.dim() == 1 else pos
-
-    assert pos.size(1) == size.size(0), (
-        'Last dimension of position tensor must have same size as size tensor')
-
     start = pos.t().min(dim=1)[0] if start is None else start
     end = pos.t().max(dim=1)[0] if end is None else end
-    pos, end = pos - start, end - start
 
-    size = size.type_as(pos)
-    count = (end / size).long() + 1
-
-    cluster = count.new(pos.size(0))
-    grid(cluster, pos, size, count)
+    if pos.is_cuda:
+        cluster = grid_cuda.grid(pos, size, start, end)
+    else:
+        cluster = grid_cpu.grid(pos, size, start, end)
 
     return cluster

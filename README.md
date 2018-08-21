@@ -56,7 +56,7 @@ from torch_cluster import graclus_cluster
 
 row = torch.tensor([0, 1, 1, 2])
 col = torch.tensor([1, 0, 2, 1])
-weight = torch.tensor([1, 1, 1, 1])  # Optional edge weights.
+weight = torch.Tensor([1, 1, 1, 1])  # Optional edge weights.
 
 cluster = graclus_cluster(row, col, weight)
 ```
@@ -74,8 +74,8 @@ A clustering algorithm, which overlays a regular grid of user-defined size over 
 import torch
 from torch_cluster import grid_cluster
 
-pos = torch.tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
-size = torch.tensor([5, 5])
+pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+size = torch.Tensor([5, 5])
 
 cluster = grid_cluster(pos, size)
 ```
