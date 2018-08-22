@@ -28,9 +28,7 @@ def grid_cluster(pos, size, start=None, end=None):
     start = pos.t().min(dim=1)[0] if start is None else start
     end = pos.t().max(dim=1)[0] if end is None else end
 
-    if pos.is_cuda:
-        cluster = grid_cuda.grid(pos, size, start, end)
-    else:
-        cluster = grid_cpu.grid(pos, size, start, end)
+    op = grid_cuda.grid if pos.is_cuda else grid_cpu.grid
+    cluster = op(pos, size, start, end)
 
     return cluster
