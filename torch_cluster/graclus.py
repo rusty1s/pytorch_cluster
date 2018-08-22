@@ -1,6 +1,12 @@
-from .utils.loop import remove_self_loops
-from .utils.perm import randperm, sort_row, randperm_sort_row
-from .utils.ffi import graclus
+# from .utils.loop import remove_self_loops
+# from .utils.perm import randperm, sort_row, randperm_sort_row
+# from .utils.ffi import graclus
+
+import torch
+import graclus_cpu
+
+if torch.cuda.is_available():
+    import graclus_cuda
 
 
 def graclus_cluster(row, col, weight=None, num_nodes=None):
@@ -15,22 +21,26 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
 
     Examples::
 
-        >>> row = torch.LongTensor([0, 1, 1, 2])
-        >>> col = torch.LongTensor([1, 0, 2, 1])
+        >>> row = torch.tensor([0, 1, 1, 2])
+        >>> col = torch.tensor([1, 0, 2, 1])
         >>> weight = torch.Tensor([1, 1, 1, 1])
         >>> cluster = graclus_cluster(row, col, weight)
     """
 
-    num_nodes = row.max().item() + 1 if num_nodes is None else num_nodes
+    if num_nodes is None:
+        num_nodes = max(row.max().item(), col.max().item()) + 1
 
-    if row.is_cuda:
-        row, col = sort_row(row, col)
+    op = graclus_cuda if row.is_cuda else graclus_cpu
+
+    if weight is None:
+        cluster = op.graclus(row, col, num_nodes)
     else:
-        row, col = randperm(row, col)
-        row, col = randperm_sort_row(row, col, num_nodes)
-
-    row, col = remove_self_loops(row, col)
-    cluster = row.new_empty((num_nodes, ))
-    graclus(cluster, row, col, weight)
+        cluster = op.weighted_graclus(row, col, weight, num_nodes)
 
     return cluster
+
+    # if row.is_cuda:
+    #     row, col = sort_row(row, col)
+    # else:
+    #     row, col = randperm(row, col)
+    #     row, col = randperm_sort_row(row, col, num_nodes)

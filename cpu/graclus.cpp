@@ -1,44 +1,91 @@
 #include <torch/torch.h>
 
-// #include "../include/degree.cpp"
-// #include "../include/loop.cpp"
-// #include "../include/perm.cpp"
+#include "utils.h"
+
+#define ITERATE_NEIGHBORS(NODE, NAME, ROW, COL, ...)                           \
+  {                                                                            \
+    for (int64_t e = ROW[NODE]; e < ROW[NODE + 1]; e++) {                      \
+      auto NAME = COL[e];                                                      \
+      __VA_ARGS__;                                                             \
+    }                                                                          \
+  }
 
 at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
-  // std::tie(row, col) = remove_self_loops(row, col);
-  // std::tie(row, col) = randperm(row, col, num_nodes);
-  // auto deg = degree(row, num_nodes, row.type().scalarType());
+  std::tie(row, col) = remove_self_loops(row, col);
+  std::tie(row, col) = rand(row, col);
+  std::tie(row, col) = to_csr(row, col);
+  auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
+
+  auto perm = randperm(num_nodes);
+  auto perm_data = perm.data<int64_t>();
 
   auto cluster = at::full(num_nodes, -1, row.options());
+  auto cluster_data = cluster.data<int64_t>();
 
-  // auto *row_data = row.data<int64_t>();
-  // auto *col_data = col.data<int64_t>();
-  // auto *deg_data = deg.data<int64_t>();
-  // auto *cluster_data = cluster.data<int64_t>();
+  for (int64_t i = 0; i < num_nodes; i++) {
+    auto u = perm_data[i];
 
-  // int64_t e_idx = 0, d_idx, r, c;
-  // while (e_idx < row.size(0)) {
-  //   r = row_data[e_idx];
-  //   if (cluster_data[r] < 0) {
-  //     cluster_data[r] = r;
-  //     for (d_idx = 0; d_idx < deg_data[r]; d_idx++) {
-  //       c = col_data[e_idx + d_idx];
-  //       if (cluster_data[c] < 0) {
-  //         cluster_data[r] = std::min(r, c);
-  //         cluster_data[c] = std::min(r, c);
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   e_idx += deg_data[r];
-  // }
+    if (cluster_data[u] >= 0)
+      continue;
+
+    cluster_data[u] = u;
+
+    ITERATE_NEIGHBORS(u, v, row_data, col_data, {
+      if (cluster_data[v] >= 0)
+        continue;
+
+      cluster_data[u] = std::min(u, v);
+      cluster_data[v] = std::min(u, v);
+      break;
+    });
+  }
 
   return cluster;
 }
 
 at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
                             int64_t num_nodes) {
+  std::tie(row, col) = remove_self_loops(row, col, weight);
+  std::tie(row, col, weight) = to_csr(row, col, weight);
+  auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
+
+  auto perm = randperm(num_nodes);
+  auto perm_data = perm.data<int64_t>();
+
   auto cluster = at::full(num_nodes, -1, row.options());
+  auto cluster_data = cluster.data<int64_t>();
+
+  AT_DISPATCH_ALL_TYPES(weight.type(), "weighted_graclus", [&] {
+    auto weight_data = weight.data<scalar_t>();
+    auto weight_data = weight.data<scalar_t>();
+
+    for (int64_t i = 0; i < num_nodes; i++) {
+      auto u = perm_data[i];
+
+      if (cluster_data[u] >= 0)
+        continue;
+
+      cluster_data[u] = u;
+
+      int64_t v_max;
+      scalar_t w_max = 0;
+
+      ITERATE_NEIGHBORS(u, v, row_data, col_data, {
+        if (cluster_data[v] >= 0)
+          continue;
+
+        auto w = weight_data[e];
+        if (w >= w_max) {
+          v_max = v;
+          w_max = w;
+        }
+      });
+
+      cluster_data[u] = std::min(u, v_max);
+      cluster_data[v_max] = std::min(u, v_max);
+    }
+  });
+
   return cluster;
 }
 
