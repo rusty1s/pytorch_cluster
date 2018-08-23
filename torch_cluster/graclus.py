@@ -1,7 +1,3 @@
-# from .utils.loop import remove_self_loops
-# from .utils.perm import randperm, sort_row, randperm_sort_row
-# from .utils.ffi import graclus
-
 import torch
 import graclus_cpu
 
@@ -38,9 +34,3 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         cluster = op.weighted_graclus(row, col, weight, num_nodes)
 
     return cluster
-
-    # if row.is_cuda:
-    #     row, col = sort_row(row, col)
-    # else:
-    #     row, col = randperm(row, col)
-    #     row, col = randperm_sort_row(row, col, num_nodes)

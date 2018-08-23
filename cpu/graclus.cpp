@@ -2,18 +2,10 @@
 
 #include "utils.h"
 
-#define ITERATE_NEIGHBORS(NODE, NAME, ROW, COL, ...)                           \
-  {                                                                            \
-    for (int64_t e = ROW[NODE]; e < ROW[NODE + 1]; e++) {                      \
-      auto NAME = COL[e];                                                      \
-      __VA_ARGS__;                                                             \
-    }                                                                          \
-  }
-
 at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   std::tie(row, col) = remove_self_loops(row, col);
   std::tie(row, col) = rand(row, col);
-  std::tie(row, col) = to_csr(row, col);
+  std::tie(row, col) = to_csr(row, col, num_nodes);
   auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
 
   auto perm = randperm(num_nodes);
@@ -30,14 +22,16 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
 
     cluster_data[u] = u;
 
-    ITERATE_NEIGHBORS(u, v, row_data, col_data, {
+    for (int64_t j = row_data[u]; j < row_data[u + 1]; j++) {
+      auto v = col_data[j];
+
       if (cluster_data[v] >= 0)
         continue;
 
       cluster_data[u] = std::min(u, v);
       cluster_data[v] = std::min(u, v);
       break;
-    });
+    }
   }
 
   return cluster;
@@ -45,8 +39,8 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
 
 at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
                             int64_t num_nodes) {
-  std::tie(row, col) = remove_self_loops(row, col, weight);
-  std::tie(row, col, weight) = to_csr(row, col, weight);
+  std::tie(row, col, weight) = remove_self_loops(row, col, weight);
+  std::tie(row, col, weight) = to_csr(row, col, weight, num_nodes);
   auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
 
   auto perm = randperm(num_nodes);
@@ -57,7 +51,6 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
 
   AT_DISPATCH_ALL_TYPES(weight.type(), "weighted_graclus", [&] {
     auto weight_data = weight.data<scalar_t>();
-    auto weight_data = weight.data<scalar_t>();
 
     for (int64_t i = 0; i < num_nodes; i++) {
       auto u = perm_data[i];
@@ -65,21 +58,20 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
       if (cluster_data[u] >= 0)
         continue;
 
-      cluster_data[u] = u;
-
-      int64_t v_max;
+      int64_t v_max = u;
       scalar_t w_max = 0;
 
-      ITERATE_NEIGHBORS(u, v, row_data, col_data, {
+      for (int64_t j = row_data[u]; j < row_data[u + 1]; j++) {
+        auto v = col_data[j];
+
         if (cluster_data[v] >= 0)
           continue;
 
-        auto w = weight_data[e];
-        if (w >= w_max) {
+        if (weight_data[j] >= w_max) {
           v_max = v;
-          w_max = w;
+          w_max = weight_data[j];
         }
-      });
+      }
 
       cluster_data[u] = std::min(u, v_max);
       cluster_data[v_max] = std::min(u, v_max);
