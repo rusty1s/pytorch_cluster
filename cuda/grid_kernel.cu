@@ -18,7 +18,7 @@ __global__ void grid_kernel(int64_t *cluster,
     for (ptrdiff_t d = 0; d < pos.sizes[1]; d++) {
       scalar_t p = pos.data[i * pos.strides[0] + d * pos.strides[1]] - start[d];
       c += (int64_t)(p / size[d]) * k;
-      k += (int64_t)((end[d] - start[d]) / size[d]);
+      k *= (int64_t)((end[d] - start[d]) / size[d]) + 1;
     }
     cluster[i] = c;
   }
