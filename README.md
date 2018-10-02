@@ -17,7 +17,7 @@ This package consists of a small extension library of highly optimized graph clu
 The package consists of the following clustering algorithms:
 
 * **[Graclus](#graclus)** from Dhillon *et al.*: [Weighted Graph Cuts without Eigenvectors: A Multilevel Approach](http://www.cs.utexas.edu/users/inderjit/public_papers/multilevel_pami.pdf) (PAMI 2007)
-* **[VoxelGrid](#voxelgrid)**
+* **[Voxel Grid Pooling](#voxelgrid)** from, *e.g.*, Simonovsky and Komodakis: [Dynamic Edge-Conditioned Filters in Convolutional Neural Networks on Graphs](https://arxiv.org/abs/1704.02901) (CVPR 2017)
 
 All included operations work on varying data types and are implemented both for CPU and GPU.
 
