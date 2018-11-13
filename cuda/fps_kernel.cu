@@ -15,7 +15,7 @@ template <typename scalar_t> struct Dist<scalar_t, 1> {
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
-      scalar_t d = x[old * 3 + 0] - x[n * 3 + 0];
+      scalar_t d = x[old] - x[n];
       dist[n] = min(dist[n], d * d);
       if (dist[n] > *best) {
         *best = dist[n];
@@ -33,8 +33,8 @@ template <typename scalar_t> struct Dist<scalar_t, 2> {
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
-      scalar_t a = x[old * 3 + 0] - x[n * 3 + 0];
-      scalar_t b = x[old * 3 + 1] - x[n * 3 + 1];
+      scalar_t a = x[2 * old + 0] - x[2 * n + 0];
+      scalar_t b = x[2 * old + 1] - x[2 * n + 1];
       scalar_t d = a * a + b * b;
       dist[n] = min(dist[n], d);
       if (dist[n] > *best) {
@@ -53,9 +53,9 @@ template <typename scalar_t> struct Dist<scalar_t, 3> {
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
-      scalar_t a = x[old * 3 + 0] - x[n * 3 + 0];
-      scalar_t b = x[old * 3 + 1] - x[n * 3 + 1];
-      scalar_t c = x[old * 3 + 2] - x[n * 3 + 2];
+      scalar_t a = x[3 * old + 0] - x[3 * n + 0];
+      scalar_t b = x[3 * old + 1] - x[3 * n + 1];
+      scalar_t c = x[3 * old + 2] - x[3 * n + 2];
       scalar_t d = a * a + b * b + c * c;
       dist[n] = min(dist[n], d);
       if (dist[n] > *best) {
