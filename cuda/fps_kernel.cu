@@ -5,7 +5,7 @@
 
 #define THREADS 1024
 
-template <typename scalar_t, int64_t Dim> struct Dist {};
+template <typename scalar_t, int64_t Dim> struct Dist;
 
 template <typename scalar_t> struct Dist<scalar_t, 1> {
   static __device__ void
@@ -118,6 +118,7 @@ fps_kernel(scalar_t *__restrict__ x, int64_t *__restrict__ cum_deg,
     scalar_t best = -1;
     ptrdiff_t best_idx = 0;
 
+    __syncthreads();
     Dist<scalar_t, Dim>::compute(idx, start_idx, end_idx, out[m - 1], &best,
                                  &best_idx, x, dist, tmp_dist, dim);
 

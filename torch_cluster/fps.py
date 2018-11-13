@@ -27,6 +27,10 @@ def fps(x, batch=None, ratio=0.5, random_start=True):
     """
 
     assert x.is_cuda
+    assert x.dim() <= 2 and batch.dim() == 1
+    assert x.size(0) == batch.size(0)
+
+    x = x.view(-1, 1) if x.dim() == 1 else x
 
     if batch is None:
         batch = x.new_zeros(x.size(0), dtype=torch.long)
