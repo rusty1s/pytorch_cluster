@@ -13,6 +13,7 @@ if torch.cuda.is_available():
         CUDAExtension('graclus_cuda',
                       ['cuda/graclus.cpp', 'cuda/graclus_kernel.cu']),
         CUDAExtension('grid_cuda', ['cuda/grid.cpp', 'cuda/grid_kernel.cu']),
+        CUDAExtension('fps_cuda', ['cuda/fps.cpp', 'cuda/fps_kernel.cu']),
     ]
 
 __version__ = '1.1.5'
