@@ -16,7 +16,7 @@ if torch.cuda.is_available():
         CUDAExtension('fps_cuda', ['cuda/fps.cpp', 'cuda/fps_kernel.cu']),
     ]
 
-__version__ = '1.1.5'
+__version__ = '1.2.0'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
 install_requires = []
