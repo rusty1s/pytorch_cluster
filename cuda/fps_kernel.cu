@@ -1,5 +1,6 @@
 #include <ATen/ATen.h>
 
+#include "atomics.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -8,11 +9,39 @@ template <typename scalar_t>
 __global__ void
 fps_kernel(scalar_t *__restrict__ x, int64_t *__restrict__ cum_deg,
            int64_t *__restrict__ cum_k, int64_t *__restrict__ start,
-           scalar_t *__restrict__ tmp_dist, int64_t *__restrict__ out) {
-  // const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-  // const size_t stride = blockDim.x * gridDim.x;
-  // for (ptrdiff_t i = index; i < numel; i += stride) {
-  // }
+           scalar_t *__restrict__ dist, scalar_t *__restrict__ tmp_dist,
+           int64_t *__restrict__ out, size_t dim) {
+
+  const size_t batch_idx = blockIdx.x;
+  const size_t idx = threadIdx.x;
+  const size_t stride = blockDim.x; // == THREADS
+
+  const size_t start_idx = cum_deg[batch_idx];
+  const size_t end_idx = cum_deg[batch_idx + 1];
+
+  int64_t old = start_idx + start[batch_idx];
+
+  if (idx == 0) {
+    out[cum_k[batch_idx]] = old;
+  }
+
+  for (ptrdiff_t m = cum_k[batch_idx] + 1; m < cum_k[batch_idx + 1]; m++) {
+
+    for (ptrdiff_t n = start_idx + idx; n < end_idx; n += stride) {
+      tmp_dist[n] = 0;
+    }
+
+    __syncthreads();
+    for (ptrdiff_t i = start_idx * dim + idx; i < end_idx * dim; i += stride) {
+      scalar_t d = x[(old * dim) + (i % dim)] - x[i];
+      atomicAdd(&tmp_dist[i / dim], d * d);
+    }
+
+    __syncthreads();
+    for (ptrdiff_t n = start_idx + idx; n < end_idx; n += stride) {
+      dist[n] = min(dist[n], tmp_dist[n]);
+    }
+  }
 }
 
 at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
@@ -34,7 +63,8 @@ at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
     start = at::zeros(batch_size, k.options());
   }
 
-  auto tmp_dist = at::full(x.size(0), 1e38, x.options());
+  auto dist = at::full(x.size(0), 1e38, x.options());
+  auto tmp_dist = at::empty(x.size(0), x.options());
 
   auto k_sum = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(k_sum, cum_k[-1].data<int64_t>(), sizeof(int64_t),
@@ -44,10 +74,11 @@ at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
   AT_DISPATCH_FLOATING_TYPES(x.type(), "fps_kernel", [&] {
     fps_kernel<scalar_t><<<batch_size, THREADS>>>(
         x.data<scalar_t>(), cum_deg.data<int64_t>(), cum_k.data<int64_t>(),
-        start.data<int64_t>(), tmp_dist.data<scalar_t>(), out.data<int64_t>());
+        start.data<int64_t>(), dist.data<scalar_t>(), tmp_dist.data<scalar_t>(),
+        out.data<int64_t>(), x.size(1));
   });
 
-  return out;
+  return dist;
 }
 
 // at::Tensor ifp_cuda(at::Tensor x, at::Tensor batch, float ratio) {
