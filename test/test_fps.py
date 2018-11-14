@@ -9,6 +9,7 @@ from .utils import tensor, grad_dtypes
 devices = [torch.device('cuda')]
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA not available')
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_fps(dtype, device):
     x = tensor([
@@ -27,6 +28,7 @@ def test_fps(dtype, device):
     assert out.tolist() == [0, 2, 4, 6]
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA not available')
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_fps_speed(dtype, device):
     return
