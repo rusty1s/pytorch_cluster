@@ -1,6 +1,7 @@
 import torch
 
-from sample_cuda import farthest_point_sampling, query_radius, query_knn
+if torch.cuda.is_available():
+    from sample_cuda import farthest_point_sampling, query_radius, query_knn
 
 
 def batch_slices(batch, sizes=False, include_ends=True):
