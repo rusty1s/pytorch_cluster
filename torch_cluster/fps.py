@@ -29,12 +29,12 @@ def fps(x, batch=None, ratio=0.5, random_start=True):
     if batch is None:
         batch = x.new_zeros(x.size(0), dtype=torch.long)
 
+    x = x.view(-1, 1) if x.dim() == 1 else x
+
     assert x.is_cuda
-    assert x.dim() <= 2 and batch.dim() == 1
+    assert x.dim() == 2 and batch.dim() == 1
     assert x.size(0) == batch.size(0)
     assert ratio > 0 and ratio < 1
-
-    x = x.view(-1, 1) if x.dim() == 1 else x
 
     op = fps_cuda.fps if x.is_cuda else None
     out = op(x, batch, ratio, random_start)

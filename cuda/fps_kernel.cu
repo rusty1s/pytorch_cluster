@@ -11,7 +11,7 @@ template <typename scalar_t> struct Dist<scalar_t, 1> {
   static __device__ void
   compute(ptrdiff_t idx, ptrdiff_t start_idx, ptrdiff_t end_idx, ptrdiff_t old,
           scalar_t *__restrict__ best, ptrdiff_t *__restrict__ best_idx,
-          scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
+          const scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
@@ -29,7 +29,7 @@ template <typename scalar_t> struct Dist<scalar_t, 2> {
   static __device__ void
   compute(ptrdiff_t idx, ptrdiff_t start_idx, ptrdiff_t end_idx, ptrdiff_t old,
           scalar_t *__restrict__ best, ptrdiff_t *__restrict__ best_idx,
-          scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
+          const scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
@@ -49,7 +49,7 @@ template <typename scalar_t> struct Dist<scalar_t, 3> {
   static __device__ void
   compute(ptrdiff_t idx, ptrdiff_t start_idx, ptrdiff_t end_idx, ptrdiff_t old,
           scalar_t *__restrict__ best, ptrdiff_t *__restrict__ best_idx,
-          scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
+          const scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
@@ -70,7 +70,7 @@ template <typename scalar_t> struct Dist<scalar_t, -1> {
   static __device__ void
   compute(ptrdiff_t idx, ptrdiff_t start_idx, ptrdiff_t end_idx, ptrdiff_t old,
           scalar_t *__restrict__ best, ptrdiff_t *__restrict__ best_idx,
-          scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
+          const scalar_t *__restrict__ x, scalar_t *__restrict__ dist,
           scalar_t *__restrict__ tmp_dist, size_t dim) {
 
     for (ptrdiff_t n = start_idx + idx; n < end_idx; n += THREADS) {
@@ -96,8 +96,8 @@ template <typename scalar_t> struct Dist<scalar_t, -1> {
 
 template <typename scalar_t, int64_t Dim>
 __global__ void
-fps_kernel(scalar_t *__restrict__ x, int64_t *__restrict__ cum_deg,
-           int64_t *__restrict__ cum_k, int64_t *__restrict__ start,
+fps_kernel(const scalar_t *__restrict__ x, const int64_t *__restrict__ cum_deg,
+           const int64_t *__restrict__ cum_k, const int64_t *__restrict__ start,
            scalar_t *__restrict__ dist, scalar_t *__restrict__ tmp_dist,
            int64_t *__restrict__ out, size_t dim) {
 

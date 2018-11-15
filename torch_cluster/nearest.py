@@ -22,6 +22,6 @@ def nearest(x, y, batch_x=None, batch_y=None):
     assert y.size(0) == batch_y.size(0)
 
     op = nearest_cuda.nearest if x.is_cuda else None
-    dist, idx = op(x, y, batch_x, batch_y)
+    out = op(x, y, batch_x, batch_y)
 
-    return dist, idx
+    return out

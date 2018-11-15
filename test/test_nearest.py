@@ -32,6 +32,5 @@ def test_nearest(dtype, device):
     batch_x = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
     batch_y = tensor([0, 0, 1, 1], torch.long, device)
 
-    dist, idx = nearest(x, y, batch_x, batch_y)
-    assert dist.tolist() == [1, 1, 1, 1, 2, 2, 2, 2]
-    assert idx.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
+    out = nearest(x, y, batch_x, batch_y)
+    assert out.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
