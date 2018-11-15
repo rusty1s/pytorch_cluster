@@ -1,17 +1,18 @@
 import pytest
 import torch
 import numpy as np
-from torch_geometric.data import Batch
-from numpy.testing import assert_almost_equal
 
-from capsules.utils.sample import sample_farthest, batch_slices, radius_query_edges
+from torch_cluster.sample import (sample_farthest, batch_slices,
+                                  radius_query_edges)
 
 from .utils import tensor, grad_dtypes, devices
+
 
 @pytest.mark.parametrize('device', devices)
 def test_batch_slices(device):
     # test sample case for correctness
-    batch = tensor([0] * 100 + [1] * 50 + [2] * 42, dtype=torch.long, device=device)
+    batch = tensor(
+        [0] * 100 + [1] * 50 + [2] * 42, dtype=torch.long, device=device)
 
     slices, sizes = batch_slices(batch, sizes=True)
     slices, sizes = slices.cpu().tolist(), sizes.cpu().tolist()
@@ -33,10 +34,11 @@ def test_fps(dtype):
     batch = tensor(batch, dtype=torch.long, device='cuda')
     pos = tensor(points + random_points, dtype=dtype, device='cuda')
 
-    idx = sample_farthest(batch, pos, num_sampled=4, index=True)
+    sample_farthest(batch, pos, num_sampled=4, index=True)
 
     # needs update since isin is missing (sort indices, then compare?)
-    # assert isin(idx, tensor([0, 1, 2, 3], dtype=torch.long, device='cuda'), False).all().cpu().item() == 1
+    # assert isin(idx, tensor([0, 1, 2, 3], dtype=torch.long, device='cuda'),
+    # False).all().cpu().item() == 1
 
     # test variable number of points for each element in a batch
     batch = [0] * 100 + [1] * 50
@@ -67,7 +69,13 @@ def test_radius_edges(dtype):
     pos = tensor(points, dtype=dtype, device='cuda')
     query_pos = tensor(query_points, dtype=dtype, device='cuda')
 
-    edge_index = radius_query_edges(batch, pos, query_batch, query_pos, radius=radius, max_num_neighbors=128)
+    edge_index = radius_query_edges(
+        batch,
+        pos,
+        query_batch,
+        query_pos,
+        radius=radius,
+        max_num_neighbors=128)
     row, col = edge_index
     dist = torch.norm(pos[col] - query_pos[row], p=2, dim=1)
     assert (dist <= radius).all().item()

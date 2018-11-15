@@ -1,8 +1,5 @@
 import torch
-from torch_scatter import scatter_add, scatter_max
 from torch_geometric.utils import to_undirected
-from torch_geometric.data import Batch
-from torch_sparse import coalesce
 
 from sample_cuda import farthest_point_sampling, query_radius, query_knn
 
@@ -11,7 +8,7 @@ def batch_slices(batch, sizes=False, include_ends=True):
     """
     Calculates size, start and end indices for each element in a batch.
     """
-    size = scatter_add(torch.ones_like(batch), batch)
+    size = torch.scatter_add_(torch.ones_like(batch), batch)
     cumsum = torch.cumsum(size, dim=0)
     starts = cumsum - size
     ends = cumsum - 1
@@ -26,10 +23,10 @@ def batch_slices(batch, sizes=False, include_ends=True):
 
 
 def sample_farthest(batch, pos, num_sampled, random_start=False, index=False):
-    """
-    Samples a specified number of points for each element in a batch using farthest iterative point sampling and returns
-    a mask (or indices) for the sampled points.
-    If there are less than num_sampled points in a point cloud all points are returned.
+    """Samples a specified number of points for each element in a batch using
+    farthest iterative point sampling and returns a mask (or indices) for the
+    sampled points. If there are less than num_sampled points in a point cloud
+    all points are returned.
     """
     if not pos.is_cuda or not batch.is_cuda:
         raise NotImplementedError
@@ -67,9 +64,10 @@ def radius_query_edges(batch,
                        undirected=False):
     if not pos.is_cuda:
         raise NotImplementedError
-    assert pos.is_cuda and batch.is_cuda and query_pos.is_cuda and query_batch.is_cuda
-    assert pos.is_contiguous() and batch.is_contiguous(
-    ) and query_pos.is_contiguous() and query_batch.is_contiguous()
+    assert pos.is_cuda and batch.is_cuda
+    assert query_pos.is_cuda and query_batch.is_cuda
+    assert pos.is_contiguous() and batch.is_contiguous()
+    assert query_pos.is_contiguous() and query_batch.is_contiguous()
 
     slices, sizes = batch_slices(batch, sizes=True)
     batch_size = batch.max().item() + 1
@@ -115,9 +113,10 @@ def knn_query_edges(batch,
                     undirected=False):
     if not pos.is_cuda:
         raise NotImplementedError
-    assert pos.is_cuda and batch.is_cuda and query_pos.is_cuda and query_batch.is_cuda
-    assert pos.is_contiguous() and batch.is_contiguous(
-    ) and query_pos.is_contiguous() and query_batch.is_contiguous()
+    assert pos.is_cuda and batch.is_cuda
+    assert query_pos.is_cuda and query_batch.is_cuda
+    assert pos.is_contiguous() and batch.is_contiguous()
+    assert query_pos.is_contiguous() and query_batch.is_contiguous()
 
     slices, sizes = batch_slices(batch, sizes=True)
     batch_size = batch.max().item() + 1
@@ -147,5 +146,3 @@ def knn_query_edges(batch,
 def knn_graph(batch, pos, num_neighbors, include_self=False, undirected=False):
     return knn_query_edges(batch, pos, batch, pos, num_neighbors, include_self,
                            undirected)
-
-
