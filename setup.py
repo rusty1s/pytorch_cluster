@@ -16,6 +16,8 @@ if torch.cuda.is_available():
         CUDAExtension('fps_cuda', ['cuda/fps.cpp', 'cuda/fps_kernel.cu']),
         CUDAExtension('nearest_cuda',
                       ['cuda/nearest.cpp', 'cuda/nearest_kernel.cu']),
+        CUDAExtension('radius_cuda',
+                      ['cuda/radius.cpp', 'cuda/radius_kernel.cu']),
     ]
 
 __version__ = '1.2.0'
