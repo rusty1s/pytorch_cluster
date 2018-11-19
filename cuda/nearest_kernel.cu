@@ -30,7 +30,6 @@ __global__ void nearest_kernel(const scalar_t *__restrict__ x,
       dist += (x[n_x * dim + d] - y[n_y * dim + d]) *
               (x[n_x * dim + d] - y[n_y * dim + d]);
     }
-    dist = sqrt(dist);
 
     if (dist < best) {
       best = dist;

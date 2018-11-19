@@ -2,6 +2,7 @@ from .graclus import graclus_cluster
 from .grid import grid_cluster
 from .fps import fps
 from .nearest import nearest
+from .knn import knn, knn_graph
 from .radius import radius, radius_graph
 
 __version__ = '1.2.0'
@@ -11,6 +12,8 @@ __all__ = [
     'grid_cluster',
     'fps',
     'nearest',
+    'knn',
+    'knn_graph',
     'radius',
     'radius_graph',
     '__version__',
