@@ -5,6 +5,27 @@ if torch.cuda.is_available():
 
 
 def nearest(x, y, batch_x=None, batch_y=None):
+    """Finds for each element in `x` its nearest point in `y`.
+
+    Args:
+        x (Tensor): D-dimensional point features.
+        y (Tensor): D-dimensional point features.
+        batch_x (LongTensor, optional): Vector that maps each point to its
+            example identifier. If :obj:`None`, all points belong to the same
+            example. If not :obj:`None`, points in the same example need to
+            have contiguous memory layout and :obj:`batch` needs to be
+            ascending. (default: :obj:`None`)
+        batch_y (LongTensor, optional): See `batch_x` (default: :obj:`None`)
+
+    Examples::
+
+        >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+        >>> batch_x = torch.Tensor([0, 0, 0, 0])
+        >>> y = torch.Tensor([[-1, 0], [1, 0]])
+        >>> batch_x = torch.Tensor([0, 0])
+        >>> out = fps(x, y, batch_x, batch_y)
+    """
+
     if batch_x is None:
         batch_x = x.new_zeros(x.size(0), dtype=torch.long)
 

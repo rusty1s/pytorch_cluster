@@ -15,6 +15,8 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
         weight (Tensor, optional): Edge weights. (default: :obj:`None`)
         num_nodes (int, optional): The number of nodes. (default: :obj:`None`)
 
+    :rtype: :class:`LongTensor`
+
     Examples::
 
         >>> row = torch.tensor([0, 1, 1, 2])

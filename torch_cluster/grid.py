@@ -17,6 +17,8 @@ def grid_cluster(pos, size, start=None, end=None):
         end (Tensor, optional): End position of the grid (in each
             dimension). (default: :obj:`None`)
 
+    :rtype: :class:`LongTensor`
+
     Examples::
 
         >>> pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])

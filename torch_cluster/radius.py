@@ -5,6 +5,31 @@ if torch.cuda.is_available():
 
 
 def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
+    """Finds for each element in `y` all points in `x` within distance `r`.
+
+    Args:
+        x (Tensor): D-dimensional point features.
+        y (Tensor): D-dimensional point features.
+        r (float): The radius.
+        batch_x (LongTensor, optional): Vector that maps each point to its
+            example identifier. If :obj:`None`, all points belong to the same
+            example. If not :obj:`None`, points in the same example need to
+            have contiguous memory layout and :obj:`batch` needs to be
+            ascending. (default: :obj:`None`)
+        batch_y (LongTensor, optional): See `batch_x` (default: :obj:`None`)
+        max_num_neighbors (int, optional): The maximum number of neighbors to
+            return for each element in `y`. (default: :obj:`32`)
+
+    :rtype: :class:`LongTensor`
+
+    Examples::
+
+        >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+        >>> batch_x = torch.Tensor([0, 0, 0, 0])
+        >>> y = torch.Tensor([[-1, 0], [1, 0]])
+        >>> batch_x = torch.Tensor([0, 0])
+        >>> out = radius(x, y, 1.5, batch_x, batch_y)
+    """
 
     if batch_x is None:
         batch_x = x.new_zeros(x.size(0), dtype=torch.long)
@@ -29,6 +54,30 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
 
 
 def radius_graph(x, r, batch=None, max_num_neighbors=32):
+    """Finds for each element in `x` all points in `x` within distance `r`.
+
+    Args:
+        x (Tensor): D-dimensional point features.
+        r (float): The radius.
+        batch (LongTensor, optional): Vector that maps each point to its
+            example identifier. If :obj:`None`, all points belong to the same
+            example. If not :obj:`None`, points in the same example need to
+            have contiguous memory layout and :obj:`batch` needs to be
+            ascending. (default: :obj:`None`)
+        max_num_neighbors (int, optional): The maximum number of neighbors to
+            return for each element in `y`. (default: :obj:`32`)
+
+    :rtype: :class:`LongTensor`
+
+    Examples::
+
+        >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+        >>> batch_x = torch.Tensor([0, 0, 0, 0])
+        >>> y = torch.Tensor([[-1, 0], [1, 0]])
+        >>> batch_x = torch.Tensor([0, 0])
+        >>> out = radius(x, y, 1.5, batch_x, batch_y)
+    """
+
     edge_index = radius(x, x, r, batch, batch, max_num_neighbors + 1)
     row, col = edge_index
     mask = row != col

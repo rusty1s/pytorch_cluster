@@ -2,28 +2,31 @@ import torch
 
 if torch.cuda.is_available():
     import fps_cuda
+    """    """
 
 
 def fps(x, batch=None, ratio=0.5, random_start=True):
-    """A clustering algorithm, which overlays a regular grid of user-defined
-    size over a point cloud and clusters all points within a voxel.
+    """Samples a specified ratio of points for each element in a batch using
+    farthest iterative point sampling.
 
     Args:
-        x (Tensor): D-dimensional node features.
-        batch (LongTensor, optional): Vector that maps each node to a graph.
-            If :obj:`None`, all node features belong to the same graph. If not
-            :obj:`None`, nodes of the same graph need to have contiguous memory
-            layout and :obj:`batch` needs to be ascending.
-            (default: :obj:`None`)
+        x (Tensor): D-dimensional point features.
+        batch (LongTensor, optional): Vector that maps each point to its
+            example identifier. If :obj:`None`, all points belong to the same
+            example. If not :obj:`None`, points in the same example need to
+            have contiguous memory layout and :obj:`batch` needs to be
+            ascending. (default: :obj:`None`)
         ratio (float, optional): Sampling ratio. (default: :obj:`0.5`)
         random_start (bool, optional): Whether the starting node is
             sampled randomly. (default: :obj:`True`)
+
+    :rtype: :class:`LongTensor`
 
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch = torch.Tensor([0, 0, 0, 0])
-        >>> sample = fps(pos, batch)
+        >>> sample = fps(x, batch)
     """
 
     if batch is None:
