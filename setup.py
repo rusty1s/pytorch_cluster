@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 import torch
-from torch.utils.cpp_extension import CppExtension, CUDAExtension
+from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME
 
 ext_modules = [
     CppExtension('graclus_cpu', ['cpu/graclus.cpp']),
@@ -8,7 +8,7 @@ ext_modules = [
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 
-if torch.cuda.is_available():
+if CUDA_HOME is not None:
     ext_modules += [
         CUDAExtension('graclus_cuda',
                       ['cuda/graclus.cpp', 'cuda/graclus_kernel.cu']),
