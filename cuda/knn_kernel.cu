@@ -64,7 +64,7 @@ at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
 
   auto dist = at::full(y.size(0) * k, 1e38, y.options());
   auto row = at::empty(y.size(0) * k, batch_y.options());
-  auto col = at::empty(y.size(0) * k, batch_y.options());
+  auto col = at::full(y.size(0) * k, -1, batch_y.options());
 
   AT_DISPATCH_FLOATING_TYPES(x.type(), "knn_kernel", [&] {
     knn_kernel<scalar_t><<<batch_size, THREADS>>>(
@@ -73,5 +73,6 @@ at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
         col.data<int64_t>(), k, x.size(1));
   });
 
-  return at::stack({row, col}, 0);
+  auto mask = col != -1;
+  return at::stack({row.masked_select(mask), col.masked_select(mask)}, 0);
 }

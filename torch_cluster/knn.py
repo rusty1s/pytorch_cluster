@@ -51,7 +51,7 @@ def knn(x, y, k, batch_x=None, batch_y=None):
     return assign_index
 
 
-def knn_graph(x, k, batch=None):
+def knn_graph(x, k, batch=None, loop=False):
     """Finds for each element in `x` the `k` nearest points.
 
     Args:
@@ -62,6 +62,8 @@ def knn_graph(x, k, batch=None):
             example. If not :obj:`None`, points in the same example need to
             have contiguous memory layout and :obj:`batch` needs to be
             ascending. (default: :obj:`None`)
+        loop (bool, optional): If :obj:`True`, the graph will contain
+            self-loops. (default: :obj:`False`)
 
     :rtype: :class:`LongTensor`
 
@@ -72,8 +74,10 @@ def knn_graph(x, k, batch=None):
         >>> out = knn_graph(x, 2, batch)
     """
 
-    edge_index = knn(x, x, k + 1, batch, batch)
-    row, col = edge_index
-    mask = row != col
-    row, col = row[mask], col[mask]
-    return torch.stack([row, col], dim=0)
+    edge_index = knn(x, x, k if loop else k + 1, batch, batch)
+    if not loop:
+        row, col = edge_index
+        mask = row != col
+        row, col = row[mask], col[mask]
+        edge_index = torch.stack([row, col], dim=0)
+    return edge_index

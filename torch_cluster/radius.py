@@ -53,7 +53,7 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
     return assign_index
 
 
-def radius_graph(x, r, batch=None, max_num_neighbors=32):
+def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
     """Finds for each element in `x` all points in `x` within distance `r`.
 
     Args:
@@ -64,6 +64,8 @@ def radius_graph(x, r, batch=None, max_num_neighbors=32):
             example. If not :obj:`None`, points in the same example need to
             have contiguous memory layout and :obj:`batch` needs to be
             ascending. (default: :obj:`None`)
+        loop (bool, optional): If :obj:`True`, the graph will contain
+            self-loops. (default: :obj:`False`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
             return for each element in `y`. (default: :obj:`32`)
 
@@ -78,6 +80,9 @@ def radius_graph(x, r, batch=None, max_num_neighbors=32):
 
     edge_index = radius(x, x, r, batch, batch, max_num_neighbors + 1)
     row, col = edge_index
-    mask = row != col
-    row, col = row[mask], col[mask]
-    return torch.stack([row, col], dim=0)
+    if not loop:
+        row, col = edge_index
+        mask = row != col
+        row, col = row[mask], col[mask]
+        edge_index = torch.stack([row, col], dim=0)
+    return edge_index
