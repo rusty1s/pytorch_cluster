@@ -21,7 +21,7 @@ if CUDA_HOME is not None:
                       ['cuda/radius.cpp', 'cuda/radius_kernel.cu']),
     ]
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
 install_requires = []

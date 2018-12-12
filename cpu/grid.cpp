@@ -1,4 +1,4 @@
-#include <torch/torch.h>
+#include <torch/extension.h>
 
 at::Tensor grid(at::Tensor pos, at::Tensor size, at::Tensor start,
                 at::Tensor end) {

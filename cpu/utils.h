@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/torch.h>
+#include <torch/extension.h>
 
 std::tuple<at::Tensor, at::Tensor> remove_self_loops(at::Tensor row,
                                                      at::Tensor col) {
@@ -15,14 +15,8 @@ remove_self_loops(at::Tensor row, at::Tensor col, at::Tensor weight) {
                          weight.masked_select(mask));
 }
 
-at::Tensor randperm(int64_t n) {
-  auto out = at::empty(n, torch::CPU(at::kLong));
-  at::randperm_out(out, n);
-  return out;
-}
-
 std::tuple<at::Tensor, at::Tensor> rand(at::Tensor row, at::Tensor col) {
-  auto perm = randperm(row.size(0));
+  auto perm = at::randperm(row.size(0), row.options());
   return std::make_tuple(row.index_select(0, perm), col.index_select(0, perm));
 }
 

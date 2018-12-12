@@ -1,4 +1,4 @@
-#include <torch/torch.h>
+#include <torch/extension.h>
 
 #include "utils.h"
 
@@ -8,7 +8,7 @@ at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   std::tie(row, col) = to_csr(row, col, num_nodes);
   auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
 
-  auto perm = randperm(num_nodes);
+  auto perm = at::randperm(num_nodes, row.options());
   auto perm_data = perm.data<int64_t>();
 
   auto cluster = at::full(num_nodes, -1, row.options());
@@ -43,7 +43,7 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
   std::tie(row, col, weight) = to_csr(row, col, weight, num_nodes);
   auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
 
-  auto perm = randperm(num_nodes);
+  auto perm = at::randperm(num_nodes, row.options());
   auto perm_data = perm.data<int64_t>();
 
   auto cluster = at::full(num_nodes, -1, row.options());
