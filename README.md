@@ -89,7 +89,7 @@ tensor([0, 5, 3, 0, 1])
 
 ## FarthestPointSampling
 
-A sampling algorith, which iteratively samples the most distant point (in metric distance) with regard to the rest points.
+A sampling algorithm, which iteratively samples the most distant point (in metric distance) with regard to the rest points.
 
 ```python
 import torch
