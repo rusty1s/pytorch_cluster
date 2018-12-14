@@ -25,10 +25,10 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch_x = torch.Tensor([0, 0, 0, 0])
+        >>> batch_x = torch.tensor([0, 0, 0, 0])
         >>> y = torch.Tensor([[-1, 0], [1, 0]])
-        >>> batch_x = torch.Tensor([0, 0])
-        >>> out = radius(x, y, 1.5, batch_x, batch_y)
+        >>> batch_x = torch.tensor([0, 0])
+        >>> assign_index = radius(x, y, 1.5, batch_x, batch_y)
     """
 
     if batch_x is None:
@@ -74,8 +74,8 @@ def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch = torch.Tensor([0, 0, 0, 0])
-        >>> out = radius_graph(x, 1.5, batch)
+        >>> batch = torch.tensor([0, 0, 0, 0])
+        >>> edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
     """
 
     edge_index = radius(x, x, r, batch, batch, max_num_neighbors + 1)

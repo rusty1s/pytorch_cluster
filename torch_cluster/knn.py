@@ -23,10 +23,10 @@ def knn(x, y, k, batch_x=None, batch_y=None):
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch_x = torch.Tensor([0, 0, 0, 0])
+        >>> batch_x = torch.tensor([0, 0, 0, 0])
         >>> y = torch.Tensor([[-1, 0], [1, 0]])
-        >>> batch_x = torch.Tensor([0, 0])
-        >>> out = knn(x, y, 2, batch_x, batch_y)
+        >>> batch_x = torch.tensor([0, 0])
+        >>> assign_index = knn(x, y, 2, batch_x, batch_y)
     """
 
     if batch_x is None:
@@ -70,8 +70,8 @@ def knn_graph(x, k, batch=None, loop=False):
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch = torch.Tensor([0, 0, 0, 0])
-        >>> out = knn_graph(x, 2, batch)
+        >>> batch = torch.tensor([0, 0, 0, 0])
+        >>> edge_index = knn_graph(x, k=2, batch=batch, loop=False)
     """
 
     edge_index = knn(x, x, k if loop else k + 1, batch, batch)

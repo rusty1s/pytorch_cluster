@@ -6,8 +6,8 @@ if torch.cuda.is_available():
 
 
 def fps(x, batch=None, ratio=0.5, random_start=True):
-    """Samples a specified ratio of points for each element in a batch using
-    farthest iterative point sampling.
+    """Iteratively samples the most distant point (in metric distance) with
+    regard to the rest points.
 
     Args:
         x (Tensor): D-dimensional point features.
@@ -25,8 +25,8 @@ def fps(x, batch=None, ratio=0.5, random_start=True):
     Examples::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch = torch.Tensor([0, 0, 0, 0])
-        >>> sample = fps(x, batch)
+        >>> batch = torch.tensor([0, 0, 0, 0])
+        >>> sample = fps(x, batch, ratio=0.5)
     """
 
     if batch is None:

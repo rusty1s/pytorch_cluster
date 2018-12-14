@@ -18,12 +18,14 @@ The package consists of the following clustering algorithms:
 
 * **[Graclus](#graclus)** from Dhillon *et al.*: [Weighted Graph Cuts without Eigenvectors: A Multilevel Approach](http://www.cs.utexas.edu/users/inderjit/public_papers/multilevel_pami.pdf) (PAMI 2007)
 * **[Voxel Grid Pooling](#voxelgrid)** from, *e.g.*, Simonovsky and Komodakis: [Dynamic Edge-Conditioned Filters in Convolutional Neural Networks on Graphs](https://arxiv.org/abs/1704.02901) (CVPR 2017)
+* **[Iterative Farthest Point Sampling](#farthestpointsampling)** from, *e.g.* Qi *et al.*: [PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space](https://arxiv.org/abs/1706.02413) (NIPS 2017)
+* **[k-NN](#knn-graph)** and **[Radius](#radius-graph)** graph generation
 
 All included operations work on varying data types and are implemented both for CPU and GPU.
 
 ## Installation
 
-Ensure that at least PyTorch 0.4.1 is installed and verify that `cuda/bin` and `cuda/include` are in your `$PATH` and `$CPATH` respectively, *e.g.*:
+Ensure that at least PyTorch 1.0.0 is installed and verify that `cuda/bin` and `cuda/include` are in your `$PATH` and `$CPATH` respectively, *e.g.*:
 
 ```
 $ python -c "import torch; print(torch.__version__)"
@@ -83,6 +85,62 @@ cluster = grid_cluster(pos, size)
 ```
 print(cluster)
 tensor([0, 5, 3, 0, 1])
+```
+
+## FarthestPointSampling
+
+A sampling algorith, which iteratively samples the most distant point (in metric distance) with regard to the rest points.
+
+```python
+import torch
+from torch_cluster import fps
+
+x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+batch = torch.tensor([0, 0, 0, 0])
+sample = fps(x, batch, ratio=0.5, random_start=False)
+```
+
+```
+print(sample)
+tensor([0, 3])
+```
+
+## kNN-Graph
+
+Computes graph edges to the nearest *k* points in metric space.
+
+```python
+import torch
+from torch_cluster import knn_graph
+
+x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+batch = torch.tensor([0, 0, 0, 0])
+edge_index = knn_graph(x, k=2, batch=batch, loop=False)
+```
+
+```
+print(edge_index)
+tensor([[0, 0, 1, 1, 2, 2, 3, 3],
+        [1, 2, 0, 2, 0, 3, 1, 2]])
+```
+
+## Radius-Graph
+
+Computes graph edges to all points within a given distance in metric space.
+
+```python
+import torch
+from torch_cluster import radius_graph
+
+x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+batch = torch.tensor([0, 0, 0, 0])
+edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
+```
+
+```
+print(edge_index)
+tensor([[0, 0, 1, 1, 2, 2, 3, 3],
+        [1, 2, 0, 2, 0, 3, 1, 2]])
 ```
 
 ## Running tests
