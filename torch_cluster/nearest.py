@@ -23,7 +23,7 @@ def nearest(x, y, batch_x=None, batch_y=None):
         >>> batch_x = torch.Tensor([0, 0, 0, 0])
         >>> y = torch.Tensor([[-1, 0], [1, 0]])
         >>> batch_x = torch.Tensor([0, 0])
-        >>> out = fps(x, y, batch_x, batch_y)
+        >>> cluster = nearest(x, y, batch_x, batch_y)
     """
 
     if batch_x is None:
