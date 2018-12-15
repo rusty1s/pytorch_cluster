@@ -4,12 +4,9 @@ import pytest
 import torch
 from torch_cluster import radius
 
-from .utils import tensor, grad_dtypes
-
-devices = [torch.device('cuda')]
+from .utils import grad_dtypes, devices, tensor
 
 
-@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA not available')
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius(dtype, device):
     x = tensor([

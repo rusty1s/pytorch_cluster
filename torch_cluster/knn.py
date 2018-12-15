@@ -46,8 +46,7 @@ def knn(x, y, k, batch_x=None, batch_y=None):
     assert y.size(0) == batch_y.size(0)
 
     if x.is_cuda:
-        assign_index = knn_cuda.knn(x, y, k, batch_x, batch_y)
-        return assign_index
+        return knn_cuda.knn(x, y, k, batch_x, batch_y)
 
     # Rescale x and y.
     min_xy = min(x.min().item(), y.min().item())
