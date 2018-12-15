@@ -24,7 +24,7 @@ if CUDA_HOME is not None:
 __version__ = '1.2.1'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
-install_requires = []
+install_requires = ['scipy']
 setup_requires = ['pytest-runner']
 tests_require = ['pytest', 'pytest-cov']
 
@@ -43,5 +43,4 @@ setup(
     tests_require=tests_require,
     ext_modules=ext_modules,
     cmdclass=cmdclass,
-    packages=find_packages(),
-)
+    packages=find_packages(), )
