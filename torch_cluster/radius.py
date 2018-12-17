@@ -6,24 +6,33 @@ if torch.cuda.is_available():
 
 
 def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
-    """Finds for each element in `y` all points in `x` within distance `r`.
+    r"""Finds for each element in :obj:`y` all points in :obj:`x` within
+    distance :obj:`r`.
 
     Args:
-        x (Tensor): D-dimensional point features.
-        y (Tensor): D-dimensional point features.
+        x (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
+        y (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{M \times F}`.
         r (float): The radius.
-        batch_x (LongTensor, optional): Vector that maps each point to its
-            example identifier. If :obj:`None`, all points belong to the same
-            example. If not :obj:`None`, points in the same example need to
-            have contiguous memory layout and :obj:`batch` needs to be
-            ascending. (default: :obj:`None`)
-        batch_y (LongTensor, optional): See `batch_x` (default: :obj:`None`)
+        batch_x (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+            node to a specific example. (default: :obj:`None`)
+        batch_y (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
+            node to a specific example. (default: :obj:`None`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element in `y`. (default: :obj:`32`)
+            return for each element in :obj:`y`. (default: :obj:`32`)
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. testsetup::
+
+        import torch
+        from torch_cluster import radius
+
+    .. testcode::
+
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch_x = torch.tensor([0, 0, 0, 0])
@@ -63,24 +72,28 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
 
 
 def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
-    """Finds for each element in `x` all points in `x` within distance `r`.
+    r"""Computes graph edges to all points within a given distance.
 
     Args:
-        x (Tensor): D-dimensional point features.
+        x (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
         r (float): The radius.
-        batch (LongTensor, optional): Vector that maps each point to its
-            example identifier. If :obj:`None`, all points belong to the same
-            example. If not :obj:`None`, points in the same example need to
-            have contiguous memory layout and :obj:`batch` needs to be
-            ascending. (default: :obj:`None`)
+        batch (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+            node to a specific example. (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element in `y`. (default: :obj:`32`)
+            return for each element in :obj:`y`. (default: :obj:`32`)
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. testsetup::
+
+        import torch
+        from torch_cluster import radius_graph
+
+    .. testcode::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch = torch.tensor([0, 0, 0, 0])

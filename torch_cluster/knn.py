@@ -6,22 +6,30 @@ if torch.cuda.is_available():
 
 
 def knn(x, y, k, batch_x=None, batch_y=None):
-    """Finds for each element in `y` the `k` nearest points in `x`.
+    r"""Finds for each element in :obj:`y` the :obj:`k` nearest points in
+    :obj:`x`.
 
     Args:
-        x (Tensor): D-dimensional point features.
-        y (Tensor): D-dimensional point features.
+        x (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
+        y (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{M \times F}`.
         k (int): The number of neighbors.
-        batch_x (LongTensor, optional): Vector that maps each point to its
-            example identifier. If :obj:`None`, all points belong to the same
-            example. If not :obj:`None`, points in the same example need to
-            have contiguous memory layout and :obj:`batch` needs to be
-            ascending. (default: :obj:`None`)
-        batch_y (LongTensor, optional): See `batch_x` (default: :obj:`None`)
+        batch_x (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+            node to a specific example. (default: :obj:`None`)
+        batch_y (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
+            node to a specific example. (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. testsetup::
+
+        import torch
+        from torch_cluster import knn
+
+    .. testcode::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch_x = torch.tensor([0, 0, 0, 0])
@@ -70,22 +78,26 @@ def knn(x, y, k, batch_x=None, batch_y=None):
 
 
 def knn_graph(x, k, batch=None, loop=False):
-    """Finds for each element in `x` the `k` nearest points.
+    r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
-        x (Tensor): D-dimensional point features.
+        x (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
         k (int): The number of neighbors.
-        batch (LongTensor, optional): Vector that maps each point to its
-            example identifier. If :obj:`None`, all points belong to the same
-            example. If not :obj:`None`, points in the same example need to
-            have contiguous memory layout and :obj:`batch` needs to be
-            ascending. (default: :obj:`None`)
+        batch (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+            node to a specific example. (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. testsetup::
+
+        import torch
+        from torch_cluster import knn_graph
+
+    .. testcode::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch = torch.tensor([0, 0, 0, 0])

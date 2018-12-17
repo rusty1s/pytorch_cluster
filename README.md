@@ -90,7 +90,7 @@ tensor([0, 5, 3, 0, 1])
 
 ## FarthestPointSampling
 
-A sampling algorithm, which iteratively samples the most distant point (in metric distance) with regard to the rest points.
+A sampling algorithm, which iteratively samples the most distant point with regard to the rest points.
 
 ```python
 import torch
@@ -98,7 +98,7 @@ from torch_cluster import fps
 
 x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
 batch = torch.tensor([0, 0, 0, 0])
-sample = fps(x, batch, ratio=0.5, random_start=False)
+index = fps(x, batch, ratio=0.5, random_start=False)
 ```
 
 ```
@@ -108,7 +108,7 @@ tensor([0, 3])
 
 ## kNN-Graph
 
-Computes graph edges to the nearest *k* points in metric space.
+Computes graph edges to the nearest *k* points.
 
 ```python
 import torch
@@ -127,7 +127,7 @@ tensor([[0, 0, 1, 1, 2, 2, 3, 3],
 
 ## Radius-Graph
 
-Computes graph edges to all points within a given distance in metric space.
+Computes graph edges to all points within a given distance.
 
 ```python
 import torch
@@ -146,17 +146,17 @@ tensor([[0, 0, 1, 1, 2, 2, 3, 3],
 
 ## Nearest
 
-Clusters points which are nearest to a given query point in metric space.
+Clusters points in *x* together which are nearest to a given query point in *y*.
 
 ```python
 import torch
 from torch_cluster import nearest
 
 x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-batch_x = torch.Tensor([0, 0, 0, 0])
-query_x = torch.Tensor([[-1, 0], [1, 0]])
-query_batch = torch.Tensor([0, 0])
-cluster = nearest(x, query_x, batch_x, query_batch)
+batch_x = torch.tensor([0, 0, 0, 0])
+y = torch.Tensor([[-1, 0], [1, 0]])
+batch_y = torch.tensor([0, 0])
+cluster = nearest(x, y, batch_x, batch_y)
 ```
 
 ```

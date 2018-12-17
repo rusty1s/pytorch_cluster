@@ -2,31 +2,36 @@ import torch
 
 if torch.cuda.is_available():
     import fps_cuda
-    """    """
 
 
 def fps(x, batch=None, ratio=0.5, random_start=True):
-    """Iteratively samples the most distant point (in metric distance) with
-    regard to the rest points.
+    r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
+    Learning on Point Sets in a Metric Space"
+    <https://arxiv.org/abs/1706.02413>`_ paper, which iteratively samples the
+    most distant point with regard to the rest points.
 
     Args:
-        x (Tensor): D-dimensional point features.
-        batch (LongTensor, optional): Vector that maps each point to its
-            example identifier. If :obj:`None`, all points belong to the same
-            example. If not :obj:`None`, points in the same example need to
-            have contiguous memory layout and :obj:`batch` needs to be
-            ascending. (default: :obj:`None`)
+        x (Tensor): Node feature matrix
+            :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
+        batch (LongTensor, optional): Batch vector
+            :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+            node to a specific example. (default: :obj:`None`)
         ratio (float, optional): Sampling ratio. (default: :obj:`0.5`)
-        random_start (bool, optional): Whether the starting node is
-            sampled randomly. (default: :obj:`True`)
+        random_start (bool, optional): If set to :obj:`False`, use the first
+            node in :math:`\mathbf{X}` as starting node. (default: obj:`True`)
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. testsetup::
+
+        import torch
+        from torch_cluster import fps
+
+    .. testcode::
 
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch = torch.tensor([0, 0, 0, 0])
-        >>> sample = fps(x, batch, ratio=0.5)
+        >>> index = fps(x, batch, ratio=0.5)
     """
 
     if batch is None:
