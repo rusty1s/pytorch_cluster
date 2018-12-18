@@ -5,6 +5,7 @@ from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME
 ext_modules = [
     CppExtension('graclus_cpu', ['cpu/graclus.cpp']),
     CppExtension('grid_cpu', ['cpu/grid.cpp']),
+    CppExtension('fps_cpu', ['cpu/fps.cpp']),
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 
