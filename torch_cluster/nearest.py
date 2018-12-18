@@ -6,7 +6,7 @@ if torch.cuda.is_available():
 
 
 def nearest(x, y, batch_x=None, batch_y=None):
-    """Clusters points in :obj:`x` together which are nearest to a given query
+    r"""Clusters points in :obj:`x` together which are nearest to a given query
     point in :obj:`y`.
 
     Args:
