@@ -35,8 +35,8 @@ sort_by_row(at::Tensor row, at::Tensor col, at::Tensor weight) {
 }
 
 at::Tensor degree(at::Tensor row, int64_t num_nodes) {
-  auto zero = zeros(num_nodes, row.options());
-  auto one = ones(row.size(0), row.options());
+  auto zero = at::zeros(num_nodes, row.options());
+  auto one = at::ones(row.size(0), row.options());
   return zero.scatter_add_(0, row, one);
 }
 
@@ -44,7 +44,7 @@ std::tuple<at::Tensor, at::Tensor> to_csr(at::Tensor row, at::Tensor col,
                                           int64_t num_nodes) {
   std::tie(row, col) = sort_by_row(row, col);
   row = degree(row, num_nodes).cumsum(0);
-  row = at::cat({zeros(1, row.options()), row}, 0); // Prepend zero.
+  row = at::cat({at::zeros(1, row.options()), row}, 0); // Prepend zero.
   return std::make_tuple(row, col);
 }
 
@@ -52,6 +52,6 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor>
 to_csr(at::Tensor row, at::Tensor col, at::Tensor weight, int64_t num_nodes) {
   std::tie(row, col, weight) = sort_by_row(row, col, weight);
   row = degree(row, num_nodes).cumsum(0);
-  row = at::cat({zeros(1, row.options()), row}, 0); // Prepend zero.
+  row = at::cat({at::zeros(1, row.options()), row}, 0); // Prepend zero.
   return std::make_tuple(row, col, weight);
 }
