@@ -31,3 +31,6 @@ def test_nearest(dtype, device):
 
     out = nearest(x, y, batch_x, batch_y)
     assert out.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
+
+    out = nearest(x, y)
+    assert out.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]

@@ -23,3 +23,6 @@ def test_fps(dtype, device):
 
     out = fps(x, batch, ratio=0.5, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
+
+    out = fps(x, ratio=0.5, random_start=False)
+    assert out.sort()[0].tolist() == [0, 5, 6, 7]
