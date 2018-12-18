@@ -169,7 +169,7 @@ at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
 
   auto deg = degree(batch, batch_size);
   auto cum_deg = at::cat({at::zeros(1, deg.options()), deg.cumsum(0)}, 0);
-  auto k = (deg.toType(at::kFloat) * ratio).round().toType(at::kLong);
+  auto k = (deg.toType(at::kFloat) * ratio).ceil().toType(at::kLong);
   auto cum_k = at::cat({at::zeros(1, k.options()), k.cumsum(0)}, 0);
 
   at::Tensor start;
