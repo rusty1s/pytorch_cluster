@@ -39,7 +39,7 @@ radius_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
       }
 
       if (count >= max_num_neighbors) {
-        continue;
+        break;
       }
     }
   }
