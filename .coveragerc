@@ -1,3 +1,5 @@
+[run]
+source=torch_cluster
 [report]
 exclude_lines =
     pragma: no cover

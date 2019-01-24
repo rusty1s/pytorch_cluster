@@ -1,8 +1,8 @@
 import torch
-import graclus_cpu
+import torch_cluster.graclus_cpu
 
 if torch.cuda.is_available():
-    import graclus_cuda
+    import torch_cluster.graclus_cuda
 
 
 def graclus_cluster(row, col, weight=None, num_nodes=None):
@@ -28,7 +28,10 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
     if num_nodes is None:
         num_nodes = max(row.max().item(), col.max().item()) + 1
 
-    op = graclus_cuda if row.is_cuda else graclus_cpu
+    if row.is_cuda:
+        op = torch_cluster.graclus_cuda
+    else:
+        op = torch_cluster.graclus_cpu
 
     if weight is None:
         cluster = op.graclus(row, col, num_nodes)

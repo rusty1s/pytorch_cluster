@@ -2,7 +2,7 @@ import torch
 import scipy.spatial
 
 if torch.cuda.is_available():
-    import knn_cuda
+    import torch_cluster.knn_cuda
 
 
 def knn(x, y, k, batch_x=None, batch_y=None):
@@ -54,7 +54,7 @@ def knn(x, y, k, batch_x=None, batch_y=None):
     assert y.size(0) == batch_y.size(0)
 
     if x.is_cuda:
-        return knn_cuda.knn(x, y, k, batch_x, batch_y)
+        return torch_cluster.knn_cuda.knn(x, y, k, batch_x, batch_y)
 
     # Rescale x and y.
     min_xy = min(x.min().item(), y.min().item())

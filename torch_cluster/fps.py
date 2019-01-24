@@ -1,8 +1,8 @@
 import torch
-import fps_cpu
+import torch_cluster.fps_cpu
 
 if torch.cuda.is_available():
-    import fps_cuda
+    import torch_cluster.fps_cuda
 
 
 def fps(x, batch=None, ratio=0.5, random_start=True):
@@ -45,6 +45,6 @@ def fps(x, batch=None, ratio=0.5, random_start=True):
     assert ratio > 0 and ratio < 1
 
     if x.is_cuda:
-        return fps_cuda.fps(x, batch, ratio, random_start)
+        return torch_cluster.fps_cuda.fps(x, batch, ratio, random_start)
     else:
-        return fps_cpu.fps(x, batch, ratio, random_start)
+        return torch_cluster.fps_cpu.fps(x, batch, ratio, random_start)

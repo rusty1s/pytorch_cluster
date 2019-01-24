@@ -2,7 +2,7 @@ import torch
 import scipy.spatial
 
 if torch.cuda.is_available():
-    import radius_cuda
+    import torch_cluster.radius_cuda
 
 
 def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
@@ -57,7 +57,8 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
     assert y.size(0) == batch_y.size(0)
 
     if x.is_cuda:
-        return radius_cuda.radius(x, y, r, batch_x, batch_y, max_num_neighbors)
+        return torch_cluster.radius_cuda.radius(x, y, r, batch_x, batch_y,
+                                                max_num_neighbors)
 
     x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
     y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)

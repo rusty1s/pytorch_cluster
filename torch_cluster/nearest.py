@@ -2,7 +2,7 @@ import torch
 import scipy.cluster
 
 if torch.cuda.is_available():
-    import nearest_cuda
+    import torch_cluster.nearest_cuda
 
 
 def nearest(x, y, batch_x=None, batch_y=None):
@@ -51,7 +51,7 @@ def nearest(x, y, batch_x=None, batch_y=None):
     assert y.size(0) == batch_y.size(0)
 
     if x.is_cuda:
-        return nearest_cuda.nearest(x, y, batch_x, batch_y)
+        return torch_cluster.nearest_cuda.nearest(x, y, batch_x, batch_y)
 
     # Rescale x and y.
     min_xy = min(x.min().item(), y.min().item())

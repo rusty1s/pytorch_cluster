@@ -1,8 +1,8 @@
 import torch
-import grid_cpu
+import torch_cluster.grid_cpu
 
 if torch.cuda.is_available():
-    import grid_cuda
+    import torch_cluster.grid_cuda
 
 
 def grid_cluster(pos, size, start=None, end=None):
@@ -30,7 +30,11 @@ def grid_cluster(pos, size, start=None, end=None):
     start = pos.t().min(dim=1)[0] if start is None else start
     end = pos.t().max(dim=1)[0] if end is None else end
 
-    op = grid_cuda if pos.is_cuda else grid_cpu
+    if pos.is_cuda:
+        op = torch_cluster.grid_cuda
+    else:
+        op = torch_cluster.grid_cpu
+
     cluster = op.grid(pos, size, start, end)
 
     return cluster
