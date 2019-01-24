@@ -22,7 +22,8 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
             node to a specific example. (default: :obj:`None`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element in :obj:`y`. (default: :obj:`32`)
+            return for each element in :obj:`y`.
+            This flag is only needed for CUDA tensors. (default: :obj:`32`)
 
     :rtype: :class:`LongTensor`
 
