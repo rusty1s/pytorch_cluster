@@ -11,7 +11,7 @@ def test_rw():
     start = tensor([0, 1, 2, 3, 4], torch.long, device)
     row = tensor([0, 1, 1, 1, 2, 2, 3, 3, 4, 4], torch.long, device)
     col = tensor([1, 0, 2, 3, 1, 4, 1, 4, 2, 3], torch.long, device)
-    walk_length = 2
+    walk_length = 10
 
     out = random_walk(row, col, start, walk_length)
     assert out[:, 0].tolist() == start.tolist()
