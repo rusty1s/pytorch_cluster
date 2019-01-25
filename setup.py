@@ -23,6 +23,8 @@ if CUDA_HOME is not None:
                       ['cuda/knn.cpp', 'cuda/knn_kernel.cu']),
         CUDAExtension('torch_cluster.radius_cuda',
                       ['cuda/radius.cpp', 'cuda/radius_kernel.cu']),
+        CUDAExtension('torch_cluster.rw_cuda',
+                      ['cuda/rw.cpp', 'cuda/rw_kernel.cu']),
     ]
 
 __version__ = '1.2.3'

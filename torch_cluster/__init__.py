@@ -4,6 +4,7 @@ from .fps import fps
 from .nearest import nearest
 from .knn import knn, knn_graph
 from .radius import radius, radius_graph
+from .rw import random_walk
 
 __version__ = '1.2.3'
 
@@ -16,5 +17,6 @@ __all__ = [
     'knn_graph',
     'radius',
     'radius_graph',
+    'random_walk',
     '__version__',
 ]

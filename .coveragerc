@@ -4,3 +4,4 @@ source=torch_cluster
 exclude_lines =
     pragma: no cover
     cuda
+    raise
