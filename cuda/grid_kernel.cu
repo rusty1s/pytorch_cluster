@@ -26,6 +26,7 @@ __global__ void grid_kernel(int64_t *cluster,
 
 at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
                      at::Tensor end) {
+  cudaSetDevice(pos.get_device());
   auto cluster = at::empty(pos.size(0), pos.options().dtype(at::kLong));
 
   AT_DISPATCH_ALL_TYPES(pos.type(), "grid_kernel", [&] {

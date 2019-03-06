@@ -52,6 +52,7 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 
 at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
                     at::Tensor batch_y) {
+  cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);

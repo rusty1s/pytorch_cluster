@@ -60,6 +60,7 @@ __global__ void nearest_kernel(const scalar_t *__restrict__ x,
 
 at::Tensor nearest_cuda(at::Tensor x, at::Tensor y, at::Tensor batch_x,
                         at::Tensor batch_y) {
+  cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);

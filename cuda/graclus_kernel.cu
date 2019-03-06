@@ -6,6 +6,7 @@
 #include "utils.cuh"
 
 at::Tensor graclus_cuda(at::Tensor row, at::Tensor col, int64_t num_nodes) {
+  cudaSetDevice(row.get_device());
   std::tie(row, col) = remove_self_loops(row, col);
   std::tie(row, col) = rand(row, col);
   std::tie(row, col) = to_csr(row, col, num_nodes);
@@ -23,6 +24,7 @@ at::Tensor graclus_cuda(at::Tensor row, at::Tensor col, int64_t num_nodes) {
 
 at::Tensor weighted_graclus_cuda(at::Tensor row, at::Tensor col,
                                  at::Tensor weight, int64_t num_nodes) {
+  cudaSetDevice(row.get_device());
   std::tie(row, col, weight) = remove_self_loops(row, col, weight);
   std::tie(row, col, weight) = to_csr(row, col, weight, num_nodes);
 

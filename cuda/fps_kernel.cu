@@ -162,6 +162,7 @@ fps_kernel(const scalar_t *__restrict__ x, const int64_t *__restrict__ cum_deg,
   }()
 
 at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
+  cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(batch_sizes, batch[-1].data<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);

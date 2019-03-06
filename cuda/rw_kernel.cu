@@ -27,7 +27,7 @@ __global__ void uniform_rw_kernel(
 
 at::Tensor rw_cuda(at::Tensor row, at::Tensor col, at::Tensor start,
                    size_t walk_length, float p, float q, size_t num_nodes) {
-
+  cudaSetDevice(row.get_device());
   auto deg = degree(row, num_nodes);
   row = at::cat({at::zeros(1, deg.options()), deg.cumsum(0)}, 0);
 
