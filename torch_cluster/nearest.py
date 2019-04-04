@@ -13,7 +13,7 @@ def nearest(x, y, batch_x=None, batch_y=None):
         x (Tensor): Node feature matrix
             :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
         y (Tensor): Node feature matrix
-            :math:`\mathbf{X} \in \mathbb{R}^{M \times F}`.
+            :math:`\mathbf{Y} \in \mathbb{R}^{M \times F}`.
         batch_x (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
             node to a specific example. (default: :obj:`None`)
@@ -31,7 +31,7 @@ def nearest(x, y, batch_x=None, batch_y=None):
         >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         >>> batch_x = torch.tensor([0, 0, 0, 0])
         >>> y = torch.Tensor([[-1, 0], [1, 0]])
-        >>> batch_x = torch.tensor([0, 0])
+        >>> batch_y = torch.tensor([0, 0])
         >>> cluster = nearest(x, y, batch_x, batch_y)
     """
 
