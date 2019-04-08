@@ -64,12 +64,13 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
     x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
     y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
 
-    tree = scipy.spatial.cKDTree(x)
-    _, col = tree.query(y, k=max_num_neighbors, distance_upper_bound=r + 1e-8)
-    col = [torch.tensor(c) for c in col]
+    tree = scipy.spatial.cKDTree(x.detach().numpy())
+    _, col = tree.query(
+        y.detach().numpy(), k=max_num_neighbors, distance_upper_bound=r + 1e-8)
+    col = [torch.from_numpy(c).to(torch.long) for c in col]
     row = [torch.full_like(c, i) for i, c in enumerate(col)]
     row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
-    mask = col < tree.n
+    mask = col < int(tree.n)
     return torch.stack([row[mask], col[mask]], dim=0)
 
 
