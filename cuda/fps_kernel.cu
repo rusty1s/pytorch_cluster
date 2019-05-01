@@ -189,7 +189,7 @@ at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
              cudaMemcpyDeviceToHost);
   auto out = at::empty(k_sum[0], k.options());
 
-  AT_DISPATCH_FLOATING_TYPES(x.type(), "fps_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "fps_kernel", [&] {
     FPS_KERNEL(x.size(1), x.data<scalar_t>(), cum_deg.data<int64_t>(),
                cum_k.data<int64_t>(), start.data<int64_t>(),
                dist.data<scalar_t>(), tmp_dist.data<scalar_t>(),

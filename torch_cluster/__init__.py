@@ -6,7 +6,7 @@ from .knn import knn, knn_graph
 from .radius import radius, radius_graph
 from .rw import random_walk
 
-__version__ = '1.2.4'
+__version__ = '1.3.0'
 
 __all__ = [
     'graclus_cluster',

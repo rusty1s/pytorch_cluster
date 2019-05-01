@@ -71,7 +71,7 @@ at::Tensor nearest_cuda(at::Tensor x, at::Tensor y, at::Tensor batch_x,
 
   auto out = at::empty_like(batch_x);
 
-  AT_DISPATCH_FLOATING_TYPES(x.type(), "nearest_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "nearest_kernel", [&] {
     nearest_kernel<scalar_t><<<x.size(0), THREADS>>>(
         x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
         batch_y.data<int64_t>(), out.data<int64_t>(), x.size(1));

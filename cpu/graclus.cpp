@@ -49,7 +49,7 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
   auto cluster = at::full(num_nodes, -1, row.options());
   auto cluster_data = cluster.data<int64_t>();
 
-  AT_DISPATCH_ALL_TYPES(weight.type(), "weighted_graclus", [&] {
+  AT_DISPATCH_ALL_TYPES(weight.scalar_type(), "weighted_graclus", [&] {
     auto weight_data = weight.data<scalar_t>();
 
     for (int64_t i = 0; i < num_nodes; i++) {

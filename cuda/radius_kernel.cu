@@ -62,7 +62,7 @@ at::Tensor radius_cuda(at::Tensor x, at::Tensor y, float radius,
   auto row = at::full(y.size(0) * max_num_neighbors, -1, batch_y.options());
   auto col = at::full(y.size(0) * max_num_neighbors, -1, batch_y.options());
 
-  AT_DISPATCH_FLOATING_TYPES(x.type(), "radius_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "radius_kernel", [&] {
     radius_kernel<scalar_t><<<batch_size, THREADS>>>(
         x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
         batch_y.data<int64_t>(), row.data<int64_t>(), col.data<int64_t>(),

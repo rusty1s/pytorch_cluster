@@ -77,7 +77,7 @@ __global__ void propose_kernel(int64_t *__restrict__ cluster, int64_t *proposal,
 
 void propose(at::Tensor cluster, at::Tensor proposal, at::Tensor row,
              at::Tensor col, at::Tensor weight) {
-  AT_DISPATCH_ALL_TYPES(weight.type(), "propose_kernel", [&] {
+  AT_DISPATCH_ALL_TYPES(weight.scalar_type(), "propose_kernel", [&] {
     propose_kernel<scalar_t><<<BLOCKS(cluster.numel()), THREADS>>>(
         cluster.data<int64_t>(), proposal.data<int64_t>(), row.data<int64_t>(),
         col.data<int64_t>(), weight.data<scalar_t>(), cluster.numel());

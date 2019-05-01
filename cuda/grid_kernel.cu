@@ -29,7 +29,7 @@ at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
   cudaSetDevice(pos.get_device());
   auto cluster = at::empty(pos.size(0), pos.options().dtype(at::kLong));
 
-  AT_DISPATCH_ALL_TYPES(pos.type(), "grid_kernel", [&] {
+  AT_DISPATCH_ALL_TYPES(pos.scalar_type(), "grid_kernel", [&] {
     grid_kernel<scalar_t><<<BLOCKS(cluster.numel()), THREADS>>>(
         cluster.data<int64_t>(),
         at::cuda::detail::getTensorInfo<scalar_t, int64_t>(pos),
