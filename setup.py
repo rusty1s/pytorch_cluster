@@ -6,6 +6,7 @@ ext_modules = [
     CppExtension('torch_cluster.graclus_cpu', ['cpu/graclus.cpp']),
     CppExtension('torch_cluster.grid_cpu', ['cpu/grid.cpp']),
     CppExtension('torch_cluster.fps_cpu', ['cpu/fps.cpp']),
+    CppExtension('torch_cluster.sampler_cpu', ['cpu/sampler.cpp']),
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 
