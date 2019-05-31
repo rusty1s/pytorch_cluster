@@ -1,7 +1,7 @@
 import torch_cluster.sampler_cpu
 
 
-def neighbor_sampler(start, cumdeg, col, size):
+def neighbor_sampler(start, cumdeg, size):
     assert not start.is_cuda
 
     factor = 1
@@ -10,4 +10,4 @@ def neighbor_sampler(start, cumdeg, col, size):
         size = 2147483647
 
     op = torch_cluster.sampler_cpu.neighbor_sampler
-    return op(start, cumdeg, col, size, factor)
+    return op(start, cumdeg, size, factor)

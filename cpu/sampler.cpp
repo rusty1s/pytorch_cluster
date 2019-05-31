@@ -3,10 +3,8 @@
 
 #include <TH/THGenerator.hpp>
 
-std::tuple<at::Tensor, at::Tensor> neighbor_sampler(at::Tensor start,
-                                                    at::Tensor cumdeg,
-                                                    at::Tensor col, size_t size,
-                                                    float factor) {
+at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
+                            float factor) {
   THGenerator *generator = THGenerator_new();
 
   auto start_ptr = start.data<int64_t>();
@@ -46,9 +44,7 @@ std::tuple<at::Tensor, at::Tensor> neighbor_sampler(at::Tensor start,
 
   int64_t len = e_ids.size();
   auto e_id = torch::from_blob(e_ids.data(), {len}, start.options()).clone();
-  auto n_id = std::get<0>(at::_unique(col.index_select(0, e_id)));
-
-  return std::make_tuple(n_id, e_id);
+  return e_id;
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
