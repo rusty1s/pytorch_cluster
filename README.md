@@ -121,8 +121,8 @@ edge_index = knn_graph(x, k=2, batch=batch, loop=False)
 
 ```
 print(edge_index)
-tensor([[0, 0, 1, 1, 2, 2, 3, 3],
-        [1, 2, 0, 3, 0, 3, 1, 2]])
+tensor([[1, 2, 0, 3, 0, 3, 1, 2],
+        [0, 0, 1, 1, 2, 2, 3, 3]])
 ```
 
 ## Radius-Graph
@@ -140,8 +140,8 @@ edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
 
 ```
 print(edge_index)
-tensor([[0, 0, 1, 1, 2, 2, 3, 3],
-        [1, 2, 0, 2, 0, 3, 1, 2]])
+tensor([[1, 2, 0, 3, 0, 3, 1, 2],
+        [0, 0, 1, 1, 2, 2, 3, 3]])
 ```
 
 ## Nearest
