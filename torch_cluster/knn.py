@@ -79,7 +79,7 @@ def knn(x, y, k, batch_x=None, batch_y=None):
     return torch.stack([row, col], dim=0)
 
 
-def knn_graph(x, k, batch=None, loop=False):
+def knn_graph(x, k, batch=None, loop=False, flow='source_to_target'):
     r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
@@ -91,6 +91,9 @@ def knn_graph(x, k, batch=None, loop=False):
             node to a specific example. (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
+        flow (string, optional): The flow direction when using in combination
+            with message passing (:obj:`"source_to_target"` or
+            :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
 
     :rtype: :class:`LongTensor`
 
@@ -106,10 +109,10 @@ def knn_graph(x, k, batch=None, loop=False):
         >>> edge_index = knn_graph(x, k=2, batch=batch, loop=False)
     """
 
-    edge_index = knn(x, x, k if loop else k + 1, batch, batch)
+    assert flow in ['source_to_target', 'target_to_source']
+    row, col = knn(x, x, k if loop else k + 1, batch, batch)
+    row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
-        row, col = edge_index
         mask = row != col
         row, col = row[mask], col[mask]
-        edge_index = torch.stack([row, col], dim=0)
-    return edge_index
+    return torch.stack([row, col], dim=0)
