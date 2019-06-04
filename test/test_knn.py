@@ -45,12 +45,10 @@ def test_knn_graph(dtype, device):
 
     row, col = knn_graph(x, k=2, flow='target_to_source')
     col = col.view(-1, 2).sort(dim=-1)[0].view(-1)
-
     assert row.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
     assert col.tolist() == [1, 3, 0, 2, 1, 3, 0, 2]
 
     row, col = knn_graph(x, k=2, flow='source_to_target')
     row = row.view(-1, 2).sort(dim=-1)[0].view(-1)
-
     assert row.tolist() == [1, 3, 0, 2, 1, 3, 0, 2]
     assert col.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]

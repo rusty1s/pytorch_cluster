@@ -73,7 +73,12 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
     return torch.stack([row[mask], col[mask]], dim=0)
 
 
-def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
+def radius_graph(x,
+                 r,
+                 batch=None,
+                 loop=False,
+                 max_num_neighbors=32,
+                 flow='source_to_target'):
     r"""Computes graph edges to all points within a given distance.
 
     Args:
@@ -87,6 +92,9 @@ def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
             self-loops. (default: :obj:`False`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
             return for each element in :obj:`y`. (default: :obj:`32`)
+        flow (string, optional): The flow direction when using in combination
+            with message passing (:obj:`"source_to_target"` or
+            :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
 
     :rtype: :class:`LongTensor`
 
@@ -102,11 +110,10 @@ def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32):
         >>> edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
     """
 
-    edge_index = radius(x, x, r, batch, batch, max_num_neighbors + 1)
-    row, col = edge_index
+    assert flow in ['source_to_target', 'target_to_source']
+    row, col = radius(x, x, r, batch, batch, max_num_neighbors + 1)
+    row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
-        row, col = edge_index
         mask = row != col
         row, col = row[mask], col[mask]
-        edge_index = torch.stack([row, col], dim=0)
-    return edge_index
+    return torch.stack([row, col], dim=0)
