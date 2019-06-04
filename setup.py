@@ -28,7 +28,7 @@ if CUDA_HOME is not None:
                       ['cuda/rw.cpp', 'cuda/rw_kernel.cu']),
     ]
 
-__version__ = '1.4.0'
+__version__ = '1.4.1'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
 install_requires = ['scipy']

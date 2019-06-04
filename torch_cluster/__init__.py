@@ -7,7 +7,7 @@ from .radius import radius, radius_graph
 from .sampler import neighbor_sampler
 from .rw import random_walk
 
-__version__ = '1.4.0'
+__version__ = '1.4.1'
 
 __all__ = [
     'graclus_cluster',
