@@ -1,11 +1,9 @@
-#include <TH/THRandom.h>
+#include <ATen/CPUGenerator.h>
 #include <torch/extension.h>
-
-#include <TH/THGenerator.hpp>
 
 at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
                             float factor) {
-  THGenerator *generator = THGenerator_new();
+  CPUGenerator* generator = at::detail::getDefaultCPUGenerator();
 
   auto start_ptr = start.data<int64_t>();
   auto cumdeg_ptr = cumdeg.data<int64_t>();
@@ -26,7 +24,7 @@ at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
     std::unordered_set<int64_t> set;
     if (size_i < 0.7 * float(num_neighbors)) {
       while (set.size() < size_i) {
-        int64_t z = THRandom_random(generator) % num_neighbors;
+        int64_t z = generator->random() % num_neighbors;
         set.insert(z + low);
       }
       std::vector<int64_t> v(set.begin(), set.end());
@@ -39,8 +37,6 @@ at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
       }
     }
   }
-
-  THGenerator_free(generator);
 
   int64_t len = e_ids.size();
   auto e_id = torch::from_blob(e_ids.data(), {len}, start.options()).clone();
