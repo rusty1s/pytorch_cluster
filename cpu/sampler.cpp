@@ -3,7 +3,7 @@
 
 at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
                             float factor) {
-  CPUGenerator* generator = at::detail::getDefaultCPUGenerator();
+  CPUGenerator *generator = at::detail::getDefaultCPUGenerator();
 
   auto start_ptr = start.data<int64_t>();
   auto cumdeg_ptr = cumdeg.data<int64_t>();
