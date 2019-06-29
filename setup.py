@@ -44,7 +44,12 @@ setup(
     author_email='matthias.fey@tu-dortmund.de',
     url=url,
     download_url='{}/archive/{}.tar.gz'.format(url, __version__),
-    keywords=['pytorch', 'cluster', 'geometric-deep-learning', 'graph'],
+    keywords=[
+        'pytorch',
+        'geometric-deep-learning',
+        'graph-neural-networks',
+        'cluster-algorithms',
+    ],
     install_requires=install_requires,
     setup_requires=setup_requires,
     tests_require=tests_require,
