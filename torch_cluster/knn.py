@@ -68,9 +68,14 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
     x = torch.cat([x, 2 * x.size(1) * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
     y = torch.cat([y, 2 * y.size(1) * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
 
-    tree = sklearn.neighbors.KDTree(x.detach().numpy(), metric='cosine' if cosine else 'minkowski')#scipy.spatial.cKDTree(x.detach().numpy())
+    query_opts=dict(k=k)
+    if cosine:
+        tree = sklearn.neighbors.KDTree(x.detach().numpy(), metric='cosine')
+    else:
+        tree = scipy.spatial.cKDTree(x.detach().numpy())
+        query_opts['distance_upper_bound']=x.size(1)
     dist, col = tree.query(
-        y.detach().cpu(), k=k)#, distance_upper_bound=x.size(1))
+        y.detach().cpu(), **query_opts)
     dist = torch.from_numpy(dist).to(x.dtype)
     col = torch.from_numpy(col).to(torch.long)
     row = torch.arange(col.size(0), dtype=torch.long).view(-1, 1).repeat(1, k)

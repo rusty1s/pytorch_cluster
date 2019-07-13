@@ -5,7 +5,9 @@
 #define THREADS 1024
 
 // Code from https://github.com/adamantmc/CudaCosineSimilarity/blob/master/src/CudaCosineSimilarity.cu
-__device__ double dotProduct(double *a, double *b, int size) {
+template <typename scalar_t>
+__global__ void
+dot(double *a, double *b, size_t size) {
     double result = 0;
 
     for(int i = 0; i < size; i++) {
@@ -15,8 +17,10 @@ __device__ double dotProduct(double *a, double *b, int size) {
     return result;
 }
 
-__device__ double calc_norm(double *a, int size) {
-      double result = dotProduct(a,a,size);
+template <typename scalar_t>
+__global__ void
+norm(double *a, size_t size) {
+      double result = dot(a,a,size);
       result = sqrt(result);
       return result;
 }
@@ -48,7 +52,7 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 
       scalar_t tmp_dist = 0;
       if (cosine) {
-        tmp_dist = calc_norm(x,dim)*calc_norm(y,dim)-dotProduct(x,y,dim)
+        tmp_dist = norm(x,dim)*norm(y,dim)-dot(x,y,dim)
       }
       else {
         for (ptrdiff_t d = 0; d < dim; d++) {
