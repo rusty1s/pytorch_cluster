@@ -33,6 +33,11 @@ def test_knn(dtype, device):
     assert row.tolist() == [0, 0, 1, 1]
     assert col.tolist() == [2, 3, 4, 5]
 
+    if x.is_cuda:
+        row, col = knn(x, y, 2, batch_x, batch_y, cosine=True)
+        assert row.tolist() == [0, 0, 1, 1]
+        assert col.tolist() == [0, 1, 4, 5]
+
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_knn_graph(dtype, device):

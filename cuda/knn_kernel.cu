@@ -4,26 +4,24 @@
 
 #define THREADS 1024
 
-// Code from https://github.com/adamantmc/CudaCosineSimilarity/blob/master/src/CudaCosineSimilarity.cu
-template <typename scalar_t>
-__global__ void
-dot(double *a, double *b, size_t size) {
-    double result = 0;
-
-    for(int i = 0; i < size; i++) {
-        result += a[i] * b[i];
+template <typename scalar_t> struct Cosine {
+  static inline __device__ scalar_t dot(const scalar_t *a, const scalar_t *b,
+                                        size_t size) {
+    scalar_t result = 0;
+    for (ptrdiff_t i = 0; i < size; i++) {
+      result += a[i] * b[i];
     }
-
     return result;
-}
+  }
 
-template <typename scalar_t>
-__global__ void
-norm(double *a, size_t size) {
-      double result = dot(a,a,size);
-      result = sqrt(result);
-      return result;
-}
+  static inline __device__ scalar_t norm(const scalar_t *a, size_t size) {
+    scalar_t result = 0;
+    for (ptrdiff_t i = 0; i < size; i++) {
+      result += a[i] * a[i];
+    }
+    return sqrt(result);
+  }
+};
 
 template <typename scalar_t>
 __global__ void
@@ -52,15 +50,15 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 
       scalar_t tmp_dist = 0;
       if (cosine) {
-        tmp_dist = norm(x,dim)*norm(y,dim)-dot(x,y,dim)
-      }
-      else {
+        tmp_dist =
+            Cosine<scalar_t>::norm(x, dim) * Cosine<scalar_t>::norm(y, dim) -
+            Cosine<scalar_t>::dot(x, y, dim);
+      } else {
         for (ptrdiff_t d = 0; d < dim; d++) {
           tmp_dist += (x[n_x * dim + d] - y[n_y * dim + d]) *
                       (x[n_x * dim + d] - y[n_y * dim + d]);
         }
       }
-
 
       for (ptrdiff_t k_idx_1 = 0; k_idx_1 < k; k_idx_1++) {
         if (dist[n_y * k + k_idx_1] > tmp_dist) {

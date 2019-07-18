@@ -1,6 +1,5 @@
 import torch
 import scipy.spatial
-import sklearn.neighbors
 
 if torch.cuda.is_available():
     import torch_cluster.knn_cuda
@@ -22,6 +21,9 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
         batch_y (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
             node to a specific example. (default: :obj:`None`)
+        cosine (boolean, optional): If :obj:`True`, will use the cosine
+            distance instead of euclidean distance to find nearest neighbors.
+            (default: :obj:`False`)
 
     :rtype: :class:`LongTensor`
 
@@ -57,6 +59,9 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
     if x.is_cuda:
         return torch_cluster.knn_cuda.knn(x, y, k, batch_x, batch_y, cosine)
 
+    if cosine:
+        raise NotImplementedError('Cosine distance not implemented for CPU')
+
     # Rescale x and y.
     min_xy = min(x.min().item(), y.min().item())
     x, y = x - min_xy, y - min_xy
@@ -68,14 +73,9 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
     x = torch.cat([x, 2 * x.size(1) * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
     y = torch.cat([y, 2 * y.size(1) * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
 
-    query_opts=dict(k=k)
-    if cosine:
-        tree = sklearn.neighbors.KDTree(x.detach().numpy(), metric='cosine')
-    else:
-        tree = scipy.spatial.cKDTree(x.detach().numpy())
-        query_opts['distance_upper_bound']=x.size(1)
-    dist, col = tree.query(
-        y.detach().cpu(), **query_opts)
+    tree = scipy.spatial.cKDTree(x.detach().numpy())
+    dist, col = tree.query(y.detach().cpu(), k=k,
+                           distance_upper_bound=x.size(1))
     dist = torch.from_numpy(dist).to(x.dtype)
     col = torch.from_numpy(col).to(torch.long)
     row = torch.arange(col.size(0), dtype=torch.long).view(-1, 1).repeat(1, k)
@@ -85,7 +85,8 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
     return torch.stack([row, col], dim=0)
 
 
-def knn_graph(x, k, batch=None, loop=False, flow='source_to_target', cosine=False):
+def knn_graph(x, k, batch=None, loop=False, flow='source_to_target',
+              cosine=False):
     r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
@@ -100,6 +101,9 @@ def knn_graph(x, k, batch=None, loop=False, flow='source_to_target', cosine=Fals
         flow (string, optional): The flow direction when using in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
+        cosine (boolean, optional): If :obj:`True`, will use the cosine
+            distance instead of euclidean distance to find nearest neighbors.
+            (default: :obj:`False`)
 
     :rtype: :class:`LongTensor`
 
