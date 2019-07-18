@@ -4,6 +4,8 @@ from torch.testing import get_all_dtypes
 dtypes = get_all_dtypes()
 dtypes.remove(torch.half)
 dtypes.remove(torch.bool)
+if torch.bfloat16 in dtypes:
+    dtypes.remove(torch.bfloat16)
 
 grad_dtypes = [torch.float, torch.double]
 
