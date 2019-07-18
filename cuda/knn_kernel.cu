@@ -4,13 +4,34 @@
 
 #define THREADS 1024
 
+// Code from https://github.com/adamantmc/CudaCosineSimilarity/blob/master/src/CudaCosineSimilarity.cu
+template <typename scalar_t>
+__global__ void
+dot(double *a, double *b, size_t size) {
+    double result = 0;
+
+    for(int i = 0; i < size; i++) {
+        result += a[i] * b[i];
+    }
+
+    return result;
+}
+
+template <typename scalar_t>
+__global__ void
+norm(double *a, size_t size) {
+      double result = dot(a,a,size);
+      result = sqrt(result);
+      return result;
+}
+
 template <typename scalar_t>
 __global__ void
 knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
            const int64_t *__restrict__ batch_x,
            const int64_t *__restrict__ batch_y, scalar_t *__restrict__ dist,
            int64_t *__restrict__ row, int64_t *__restrict__ col, size_t k,
-           size_t dim) {
+           size_t dim, bool cosine) {
 
   const ptrdiff_t batch_idx = blockIdx.x;
   const ptrdiff_t idx = threadIdx.x;
@@ -30,10 +51,16 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
     for (ptrdiff_t n_x = start_idx_x; n_x < end_idx_x; n_x++) {
 
       scalar_t tmp_dist = 0;
-      for (ptrdiff_t d = 0; d < dim; d++) {
-        tmp_dist += (x[n_x * dim + d] - y[n_y * dim + d]) *
-                    (x[n_x * dim + d] - y[n_y * dim + d]);
+      if (cosine) {
+        tmp_dist = norm(x,dim)*norm(y,dim)-dot(x,y,dim)
       }
+      else {
+        for (ptrdiff_t d = 0; d < dim; d++) {
+          tmp_dist += (x[n_x * dim + d] - y[n_y * dim + d]) *
+                      (x[n_x * dim + d] - y[n_y * dim + d]);
+        }
+      }
+
 
       for (ptrdiff_t k_idx_1 = 0; k_idx_1 < k; k_idx_1++) {
         if (dist[n_y * k + k_idx_1] > tmp_dist) {
@@ -51,7 +78,7 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 }
 
 at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
-                    at::Tensor batch_y) {
+                    at::Tensor batch_y, bool cosine) {
   cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
@@ -71,7 +98,7 @@ at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
     knn_kernel<scalar_t><<<batch_size, THREADS>>>(
         x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
         batch_y.data<int64_t>(), dist.data<scalar_t>(), row.data<int64_t>(),
-        col.data<int64_t>(), k, x.size(1));
+        col.data<int64_t>(), k, x.size(1), cosine);
   });
 
   auto mask = col != -1;

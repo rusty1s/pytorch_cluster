@@ -31,7 +31,7 @@ if CUDA_HOME is not None:
 __version__ = '1.4.3a1'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
-install_requires = ['scipy']
+install_requires = ['scipy', 'scikit-learn']
 setup_requires = ['pytest-runner']
 tests_require = ['pytest', 'pytest-cov']
 
