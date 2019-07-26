@@ -21,6 +21,7 @@ The package consists of the following clustering algorithms:
 * **[Iterative Farthest Point Sampling](#farthestpointsampling)** from, *e.g.* Qi *et al.*: [PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space](https://arxiv.org/abs/1706.02413) (NIPS 2017)
 * **[k-NN](#knn-graph)** and **[Radius](#radius-graph)** graph generation
 * Clustering based on **[Nearest](#nearest)** points
+* **[Random Walk Sampling](#randomwalk-sampling)** from, *e.g.*, Grover and Leskovec: [node2vec: Scalable Feature Learning for Networks](https://arxiv.org/abs/1607.00653) (KDD 2016)
 
 All included operations work on varying data types and are implemented both for CPU and GPU.
 
@@ -162,6 +163,29 @@ cluster = nearest(x, y, batch_x, batch_y)
 ```
 print(cluster)
 tensor([0, 0, 1, 1])
+```
+
+## RandomWalk-Sampling
+
+Samples random walks of length `walk_length` from all node indices in `start` in the graph given by `(row, col)`.
+
+```python
+import torch
+from torch_cluster import random_walk
+
+row = torch.tensor([0, 1, 1, 1, 2, 2, 3, 3, 4, 4])
+col = torch.tensor([1, 0, 2, 3, 1, 4, 1, 4, 2, 3])
+start = torch.tensor([0, 1, 2, 3, 4])
+
+walk = random_walk(row, col, start, walk_length=3)
+```
+
+```
+print(walk)
+tensor([[0, 1, 2, 1],
+        [1, 3, 4, 2],
+        [3, 4, 3, 1],
+        [4, 2, 1, 0]])
 ```
 
 ## Running tests
