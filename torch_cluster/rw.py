@@ -46,7 +46,7 @@ def random_walk(row, col, start, walk_length, p=1, q=1, coalesced=False,
 
     start = start.flatten()
 
-    if row.is_cuda:
+    if row.is_cuda:  # pragma: no cover
         return torch_cluster.rw_cuda.rw(row, col, start, walk_length, p, q,
                                         num_nodes)
     else:
