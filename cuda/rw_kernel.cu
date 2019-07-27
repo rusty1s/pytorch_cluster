@@ -18,9 +18,9 @@ __global__ void uniform_rw_kernel(
     out[n] = start[n];
 
     for (ptrdiff_t l = 1; l <= walk_length; l++) {
-      auto i = l * numel + n;
-      auto cur = out[(l - 1) * numel + n];
-      out[i] = col[row[cur] + int64_t(rand[i] * deg[cur])];
+      auto i = (l - 1) * numel + n;
+      auto cur = out[i];
+      out[l * numel + n] = col[row[cur] + int64_t(rand[i] * deg[cur])];
     }
   }
 }
