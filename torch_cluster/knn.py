@@ -79,7 +79,7 @@ def knn(x, y, k, batch_x=None, batch_y=None, cosine=False):
     dist = torch.from_numpy(dist).to(x.dtype)
     col = torch.from_numpy(col).to(torch.long)
     row = torch.arange(col.size(0), dtype=torch.long).view(-1, 1).repeat(1, k)
-    mask = 1 - torch.isinf(dist).view(-1)
+    mask = ~torch.isinf(dist).view(-1)
     row, col = row.view(-1)[mask], col.view(-1)[mask]
 
     return torch.stack([row, col], dim=0)
