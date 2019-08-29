@@ -18,7 +18,7 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
   CHECK_CUDA(row);
   CHECK_CUDA(col);
   CHECK_CUDA(weight);
-  return graclus_cuda(row, col, num_nodes);
+  return weighted_graclus_cuda(row, col, weight, num_nodes);
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
