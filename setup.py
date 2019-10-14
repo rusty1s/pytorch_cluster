@@ -2,34 +2,52 @@ from setuptools import setup, find_packages
 import torch
 from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME
 
+TORCH_MAJOR = int(torch.__version__.split('.')[0])
+TORCH_MINOR = int(torch.__version__.split('.')[1])
+
+extra_compile_args = []
+if (TORCH_MAJOR > 1) or (TORCH_MAJOR == 1 and TORCH_MINOR > 2):
+    extra_compile_args += ['-DVERSION_GE_1_3']
+
 ext_modules = [
-    CppExtension('torch_cluster.graclus_cpu', ['cpu/graclus.cpp']),
+    CppExtension('torch_cluster.graclus_cpu', ['cpu/graclus.cpp'],
+                 extra_compile_args=extra_compile_args),
     CppExtension('torch_cluster.grid_cpu', ['cpu/grid.cpp']),
-    CppExtension('torch_cluster.fps_cpu', ['cpu/fps.cpp']),
-    CppExtension('torch_cluster.rw_cpu', ['cpu/rw.cpp']),
-    CppExtension('torch_cluster.sampler_cpu', ['cpu/sampler.cpp']),
+    CppExtension('torch_cluster.fps_cpu', ['cpu/fps.cpp'],
+                 extra_compile_args=extra_compile_args),
+    CppExtension('torch_cluster.rw_cpu', ['cpu/rw.cpp'],
+                 extra_compile_args=extra_compile_args),
+    CppExtension('torch_cluster.sampler_cpu', ['cpu/sampler.cpp'],
+                 extra_compile_args=extra_compile_args),
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 
 if CUDA_HOME is not None:
     ext_modules += [
         CUDAExtension('torch_cluster.graclus_cuda',
-                      ['cuda/graclus.cpp', 'cuda/graclus_kernel.cu']),
+                      ['cuda/graclus.cpp', 'cuda/graclus_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.grid_cuda',
-                      ['cuda/grid.cpp', 'cuda/grid_kernel.cu']),
+                      ['cuda/grid.cpp', 'cuda/grid_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.fps_cuda',
-                      ['cuda/fps.cpp', 'cuda/fps_kernel.cu']),
+                      ['cuda/fps.cpp', 'cuda/fps_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.nearest_cuda',
-                      ['cuda/nearest.cpp', 'cuda/nearest_kernel.cu']),
+                      ['cuda/nearest.cpp', 'cuda/nearest_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.knn_cuda',
-                      ['cuda/knn.cpp', 'cuda/knn_kernel.cu']),
+                      ['cuda/knn.cpp', 'cuda/knn_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.radius_cuda',
-                      ['cuda/radius.cpp', 'cuda/radius_kernel.cu']),
+                      ['cuda/radius.cpp', 'cuda/radius_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
         CUDAExtension('torch_cluster.rw_cuda',
-                      ['cuda/rw.cpp', 'cuda/rw_kernel.cu']),
+                      ['cuda/rw.cpp', 'cuda/rw_kernel.cu'],
+                      extra_compile_args=extra_compile_args),
     ]
 
-__version__ = '1.4.4'
+__version__ = '1.4.5'
 url = 'https://github.com/rusty1s/pytorch_cluster'
 
 install_requires = ['scipy']

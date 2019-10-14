@@ -2,6 +2,8 @@
 
 #include <ATen/ATen.h>
 
+#include "compat.cuh"
+
 #define THREADS 1024
 #define BLOCKS(N) (N + THREADS - 1) / THREADS
 
@@ -30,8 +32,8 @@ int64_t colorize(at::Tensor cluster) {
   auto props = at::full(numel, BLUE_PROB, cluster.options().dtype(at::kFloat));
   auto bernoulli = props.bernoulli();
 
-  colorize_kernel<<<BLOCKS(numel), THREADS>>>(cluster.data<int64_t>(),
-                                              bernoulli.data<float>(), numel);
+  colorize_kernel<<<BLOCKS(numel), THREADS>>>(
+      cluster.DATA_PTR<int64_t>(), bernoulli.DATA_PTR<float>(), numel);
 
   int64_t out;
   cudaMemcpyFromSymbol(&out, done, sizeof(out), 0, cudaMemcpyDeviceToHost);

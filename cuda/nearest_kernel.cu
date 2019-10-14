@@ -1,5 +1,6 @@
 #include <ATen/ATen.h>
 
+#include "compat.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -62,7 +63,7 @@ at::Tensor nearest_cuda(at::Tensor x, at::Tensor y, at::Tensor batch_x,
                         at::Tensor batch_y) {
   cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
-  cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
+  cudaMemcpy(batch_sizes, batch_x[-1].DATA_PTR<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
   auto batch_size = batch_sizes[0] + 1;
 
@@ -73,8 +74,9 @@ at::Tensor nearest_cuda(at::Tensor x, at::Tensor y, at::Tensor batch_x,
 
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "nearest_kernel", [&] {
     nearest_kernel<scalar_t><<<x.size(0), THREADS>>>(
-        x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
-        batch_y.data<int64_t>(), out.data<int64_t>(), x.size(1));
+        x.DATA_PTR<scalar_t>(), y.DATA_PTR<scalar_t>(),
+        batch_x.DATA_PTR<int64_t>(), batch_y.DATA_PTR<int64_t>(),
+        out.DATA_PTR<int64_t>(), x.size(1));
   });
 
   return out;

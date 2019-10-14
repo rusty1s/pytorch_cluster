@@ -1,5 +1,6 @@
 #include <ATen/ATen.h>
 
+#include "compat.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -79,7 +80,7 @@ at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
                     at::Tensor batch_y, bool cosine) {
   cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
-  cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
+  cudaMemcpy(batch_sizes, batch_x[-1].DATA_PTR<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
   auto batch_size = batch_sizes[0] + 1;
 
@@ -94,9 +95,10 @@ at::Tensor knn_cuda(at::Tensor x, at::Tensor y, size_t k, at::Tensor batch_x,
 
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "knn_kernel", [&] {
     knn_kernel<scalar_t><<<batch_size, THREADS>>>(
-        x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
-        batch_y.data<int64_t>(), dist.data<scalar_t>(), row.data<int64_t>(),
-        col.data<int64_t>(), k, x.size(1), cosine);
+        x.DATA_PTR<scalar_t>(), y.DATA_PTR<scalar_t>(),
+        batch_x.DATA_PTR<int64_t>(), batch_y.DATA_PTR<int64_t>(),
+        dist.DATA_PTR<scalar_t>(), row.DATA_PTR<int64_t>(),
+        col.DATA_PTR<int64_t>(), k, x.size(1), cosine);
   });
 
   auto mask = col != -1;

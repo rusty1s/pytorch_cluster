@@ -1,5 +1,6 @@
 #include <ATen/ATen.h>
 
+#include "compat.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -37,9 +38,9 @@ at::Tensor rw_cuda(at::Tensor row, at::Tensor col, at::Tensor start,
       at::full({(int64_t)walk_length + 1, start.size(0)}, -1, start.options());
 
   uniform_rw_kernel<<<BLOCKS(start.numel()), THREADS>>>(
-      row.data<int64_t>(), col.data<int64_t>(), deg.data<int64_t>(),
-      start.data<int64_t>(), rand.data<float>(), out.data<int64_t>(),
-      walk_length, start.numel());
+      row.DATA_PTR<int64_t>(), col.DATA_PTR<int64_t>(), deg.DATA_PTR<int64_t>(),
+      start.DATA_PTR<int64_t>(), rand.DATA_PTR<float>(),
+      out.DATA_PTR<int64_t>(), walk_length, start.numel());
 
   return out.t().contiguous();
 }

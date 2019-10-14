@@ -1,5 +1,6 @@
 #include <torch/extension.h>
 
+#include "compat.h"
 #include "utils.h"
 
 at::Tensor rw(at::Tensor row, at::Tensor col, at::Tensor start,
@@ -12,12 +13,12 @@ at::Tensor rw(at::Tensor row, at::Tensor col, at::Tensor start,
   auto out =
       at::full({start.size(0), (int64_t)walk_length + 1}, -1, start.options());
 
-  auto deg_d = deg.data<int64_t>();
-  auto cum_deg_d = cum_deg.data<int64_t>();
-  auto col_d = col.data<int64_t>();
-  auto start_d = start.data<int64_t>();
-  auto rand_d = rand.data<float>();
-  auto out_d = out.data<int64_t>();
+  auto deg_d = deg.DATA_PTR<int64_t>();
+  auto cum_deg_d = cum_deg.DATA_PTR<int64_t>();
+  auto col_d = col.DATA_PTR<int64_t>();
+  auto start_d = start.DATA_PTR<int64_t>();
+  auto rand_d = rand.DATA_PTR<float>();
+  auto out_d = out.DATA_PTR<int64_t>();
 
   for (ptrdiff_t n = 0; n < start.size(0); n++) {
     int64_t cur = start_d[n];

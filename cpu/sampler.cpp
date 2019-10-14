@@ -1,10 +1,12 @@
 #include <torch/extension.h>
 
+#include "compat.h"
+
 at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
                             float factor) {
 
-  auto start_ptr = start.data<int64_t>();
-  auto cumdeg_ptr = cumdeg.data<int64_t>();
+  auto start_ptr = start.DATA_PTR<int64_t>();
+  auto cumdeg_ptr = cumdeg.DATA_PTR<int64_t>();
 
   std::vector<int64_t> e_ids;
   for (ptrdiff_t i = 0; i < start.size(0); i++) {
@@ -29,7 +31,7 @@ at::Tensor neighbor_sampler(at::Tensor start, at::Tensor cumdeg, size_t size,
       e_ids.insert(e_ids.end(), v.begin(), v.end());
     } else {
       auto sample = at::randperm(num_neighbors, start.options());
-      auto sample_ptr = sample.data<int64_t>();
+      auto sample_ptr = sample.DATA_PTR<int64_t>();
       for (size_t j = 0; j < size_i; j++) {
         e_ids.push_back(sample_ptr[j] + low);
       }

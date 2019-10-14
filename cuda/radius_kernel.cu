@@ -1,5 +1,6 @@
 #include <ATen/ATen.h>
 
+#include "compat.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -50,7 +51,7 @@ at::Tensor radius_cuda(at::Tensor x, at::Tensor y, float radius,
                        size_t max_num_neighbors) {
   cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
-  cudaMemcpy(batch_sizes, batch_x[-1].data<int64_t>(), sizeof(int64_t),
+  cudaMemcpy(batch_sizes, batch_x[-1].DATA_PTR<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
   auto batch_size = batch_sizes[0] + 1;
 
@@ -64,9 +65,10 @@ at::Tensor radius_cuda(at::Tensor x, at::Tensor y, float radius,
 
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "radius_kernel", [&] {
     radius_kernel<scalar_t><<<batch_size, THREADS>>>(
-        x.data<scalar_t>(), y.data<scalar_t>(), batch_x.data<int64_t>(),
-        batch_y.data<int64_t>(), row.data<int64_t>(), col.data<int64_t>(),
-        radius, max_num_neighbors, x.size(1));
+        x.DATA_PTR<scalar_t>(), y.DATA_PTR<scalar_t>(),
+        batch_x.DATA_PTR<int64_t>(), batch_y.DATA_PTR<int64_t>(),
+        row.DATA_PTR<int64_t>(), col.DATA_PTR<int64_t>(), radius,
+        max_num_neighbors, x.size(1));
   });
 
   auto mask = row != -1;

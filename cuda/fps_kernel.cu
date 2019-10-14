@@ -1,6 +1,7 @@
 #include <ATen/ATen.h>
 
 #include "atomics.cuh"
+#include "compat.cuh"
 #include "utils.cuh"
 
 #define THREADS 1024
@@ -164,7 +165,7 @@ fps_kernel(const scalar_t *__restrict__ x, const int64_t *__restrict__ cum_deg,
 at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
   cudaSetDevice(x.get_device());
   auto batch_sizes = (int64_t *)malloc(sizeof(int64_t));
-  cudaMemcpy(batch_sizes, batch[-1].data<int64_t>(), sizeof(int64_t),
+  cudaMemcpy(batch_sizes, batch[-1].DATA_PTR<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
   auto batch_size = batch_sizes[0] + 1;
 
@@ -185,15 +186,15 @@ at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random) {
   auto tmp_dist = at::empty(x.size(0), x.options());
 
   auto k_sum = (int64_t *)malloc(sizeof(int64_t));
-  cudaMemcpy(k_sum, cum_k[-1].data<int64_t>(), sizeof(int64_t),
+  cudaMemcpy(k_sum, cum_k[-1].DATA_PTR<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
   auto out = at::empty(k_sum[0], k.options());
 
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "fps_kernel", [&] {
-    FPS_KERNEL(x.size(1), x.data<scalar_t>(), cum_deg.data<int64_t>(),
-               cum_k.data<int64_t>(), start.data<int64_t>(),
-               dist.data<scalar_t>(), tmp_dist.data<scalar_t>(),
-               out.data<int64_t>());
+    FPS_KERNEL(x.size(1), x.DATA_PTR<scalar_t>(), cum_deg.DATA_PTR<int64_t>(),
+               cum_k.DATA_PTR<int64_t>(), start.DATA_PTR<int64_t>(),
+               dist.DATA_PTR<scalar_t>(), tmp_dist.DATA_PTR<scalar_t>(),
+               out.DATA_PTR<int64_t>());
   });
 
   return out;

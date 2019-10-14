@@ -2,6 +2,8 @@
 #include <ATen/cuda/detail/IndexUtils.cuh>
 #include <ATen/cuda/detail/TensorInfo.cuh>
 
+#include "compat.cuh"
+
 #define THREADS 1024
 #define BLOCKS(N) (N + THREADS - 1) / THREADS
 
@@ -31,10 +33,10 @@ at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
 
   AT_DISPATCH_ALL_TYPES(pos.scalar_type(), "grid_kernel", [&] {
     grid_kernel<scalar_t><<<BLOCKS(cluster.numel()), THREADS>>>(
-        cluster.data<int64_t>(),
+        cluster.DATA_PTR<int64_t>(),
         at::cuda::detail::getTensorInfo<scalar_t, int64_t>(pos),
-        size.data<scalar_t>(), start.data<scalar_t>(), end.data<scalar_t>(),
-        cluster.numel());
+        size.DATA_PTR<scalar_t>(), start.DATA_PTR<scalar_t>(),
+        end.DATA_PTR<scalar_t>(), cluster.numel());
   });
 
   return cluster;

@@ -1,18 +1,19 @@
 #include <torch/extension.h>
 
+#include "compat.h"
 #include "utils.h"
 
 at::Tensor graclus(at::Tensor row, at::Tensor col, int64_t num_nodes) {
   std::tie(row, col) = remove_self_loops(row, col);
   std::tie(row, col) = rand(row, col);
   std::tie(row, col) = to_csr(row, col, num_nodes);
-  auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
+  auto row_data = row.DATA_PTR<int64_t>(), col_data = col.DATA_PTR<int64_t>();
 
   auto perm = at::randperm(num_nodes, row.options());
-  auto perm_data = perm.data<int64_t>();
+  auto perm_data = perm.DATA_PTR<int64_t>();
 
   auto cluster = at::full(num_nodes, -1, row.options());
-  auto cluster_data = cluster.data<int64_t>();
+  auto cluster_data = cluster.DATA_PTR<int64_t>();
 
   for (int64_t i = 0; i < num_nodes; i++) {
     auto u = perm_data[i];
@@ -41,16 +42,16 @@ at::Tensor weighted_graclus(at::Tensor row, at::Tensor col, at::Tensor weight,
                             int64_t num_nodes) {
   std::tie(row, col, weight) = remove_self_loops(row, col, weight);
   std::tie(row, col, weight) = to_csr(row, col, weight, num_nodes);
-  auto row_data = row.data<int64_t>(), col_data = col.data<int64_t>();
+  auto row_data = row.DATA_PTR<int64_t>(), col_data = col.DATA_PTR<int64_t>();
 
   auto perm = at::randperm(num_nodes, row.options());
-  auto perm_data = perm.data<int64_t>();
+  auto perm_data = perm.DATA_PTR<int64_t>();
 
   auto cluster = at::full(num_nodes, -1, row.options());
-  auto cluster_data = cluster.data<int64_t>();
+  auto cluster_data = cluster.DATA_PTR<int64_t>();
 
   AT_DISPATCH_ALL_TYPES(weight.scalar_type(), "weighted_graclus", [&] {
-    auto weight_data = weight.data<scalar_t>();
+    auto weight_data = weight.DATA_PTR<scalar_t>();
 
     for (int64_t i = 0; i < num_nodes; i++) {
       auto u = perm_data[i];
