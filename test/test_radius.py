@@ -6,8 +6,6 @@ from torch_cluster import radius, radius_graph
 
 from .utils import grad_dtypes, devices, tensor
 
-grad_dtypes = [torch.float]
-
 
 def coalesce(index):
     N = index.max().item() + 1
