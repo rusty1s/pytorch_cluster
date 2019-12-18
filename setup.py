@@ -20,6 +20,9 @@ ext_modules = [
                  extra_compile_args=extra_compile_args),
     CppExtension('torch_cluster.sampler_cpu', ['cpu/sampler.cpp'],
                  extra_compile_args=extra_compile_args),
+    CppExtension('torch_cluster.radius_cpu', sources=['cpu/radius.cpp',
+                                                      'cpu/utils/neighbors.cpp'],
+                 include_dirs=['cpu/utils/'])
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 

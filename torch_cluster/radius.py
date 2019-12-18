@@ -1,6 +1,7 @@
 import torch
 import scipy.spatial
 
+import torch_cluster.radius_cpu as radius_cpu
 if torch.cuda.is_available():
     import torch_cluster.radius_cuda
 
@@ -66,16 +67,22 @@ def radius(x, y, r, batch_x=None, batch_y=None, max_num_neighbors=32):
         return torch_cluster.radius_cuda.radius(x, y, r, batch_x, batch_y,
                                                 max_num_neighbors)
 
-    x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
-    y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
+    if(x.size(1) == 3):
+        res = radius_cpu.batch_radius_search(x, y, batch_x, batch_y, r,
+                                             max_num_neighbors, mode=1)
+        return res.t()
 
-    tree = scipy.spatial.cKDTree(x.detach().numpy())
-    col = tree.query_ball_point(y.detach().numpy(), r)
-    col = [sample(torch.tensor(c), max_num_neighbors) for c in col]
-    row = [torch.full_like(c, i) for i, c in enumerate(col)]
-    row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
-    mask = col < int(tree.n)
-    return torch.stack([row[mask], col[mask]], dim=0)
+    else:
+        x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
+        y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
+
+        tree = scipy.spatial.cKDTree(x.detach().numpy())
+        col = tree.query_ball_point(y.detach().numpy(), r)
+        col = [sample(torch.tensor(c), max_num_neighbors) for c in col]
+        row = [torch.full_like(c, i) for i, c in enumerate(col)]
+        row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
+        mask = col < int(tree.n)
+        return torch.stack([row[mask], col[mask]], dim=0)
 
 
 def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32,
