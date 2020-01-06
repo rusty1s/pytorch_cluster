@@ -112,7 +112,8 @@ def radius_graph(x, r, batch=None, loop=False, max_num_neighbors=32,
     """
 
     assert flow in ['source_to_target', 'target_to_source']
-    row, col = radius(x, x, r, batch, batch, max_num_neighbors + 1)
+    row, col = radius(x, x, r, batch, batch,
+                      max_num_neighbors if loop else max_num_neighbors + 1)
     row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
         mask = row != col
