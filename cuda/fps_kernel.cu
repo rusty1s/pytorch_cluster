@@ -1,6 +1,5 @@
 #include <ATen/ATen.h>
 
-#include "atomics.cuh"
 #include "compat.cuh"
 #include "utils.cuh"
 
