@@ -1,6 +1,7 @@
 #include <torch/extension.h>
 
-#define CHECK_CUDA(x) AT_ASSERTM(x.type().is_cuda(), #x " must be CUDA tensor")
+#define CHECK_CUDA(x)                                                          \
+  AT_ASSERTM(x.device().is_cuda(), #x " must be CUDA tensor")
 
 at::Tensor graclus_cuda(at::Tensor row, at::Tensor col, int64_t num_nodes);
 

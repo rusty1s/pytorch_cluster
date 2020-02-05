@@ -1,6 +1,7 @@
 #include <torch/extension.h>
 
-#define CHECK_CUDA(x) AT_ASSERTM(x.type().is_cuda(), #x " must be CUDA tensor")
+#define CHECK_CUDA(x)                                                          \
+  AT_ASSERTM(x.device().is_cuda(), #x " must be CUDA tensor")
 #define IS_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " is not contiguous");
 
 at::Tensor fps_cuda(at::Tensor x, at::Tensor batch, float ratio, bool random);

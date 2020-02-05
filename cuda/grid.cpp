@@ -1,6 +1,7 @@
 #include <torch/extension.h>
 
-#define CHECK_CUDA(x) AT_ASSERTM(x.type().is_cuda(), #x " must be CUDA tensor")
+#define CHECK_CUDA(x)                                                          \
+  AT_ASSERTM(x.device().is_cuda(), #x " must be CUDA tensor")
 
 at::Tensor grid_cuda(at::Tensor pos, at::Tensor size, at::Tensor start,
                      at::Tensor end);
