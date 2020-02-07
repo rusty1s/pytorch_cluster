@@ -182,10 +182,11 @@ walk = random_walk(row, col, start, walk_length=3)
 
 ```
 print(walk)
-tensor([[0, 1, 2, 1],
+tensor([[0, 1, 2, 4],
         [1, 3, 4, 2],
-        [3, 4, 3, 1],
-        [4, 2, 1, 0]])
+        [2, 4, 2, 1],
+        [3, 4, 2, 4],
+        [4, 3, 1, 0]])
 ```
 
 ## Running tests
