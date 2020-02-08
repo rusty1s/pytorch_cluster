@@ -37,6 +37,28 @@ def test_radius(dtype, device):
     out = radius(x, y, 2, batch_x, batch_y, max_num_neighbors=4)
     assert coalesce(out).tolist() == [[0, 0, 0, 0, 1, 1], [0, 1, 2, 3, 5, 6]]
 
+@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+def test_radius_3(dtype, device):
+    x = tensor([
+        [-1, -1, 0],
+        [-1, +1, 0],
+        [+1, +1, 0],
+        [+1, -1, 0],
+        [-1, -1, 0],
+        [-1, +1, 0],
+        [+1, +1, 0],
+        [+1, -1, 0],
+    ], dtype, device)
+    y = tensor([
+        [0, 0, 0],
+        [0, 1, 0],
+    ], dtype, device)
+
+    batch_x = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
+    batch_y = tensor([0, 1], torch.long, device)
+
+    out = radius(x, y, 2, batch_x, batch_y, max_num_neighbors=4)
+    assert coalesce(out).tolist() == [[0, 0, 0, 0, 1, 1], [0, 1, 2, 3, 5, 6]]
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius_graph(dtype, device):
