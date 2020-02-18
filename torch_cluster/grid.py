@@ -1,11 +1,12 @@
+from typing import Optional
+
 import torch
-import torch_cluster.grid_cpu
-
-if torch.cuda.is_available():
-    import torch_cluster.grid_cuda
 
 
-def grid_cluster(pos, size, start=None, end=None):
+@torch.jit.script
+def grid_cluster(pos: torch.Tensor, size: torch.Tensor,
+                 start: Optional[torch.Tensor] = None,
+                 end: Optional[torch.Tensor] = None) -> torch.Tensor:
     """A clustering algorithm, which overlays a regular grid of user-defined
     size over a point cloud and clusters all points within a voxel.
 
@@ -19,22 +20,13 @@ def grid_cluster(pos, size, start=None, end=None):
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. code-block:: python
 
-        >>> pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
-        >>> size = torch.Tensor([5, 5])
-        >>> cluster = grid_cluster(pos, size)
+        import torch
+        from torch_cluster import grid_cluster
+
+        pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+        size = torch.Tensor([5, 5])
+        cluster = grid_cluster(pos, size)
     """
-
-    pos = pos.unsqueeze(-1) if pos.dim() == 1 else pos
-    start = pos.t().min(dim=1)[0] if start is None else start
-    end = pos.t().max(dim=1)[0] if end is None else end
-
-    if pos.is_cuda:
-        op = torch_cluster.grid_cuda
-    else:
-        op = torch_cluster.grid_cpu
-
-    cluster = op.grid(pos, size, start, end)
-
-    return cluster
+    return torch.ops.torch_cluster.grid(pos, size, start, end)

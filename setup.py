@@ -26,7 +26,6 @@ def get_extensions():
         define_macros += [('WITH_CUDA', None)]
         nvcc_flags = os.getenv('NVCC_FLAGS', '')
         nvcc_flags = [] if nvcc_flags == '' else nvcc_flags.split(' ')
-        nvcc_flags += ['-arch=sm_35', '--expt-relaxed-constexpr']
         extra_compile_args['nvcc'] = nvcc_flags
 
     extensions_dir = osp.join(osp.dirname(osp.abspath(__file__)), 'csrc')
@@ -76,6 +75,7 @@ setup(
         'cluster-algorithms',
     ],
     license='MIT',
+    python_requires='>=3.6',
     install_requires=install_requires,
     setup_requires=setup_requires,
     tests_require=tests_require,
