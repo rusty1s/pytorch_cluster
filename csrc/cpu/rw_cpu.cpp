@@ -1,10 +1,11 @@
-#include <torch/extension.h>
+#include "rw_cpu.h"
 
-#include "compat.h"
 #include "utils.h"
 
-at::Tensor rw(at::Tensor row, at::Tensor col, at::Tensor start,
-              size_t walk_length, float p, float q, size_t num_nodes) {
+at::Tensor random_walk_cpu(torch::Tensor row, torch::Tensor col,
+                           torch::Tensor start, int64_t walk_length, double p,
+                           double q, int64_t num_nodes) {
+
   auto deg = degree(row, num_nodes);
   auto cum_deg = at::cat({at::zeros(1, deg.options()), deg.cumsum(0)}, 0);
 
@@ -33,8 +34,4 @@ at::Tensor rw(at::Tensor row, at::Tensor col, at::Tensor start,
   }
 
   return out;
-}
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("rw", &rw, "Random Walk Sampling (CPU)");
 }
