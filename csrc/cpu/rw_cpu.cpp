@@ -2,34 +2,42 @@
 
 #include "utils.h"
 
-at::Tensor random_walk_cpu(torch::Tensor row, torch::Tensor col,
-                           torch::Tensor start, int64_t walk_length, double p,
-                           double q, int64_t num_nodes) {
+torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
+                              torch::Tensor start, int64_t walk_length,
+                              double p, double q) {
+  CHECK_CPU(rowptr);
+  CHECK_CPU(col);
+  CHECK_CPU(start);
 
-  auto deg = degree(row, num_nodes);
-  auto cum_deg = at::cat({at::zeros(1, deg.options()), deg.cumsum(0)}, 0);
+  CHECK_INPUT(rowptr.dim() == 1);
+  CHECK_INPUT(col.dim() == 1);
+  CHECK_INPUT(start.dim() == 1);
 
-  auto rand = at::rand({start.size(0), (int64_t)walk_length},
-                       start.options().dtype(at::kFloat));
-  auto out =
-      at::full({start.size(0), (int64_t)walk_length + 1}, -1, start.options());
+  auto num_nodes = rowptr.size(0) - 1;
+  auto deg = rowptr.narrow(0, 1, num_nodes) - rowptr.narrow(0, 0, num_nodes);
 
-  auto deg_d = deg.DATA_PTR<int64_t>();
-  auto cum_deg_d = cum_deg.DATA_PTR<int64_t>();
-  auto col_d = col.DATA_PTR<int64_t>();
-  auto start_d = start.DATA_PTR<int64_t>();
-  auto rand_d = rand.DATA_PTR<float>();
-  auto out_d = out.DATA_PTR<int64_t>();
+  auto rand = torch::rand({start.size(0), walk_length},
+                          start.options().dtype(torch::kFloat));
 
-  for (ptrdiff_t n = 0; n < start.size(0); n++) {
-    int64_t cur = start_d[n];
-    auto i = n * (walk_length + 1);
-    out_d[i] = cur;
+  auto out = torch::full({start.size(0), walk_length + 1}, -1, start.options());
 
-    for (ptrdiff_t l = 1; l <= (int64_t)walk_length; l++) {
-      cur = col_d[cum_deg_d[cur] +
-                  int64_t(rand_d[n * walk_length + (l - 1)] * deg_d[cur])];
-      out_d[i + l] = cur;
+  auto rowptr_data = rowptr.data_ptr<int64_t>();
+  auto deg_data = deg.data_ptr<int64_t>();
+  auto col_data = col.data_ptr<int64_t>();
+  auto start_data = start.data_ptr<int64_t>();
+  auto rand_data = rand.data_ptr<float>();
+  auto out_data = out.data_ptr<int64_t>();
+
+  for (auto n = 0; n < start.size(0); n++) {
+    auto cur = start_data[n];
+    auto offset = n * (walk_length + 1);
+    out_data[offset] = cur;
+
+    for (auto l = 1; l <= walk_length; l++) {
+      cur = col_data[rowptr_data[cur] +
+                     int64_t(rand_data[n * walk_length + (l - 1)] *
+                             deg_data[cur])];
+      out_data[offset + l] = cur;
     }
   }
 

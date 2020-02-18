@@ -7,7 +7,9 @@ __version__ = '1.5.0'
 expected_torch_version = (1, 4)
 
 try:
-    for library in ['_version', '_grid', '_graclus', '_fps']:
+    for library in [
+            '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler'
+    ]:
         torch.ops.load_library(importlib.machinery.PathFinder().find_spec(
             library, [osp.dirname(__file__)]).origin)
 except OSError as e:
@@ -44,8 +46,8 @@ from .fps import fps  # noqa
 # from .nearest import nearest  # noqa
 # from .knn import knn, knn_graph  # noqa
 # from .radius import radius, radius_graph  # noqa
-# from .rw import random_walk  # noqa
-# from .sampler import neighbor_sampler  # noqa
+from .rw import random_walk  # noqa
+from .sampler import neighbor_sampler  # noqa
 
 __all__ = [
     'graclus_cluster',
@@ -56,7 +58,7 @@ __all__ = [
     # 'knn_graph',
     # 'radius',
     # 'radius_graph',
-    # 'random_walk',
-    # 'neighbor_sampler',
+    'random_walk',
+    'neighbor_sampler',
     '__version__',
 ]
