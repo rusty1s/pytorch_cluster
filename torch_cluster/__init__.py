@@ -8,7 +8,8 @@ expected_torch_version = (1, 4)
 
 try:
     for library in [
-            '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler'
+            '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler',
+            '_nearest', '_knn', '_radius'
     ]:
         torch.ops.load_library(importlib.machinery.PathFinder().find_spec(
             library, [osp.dirname(__file__)]).origin)
