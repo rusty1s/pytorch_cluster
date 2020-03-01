@@ -6,3 +6,4 @@ exclude_lines =
     torch.jit.script
     raise
     except
+    is_cuda

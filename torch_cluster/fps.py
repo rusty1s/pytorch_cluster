@@ -40,7 +40,7 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
         deg = src.new_zeros(batch_size, dtype=torch.long)
         deg.scatter_add_(0, batch, torch.ones_like(batch))
 
-        ptr = src.new_zeros(batch_size + 1, dtype=torch.long)
+        ptr = deg.new_zeros(batch_size + 1)
         deg.cumsum(0, out=ptr[1:])
     else:
         ptr = torch.tensor([0, src.size(0)], device=src.device)

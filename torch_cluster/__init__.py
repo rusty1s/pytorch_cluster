@@ -43,9 +43,9 @@ if torch.version.cuda is not None:  # pragma: no cover
 from .graclus import graclus_cluster  # noqa
 from .grid import grid_cluster  # noqa
 from .fps import fps  # noqa
-# from .nearest import nearest  # noqa
-# from .knn import knn, knn_graph  # noqa
-# from .radius import radius, radius_graph  # noqa
+from .nearest import nearest  # noqa
+from .knn import knn, knn_graph  # noqa
+from .radius import radius, radius_graph  # noqa
 from .rw import random_walk  # noqa
 from .sampler import neighbor_sampler  # noqa
 
@@ -53,11 +53,11 @@ __all__ = [
     'graclus_cluster',
     'grid_cluster',
     'fps',
-    # 'nearest',
-    # 'knn',
-    # 'knn_graph',
-    # 'radius',
-    # 'radius_graph',
+    'nearest',
+    'knn',
+    'knn_graph',
+    'radius',
+    'radius_graph',
     'random_walk',
     'neighbor_sampler',
     '__version__',
