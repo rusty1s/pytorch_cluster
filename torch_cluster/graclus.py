@@ -32,4 +32,12 @@ def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
     if num_nodes is None:
         num_nodes = max(int(row.max()), int(col.max())) + 1
 
-    return torch.ops.torch_cluster.graclus(row, col, weight, num_nodes)
+    perm = torch.argsort(row * num_nodes + col)
+    row, col = row[perm], col[perm]
+
+    deg = row.new_zeros(num_nodes)
+    deg.scatter_add_(0, row, torch.ones_like(row))
+    rowptr = row.new_zeros(num_nodes + 1)
+    deg.cumsum(0, out=rowptr[1:])
+
+    return torch.ops.torch_cluster.graclus(rowptr, col, weight)

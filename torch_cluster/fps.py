@@ -33,9 +33,8 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
         index = fps(src, batch, ratio=0.5)
     """
 
-    ptr: Optional[torch.Tensor] = None
     if batch is not None:
-        assert src.size(0) == batch.size(0)
+        assert src.size(0) == batch.numel()
         batch_size = int(batch.max()) + 1
 
         deg = src.new_zeros(batch_size, dtype=torch.long)
@@ -43,5 +42,7 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
 
         ptr = src.new_zeros(batch_size + 1, dtype=torch.long)
         deg.cumsum(0, out=ptr[1:])
+    else:
+        ptr = torch.tensor([0, src.size(0)], device=src.device)
 
     return torch.ops.torch_cluster.fps(src, ptr, ratio, random_start)

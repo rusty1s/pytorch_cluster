@@ -6,23 +6,16 @@ inline torch::Tensor get_dist(torch::Tensor x, int64_t idx) {
   return (x - x[idx]).norm(2, 1);
 }
 
-torch::Tensor fps_cpu(torch::Tensor src,
-                      torch::optional<torch::Tensor> optional_ptr, double ratio,
+torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, double ratio,
                       bool random_start) {
 
   CHECK_CPU(src);
-  if (optional_ptr.has_value()) {
-    CHECK_CPU(optional_ptr.value());
-    CHECK_INPUT(optional_ptr.value().dim() == 1);
-  }
+  CHECK_CPU(ptr);
+  CHECK_INPUT(ptr.dim() == 1);
   AT_ASSERTM(ratio > 0 and ratio < 1, "Invalid input");
 
-  if (!optional_ptr.has_value())
-    optional_ptr =
-        torch::tensor({0, src.size(0)}, src.options().dtype(torch::kLong));
-
   src = src.view({src.size(0), -1}).contiguous();
-  auto ptr = optional_ptr.value().contiguous();
+  ptr = ptr.contiguous();
   auto batch_size = ptr.size(0) - 1;
 
   auto deg = ptr.narrow(0, 1, batch_size) - ptr.narrow(0, 0, batch_size);
@@ -42,7 +35,7 @@ torch::Tensor fps_cpu(torch::Tensor src,
 
     int64_t start_idx = 0;
     if (random_start) {
-      // TODO: GET RANDOM INTEGER
+      start_idx = rand() % src.size(0);
     }
 
     out_data[out_start] = src_start + start_idx;
@@ -56,5 +49,6 @@ torch::Tensor fps_cpu(torch::Tensor src,
 
     src_start = src_end, out_start = out_end;
   }
+
   return out;
 }

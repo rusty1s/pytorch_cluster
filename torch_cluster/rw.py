@@ -35,7 +35,7 @@ def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
         num_nodes = max(int(row.max()), int(col.max())) + 1
 
     if coalesced:
-        _, perm = torch.sort(row * num_nodes + col)
+        perm = torch.argsort(row * num_nodes + col)
         row, col = row[perm], col[perm]
 
     deg = row.new_zeros(num_nodes)
