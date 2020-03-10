@@ -1,5 +1,13 @@
 #pragma once
 
+#include <torch/extension.h>
+
+#define CHECK_CUDA(x)                                                          \
+  AT_ASSERTM(x.device().is_cuda(), #x " must be CUDA tensor")
+#define CHECK_INPUT(x) AT_ASSERTM(x, "Input mismatch")
+
+////////////////////////////////////////////////////////////////////////
+
 #include <ATen/ATen.h>
 
 std::tuple<at::Tensor, at::Tensor> remove_self_loops(at::Tensor row,
