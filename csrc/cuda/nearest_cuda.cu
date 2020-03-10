@@ -25,7 +25,8 @@ __global__ void nearest_kernel(const scalar_t *x, const scalar_t *y,
 
   scalar_t best = 1e38;
   int64_t best_idx = 0;
-  for (int64_t n_y = y_start_idx + threadIdx.x; n_y < end_idx; n_y += THREADS) {
+  for (int64_t n_y = y_start_idx + threadIdx.x; n_y < y_end_idx;
+       n_y += THREADS) {
     scalar_t dist = 0;
     for (int64_t d = 0; d < dim; d++) {
       dist += (x[n_x * dim + d] - y[n_y * dim + d]) *
