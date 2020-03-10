@@ -13,13 +13,12 @@ __global__ void radius_kernel(const scalar_t *x, const scalar_t *y,
                               int64_t max_num_neighbors, int64_t dim) {
 
   const int64_t batch_idx = blockIdx.x;
-  // const ptrdiff_t idx = threadIdx.x;
 
-  const ptrdiff_t x_start_idx = ptr_x[batch_idx];
-  const ptrdiff_t x_end_idx = ptr_x[batch_idx + 1];
+  const int64_t x_start_idx = ptr_x[batch_idx];
+  const int64_t x_end_idx = ptr_x[batch_idx + 1];
 
-  const ptrdiff_t y_start_idx = ptr_y[batch_idx];
-  const ptrdiff_t y_end_idx = ptr_y[batch_idx + 1];
+  const int64_t y_start_idx = ptr_y[batch_idx];
+  const int64_t y_end_idx = ptr_y[batch_idx + 1];
 
   for (int64_t n_y = y_start_idx + threadIdx.x; n_y < y_end_idx;
        n_y += THREADS) {
