@@ -13,16 +13,12 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
   CHECK_INPUT(col.dim() == 1);
   CHECK_INPUT(start.dim() == 1);
 
-  auto num_nodes = rowptr.size(0) - 1;
-  auto deg = rowptr.narrow(0, 1, num_nodes) - rowptr.narrow(0, 0, num_nodes);
-
   auto rand = torch::rand({start.size(0), walk_length},
                           start.options().dtype(torch::kFloat));
 
   auto out = torch::full({start.size(0), walk_length + 1}, -1, start.options());
 
   auto rowptr_data = rowptr.data_ptr<int64_t>();
-  auto deg_data = deg.data_ptr<int64_t>();
   auto col_data = col.data_ptr<int64_t>();
   auto start_data = start.data_ptr<int64_t>();
   auto rand_data = rand.data_ptr<float>();
@@ -33,10 +29,12 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
     auto offset = n * (walk_length + 1);
     out_data[offset] = cur;
 
+    int64_t row_start, row_end;
     for (auto l = 1; l <= walk_length; l++) {
-      cur = col_data[rowptr_data[cur] +
-                     int64_t(rand_data[n * walk_length + (l - 1)] *
-                             deg_data[cur])];
+      row_start = rowptr_data[cur], row_end = rowptr_data[cur + 1];
+
+      cur = col_data[row_start + int64_t(rand_data[n * walk_length + (l - 1)] *
+                                         (row_end - row_start))];
       out_data[offset + l] = cur;
     }
   }

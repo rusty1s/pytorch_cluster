@@ -1,10 +1,8 @@
-#include "grid_cpu.h"
+#include "grid_cuda.h"
 
-#include <ATen/ATen.h>
-#include <ATen/cuda/detail/IndexUtils.cuh>
-#include <ATen/cuda/detail/TensorInfo.cuh>
+#include <ATen/cuda/CUDAContext.h>
 
-#include "compat.cuh"
+#include "utils.cuh"
 
 #define THREADS 1024
 #define BLOCKS(N) (N + THREADS - 1) / THREADS
@@ -12,7 +10,7 @@
 template <typename scalar_t>
 __global__ void grid_kernel(const scalar_t *pos, const scalar_t *size,
                             const scalar_t *start, const scalar_t *end,
-                            int64_t *out, int64_t N, int64_t D, int64_t numel) {
+                            int64_t *out, int64_t D, int64_t numel) {
   const size_t thread_idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (thread_idx < numel) {
@@ -62,11 +60,12 @@ torch::Tensor grid_cpu(torch::Tensor pos, torch::Tensor size,
 
   auto out = torch::empty(pos.size(0), pos.options().dtype(torch::kLong));
 
+  auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_ALL_TYPES(pos.scalar_type(), "grid_kernel", [&] {
-    grid_kernel<scalar_t><<<BLOCKS(out.numel()), THREADS>>>(
+    grid_kernel<scalar_t><<<BLOCKS(out.numel()), THREADS, 0, stream>>>(
         pos.data_ptr<scalar_t>(), size.data_ptr<scalar_t>(),
         start.data_ptr<scalar_t>(), end.data_ptr<scalar_t>(),
-        out.data_ptr<int64_t>(), pos.size(0), pos.size(1), out.numel());
+        out.data_ptr<int64_t>(), pos.size(1), out.numel());
   });
 
   return out;
