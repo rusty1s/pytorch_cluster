@@ -11,7 +11,7 @@ template <typename scalar_t>
 __global__ void grid_kernel(const scalar_t *pos, const scalar_t *size,
                             const scalar_t *start, const scalar_t *end,
                             int64_t *out, int64_t D, int64_t numel) {
-  const size_t thread_idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int64_t thread_idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (thread_idx < numel) {
     int64_t c = 0, k = 1;

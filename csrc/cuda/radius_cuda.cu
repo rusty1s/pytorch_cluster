@@ -64,8 +64,8 @@ torch::Tensor radius_cuda(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
     radius_kernel<scalar_t><<<ptr_x.size(0) - 1, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.data_ptr<int64_t>(), ptr_y.data_ptr<int64_t>(),
-        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), radius,
-        max_num_neighbors, x.size(1));
+        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), r, max_num_neighbors,
+        x.size(1));
   });
 
   auto mask = row != -1;

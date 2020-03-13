@@ -23,7 +23,7 @@ except OSError as e:
     raise OSError(e)
 
 if torch.version.cuda is not None:  # pragma: no cover
-    cuda_version = torch.ops.torch_sparse.cuda_version()
+    cuda_version = torch.ops.torch_cluster.cuda_version()
 
     if cuda_version == -1:
         major = minor = 0

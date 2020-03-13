@@ -23,7 +23,7 @@ __global__ void uniform_random_walk_kernel(const int64_t *rowptr,
       cur = out[i];
       row_start = rowptr[cur], row_end = rowptr[cur + 1];
 
-      out[l * numel + n] =
+      out[l * numel + thread_idx] =
           col[row_start + int64_t(rand[i] * (row_end - row_start))];
     }
   }
