@@ -6,15 +6,11 @@
 
 #define THREADS 1024
 
-inline torch::Tensor get_dist(torch::Tensor x, int64_t idx) {
-  return (x - x[idx]).norm(2, 1);
-}
-
 template <typename scalar_t> struct Dist<scalar_t> {
   static inline __device__ void compute(int64_t idx, int64_t start_idx,
                                         int64_t end_idx, int64_t old,
                                         scalar_t *best, int64_t *best_idx,
-                                        const scalar_t *x, scalar_t *dist,
+                                        const scalar_t *src, scalar_t *dist,
                                         scalar_t *tmp_dist, int64_t dim) {
 
     for (int64_t n = start_idx + idx; n < end_idx; n += THREADS) {
@@ -23,7 +19,7 @@ template <typename scalar_t> struct Dist<scalar_t> {
 
     __syncthreads();
     for (int64_t i = start_idx * dim + idx; i < end_idx * dim; i += THREADS) {
-      scalar_t d = x[(old * dim) + (i % dim)] - x[i];
+      scalar_t d = src[(old * dim) + (i % dim)] - src[i];
       atomicAdd(&tmp_dist[i / dim], d * d);
     }
 
@@ -39,7 +35,7 @@ template <typename scalar_t> struct Dist<scalar_t> {
 };
 
 template <typename scalar_t>
-__global__ void fps_kernel(const scalar_t *x, const int64_t *ptr,
+__global__ void fps_kernel(const scalar_t *src, const int64_t *ptr,
                            const int64_t *out_ptr, const int64_t *start,
                            scalar_t *dist, scalar_t *tmp_dist, int64_t *out,
                            int64_t dim) {
@@ -63,7 +59,7 @@ __global__ void fps_kernel(const scalar_t *x, const int64_t *ptr,
 
     __syncthreads();
     Dist<scalar_t, Dim>::compute(thread_idx, start_idx, end_idx, out[m - 1],
-                                 &best, &best_idx, x, dist, tmp_dist, dim);
+                                 &best, &best_idx, src, dist, tmp_dist, dim);
 
     best_dist[idx] = best;
     best_dist_idx[idx] = best_idx;
@@ -94,6 +90,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr, double ratio,
   CHECK_CUDA(ptr);
   CHECK_INPUT(ptr.dim() == 1);
   AT_ASSERTM(ratio > 0 and ratio < 1, "Invalid input");
+  cudaSetDevice(src.get_device());
 
   src = src.view({src.size(0), -1}).contiguous();
   ptr = ptr.contiguous();
@@ -106,7 +103,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr, double ratio,
 
   torch::Tensor start;
   if (random_start) {
-    start = at::rand(batch_size, src.options());
+    start = torch::rand(batch_size, src.options());
     start = (start * deg.toType(torch::kFloat)).toType(torch::kLong);
   } else {
     start = torch::zeros(batch_size, ptr.options());
@@ -118,7 +115,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr, double ratio,
   auto out_size = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(out_size, out_ptr[-1].data_ptr<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
-  auto out = at::empty(out_size[0], out_ptr.options());
+  auto out = torch::empty(out_size[0], out_ptr.options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_FLOATING_TYPES(src.scalar_type(), "fps_kernel", [&] {

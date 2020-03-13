@@ -100,5 +100,5 @@ torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
   });
 
   auto mask = col != -1;
-  return at::stack({row.masked_select(mask), col.masked_select(mask)}, 0);
+  return torch::stack({row.masked_select(mask), col.masked_select(mask)}, 0);
 }

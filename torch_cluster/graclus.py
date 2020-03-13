@@ -32,7 +32,17 @@ def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
     if num_nodes is None:
         num_nodes = max(int(row.max()), int(col.max())) + 1
 
-    perm = torch.argsort(row * num_nodes + col)
+    # Remove self-loops.
+    mask = row == col
+    row, col = row[mask], col[mask]
+
+    # Randomly shuffle nodes.
+    if weight is not None:
+        perm = torch.randperm(row.size(0), device=row.device)
+        row, col = row[perm], col[perm]
+
+    # To CSR.
+    perm = torch.argsort(row)
     row, col = row[perm], col[perm]
 
     deg = row.new_zeros(num_nodes)

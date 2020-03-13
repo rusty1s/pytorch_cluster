@@ -4,7 +4,6 @@
 
 torch::Tensor graclus_cpu(torch::Tensor rowptr, torch::Tensor col,
                           torch::optional<torch::Tensor> optional_weight) {
-
   CHECK_CPU(rowptr);
   CHECK_CPU(col);
   CHECK_INPUT(rowptr.dim() == 1 && col.dim() == 1);
@@ -33,11 +32,9 @@ torch::Tensor graclus_cpu(torch::Tensor rowptr, torch::Tensor col,
       out_data[u] = u;
 
       int64_t row_start = rowptr_data[u], row_end = rowptr_data[u + 1];
-      auto edge_perm = torch::randperm(row_end - row_start, rowptr.options());
-      auto edge_perm_data = edge_perm.data_ptr<int64_t>();
 
       for (auto e = 0; e < row_end - row_start; e++) {
-        auto v = col_data[row_start + edge_perm_data[e]];
+        auto v = col_data[row_start + e];
 
         if (out_data[v] >= 0)
           continue;
