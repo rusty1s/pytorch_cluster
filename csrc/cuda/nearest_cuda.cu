@@ -15,9 +15,12 @@ __global__ void nearest_kernel(const scalar_t *x, const scalar_t *y,
   const int64_t n_x = blockIdx.x;
 
   int64_t batch_idx;
-  for (int64_t b = 0; b < batch_size; b++)
-    if (ptr_x[b] >= n_x and ptr_x[b + 1] < n_x)
+  for (int64_t b = 0; b < batch_size; b++) {
+    if (n_x >= ptr_x[b] && n_x < ptr_x[b + 1]) {
       batch_idx = b;
+      continue;
+    }
+  }
 
   const int64_t y_start_idx = ptr_y[batch_idx];
   const int64_t y_end_idx = ptr_y[batch_idx + 1];
