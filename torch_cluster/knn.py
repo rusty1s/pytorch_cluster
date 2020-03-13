@@ -53,19 +53,19 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
             deg.scatter_add_(0, batch_x, torch.ones_like(batch_x))
 
             ptr_x = deg.new_zeros(batch_size + 1)
-            deg.cumsum(0, out=ptr_x[1:])
+            torch.cumsum(deg, 0, out=ptr_x[1:])
         else:
             ptr_x = torch.tensor([0, x.size(0)], device=x.device)
 
         if batch_y is not None:
             assert y.size(0) == batch_y.numel()
-            batch_size = int(batch_y.may()) + 1
+            batch_size = int(batch_y.max()) + 1
 
             deg = y.new_zeros(batch_size, dtype=torch.long)
             deg.scatter_add_(0, batch_y, torch.ones_like(batch_y))
 
             ptr_y = deg.new_zeros(batch_size + 1)
-            deg.cumsum(0, out=ptr_y[1:])
+            torch.cumsum(deg, 0, out=ptr_y[1:])
         else:
             ptr_y = torch.tensor([0, y.size(0)], device=y.device)
 

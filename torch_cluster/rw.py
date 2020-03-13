@@ -41,7 +41,7 @@ def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
     deg = row.new_zeros(num_nodes)
     deg.scatter_add_(0, row, torch.ones_like(row))
     rowptr = row.new_zeros(num_nodes + 1)
-    deg.cumsum(0, out=rowptr[1:])
+    torch.cumsum(deg, 0, out=rowptr[1:])
 
     if p != 1. or q != 1.:  # pragma: no cover
         warnings.warn('Parameters `p` and `q` are not supported yet and will'

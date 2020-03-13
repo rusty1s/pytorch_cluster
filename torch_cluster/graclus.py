@@ -54,6 +54,6 @@ def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
     deg = row.new_zeros(num_nodes)
     deg.scatter_add_(0, row, torch.ones_like(row))
     rowptr = row.new_zeros(num_nodes + 1)
-    deg.cumsum(0, out=rowptr[1:])
+    torch.cumsum(deg, 0, out=rowptr[1:])
 
     return torch.ops.torch_cluster.graclus(rowptr, col, weight)
