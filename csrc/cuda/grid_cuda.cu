@@ -32,9 +32,9 @@ torch::Tensor grid_cpu(torch::Tensor pos, torch::Tensor size,
   cudaSetDevice(pos.get_device());
 
   if (optional_start.has_value())
-    CHECK_CPU(optional_start.value());
+    CHECK_CUDA(optional_start.value());
   if (optional_start.has_value())
-    CHECK_CPU(optional_start.value());
+    CHECK_CUDA(optional_start.value());
 
   pos = pos.view({pos.size(0), -1}).contiguous();
   size = size.contiguous();
