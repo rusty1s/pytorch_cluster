@@ -15,7 +15,7 @@ __global__ void nearest_kernel(const scalar_t *x, const scalar_t *y,
   const int64_t n_x = blockIdx.x;
 
   int64_t batch_idx;
-  for (int64_t b = 0; b < ptr_x.size(0) - 1; b++)
+  for (int64_t b = 0; b < batch_size; b++)
     if (ptr_x[b] >= n_x and ptr_x[b + 1] < n_x)
       batch_idx = b;
 
@@ -46,7 +46,7 @@ __global__ void nearest_kernel(const scalar_t *x, const scalar_t *y,
 
   for (int64_t u = 0; (1 << u) < THREADS; u++) {
     __syncthreads();
-    if (idx < (THREADS >> (u + 1))) {
+    if (thread_idx < (THREADS >> (u + 1))) {
       int64_t idx_1 = (thread_idx * 2) << u;
       int64_t idx_2 = (thread_idx * 2 + 1) << u;
       if (best_dist[idx_1] > best_dist[idx_2]) {
