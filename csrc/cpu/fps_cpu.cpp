@@ -12,7 +12,7 @@ torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, double ratio,
   CHECK_CPU(src);
   CHECK_CPU(ptr);
   CHECK_INPUT(ptr.dim() == 1);
-  AT_ASSERTM(ratio > 0 and ratio < 1, "Invalid input");
+  AT_ASSERTM(ratio > 0 && ratio < 1, "Invalid input");
 
   src = src.view({src.size(0), -1}).contiguous();
   ptr = ptr.contiguous();

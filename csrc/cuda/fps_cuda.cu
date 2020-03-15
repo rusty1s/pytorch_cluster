@@ -69,7 +69,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr, double ratio,
   CHECK_CUDA(src);
   CHECK_CUDA(ptr);
   CHECK_INPUT(ptr.dim() == 1);
-  AT_ASSERTM(ratio > 0 and ratio < 1, "Invalid input");
+  AT_ASSERTM(ratio > 0 && ratio < 1, "Invalid input");
   cudaSetDevice(src.get_device());
 
   src = src.view({src.size(0), -1}).contiguous();
