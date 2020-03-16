@@ -33,7 +33,7 @@ We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](htt
 To install from binaries, simply run
 
 ```
-pip install torch-cluster==latest+${CUDA} -f https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/torch-1.4.0.html
+pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.4.0.html
 ```
 
 where `${CUDA}` should be replaced by either `cpu`, `cu92`, `cu100` or `cu101` depending on your PyTorch installation.
@@ -52,7 +52,6 @@ Ensure that at least PyTorch 1.4.0 is installed and verify that `cuda/bin` and `
 $ python -c "import torch; print(torch.__version__)"
 >>> 1.4.0
 
-```
 $ python -c "import torch; print(torch.__version__)"
 >>> 1.1.0
 
