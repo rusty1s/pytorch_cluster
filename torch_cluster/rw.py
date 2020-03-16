@@ -1,14 +1,13 @@
 import warnings
+from typing import Optional
 
 import torch
-import torch_cluster.rw_cpu
-
-if torch.cuda.is_available():
-    import torch_cluster.rw_cuda
 
 
-def random_walk(row, col, start, walk_length, p=1, q=1, coalesced=False,
-                num_nodes=None):
+@torch.jit.script
+def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
+                walk_length: int, p: float = 1, q: float = 1,
+                coalesced: bool = False, num_nodes: Optional[int] = None):
     """Samples random walks of length :obj:`walk_length` from all node indices
     in :obj:`start` in the graph given by :obj:`(row, col)` as described in the
     `"node2vec: Scalable Feature Learning for Networks"
@@ -33,22 +32,21 @@ def random_walk(row, col, start, walk_length, p=1, q=1, coalesced=False,
     :rtype: :class:`LongTensor`
     """
     if num_nodes is None:
-        num_nodes = max(row.max(), col.max()).item() + 1
+        num_nodes = max(int(row.max()), int(col.max())) + 1
 
     if coalesced:
-        _, perm = torch.sort(row * num_nodes + col)
+        perm = torch.argsort(row * num_nodes + col)
         row, col = row[perm], col[perm]
 
-    if p != 1 or q != 1:  # pragma: no cover
+    deg = row.new_zeros(num_nodes)
+    deg.scatter_add_(0, row, torch.ones_like(row))
+    rowptr = row.new_zeros(num_nodes + 1)
+    torch.cumsum(deg, 0, out=rowptr[1:])
+
+    if p != 1. or q != 1.:  # pragma: no cover
         warnings.warn('Parameters `p` and `q` are not supported yet and will'
                       'be restored to their default values `p=1` and `q=1`.')
-        p = q = 1
+        p = q = 1.
 
-    start = start.flatten()
-
-    if row.is_cuda:  # pragma: no cover
-        return torch_cluster.rw_cuda.rw(row, col, start, walk_length, p, q,
-                                        num_nodes)
-    else:
-        return torch_cluster.rw_cpu.rw(row, col, start, walk_length, p, q,
-                                       num_nodes)
+    return torch.ops.torch_cluster.random_walk(rowptr, col, start, walk_length,
+                                               p, q)

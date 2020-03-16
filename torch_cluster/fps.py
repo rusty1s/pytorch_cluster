@@ -1,18 +1,18 @@
+from typing import Optional
+
 import torch
-import torch_cluster.fps_cpu
-
-if torch.cuda.is_available():
-    import torch_cluster.fps_cuda
 
 
-def fps(x, batch=None, ratio=0.5, random_start=True):
+@torch.jit.script
+def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
+        ratio: float = 0.5, random_start: bool = True) -> torch.Tensor:
     r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
     Learning on Point Sets in a Metric Space"
     <https://arxiv.org/abs/1706.02413>`_ paper, which iteratively samples the
     most distant point with regard to the rest points.
 
     Args:
-        x (Tensor): Node feature matrix
+        src (Tensor): Point feature matrix
             :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
         batch (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
@@ -23,28 +23,26 @@ def fps(x, batch=None, ratio=0.5, random_start=True):
 
     :rtype: :class:`LongTensor`
 
-    .. testsetup::
+    .. code-block:: python
 
         import torch
         from torch_cluster import fps
 
-    .. testcode::
-
-        >>> x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
-        >>> batch = torch.tensor([0, 0, 0, 0])
-        >>> index = fps(x, batch, ratio=0.5)
+        src = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+        batch = torch.tensor([0, 0, 0, 0])
+        index = fps(src, batch, ratio=0.5)
     """
 
-    if batch is None:
-        batch = x.new_zeros(x.size(0), dtype=torch.long)
+    if batch is not None:
+        assert src.size(0) == batch.numel()
+        batch_size = int(batch.max()) + 1
 
-    x = x.view(-1, 1) if x.dim() == 1 else x
+        deg = src.new_zeros(batch_size, dtype=torch.long)
+        deg.scatter_add_(0, batch, torch.ones_like(batch))
 
-    assert x.dim() == 2 and batch.dim() == 1
-    assert x.size(0) == batch.size(0)
-    assert ratio > 0 and ratio < 1
-
-    if x.is_cuda:
-        return torch_cluster.fps_cuda.fps(x, batch, ratio, random_start)
+        ptr = deg.new_zeros(batch_size + 1)
+        torch.cumsum(deg, 0, out=ptr[1:])
     else:
-        return torch_cluster.fps_cpu.fps(x, batch, ratio, random_start)
+        ptr = torch.tensor([0, src.size(0)], device=src.device)
+
+    return torch.ops.torch_cluster.fps(src, ptr, ratio, random_start)

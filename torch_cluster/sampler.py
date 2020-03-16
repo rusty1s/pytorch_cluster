@@ -1,13 +1,17 @@
-import torch_cluster.sampler_cpu
+import torch
 
 
-def neighbor_sampler(start, cumdeg, size):
+@torch.jit.script
+def neighbor_sampler(start: torch.Tensor, rowptr: torch.Tensor, size: float):
     assert not start.is_cuda
 
-    factor = 1
-    if isinstance(size, float):
+    factor: float = -1.
+    count: int = -1
+    if size <= 1:
         factor = size
-        size = 2147483647
+        assert factor > 0
+    else:
+        count = int(size)
 
-    op = torch_cluster.sampler_cpu.neighbor_sampler
-    return op(start, cumdeg, size, factor)
+    return torch.ops.torch_cluster.neighbor_sampler(start, rowptr, count,
+                                                    factor)

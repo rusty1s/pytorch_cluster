@@ -1,11 +1,12 @@
+from typing import Optional
+
 import torch
-import torch_cluster.graclus_cpu
-
-if torch.cuda.is_available():
-    import torch_cluster.graclus_cuda
 
 
-def graclus_cluster(row, col, weight=None, num_nodes=None):
+@torch.jit.script
+def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
+                    weight: Optional[torch.Tensor] = None,
+                    num_nodes: Optional[int] = None) -> torch.Tensor:
     """A greedy clustering algorithm of picking an unmarked vertex and matching
     it with one its unmarked neighbors (that maximizes its edge weight).
 
@@ -17,25 +18,42 @@ def graclus_cluster(row, col, weight=None, num_nodes=None):
 
     :rtype: :class:`LongTensor`
 
-    Examples::
+    .. code-block:: python
 
-        >>> row = torch.tensor([0, 1, 1, 2])
-        >>> col = torch.tensor([1, 0, 2, 1])
-        >>> weight = torch.Tensor([1, 1, 1, 1])
-        >>> cluster = graclus_cluster(row, col, weight)
+        import torch
+        from torch_cluster import graclus_cluster
+
+        row = torch.tensor([0, 1, 1, 2])
+        col = torch.tensor([1, 0, 2, 1])
+        weight = torch.Tensor([1, 1, 1, 1])
+        cluster = graclus_cluster(row, col, weight)
     """
 
     if num_nodes is None:
-        num_nodes = max(row.max().item(), col.max().item()) + 1
+        num_nodes = max(int(row.max()), int(col.max())) + 1
 
-    if row.is_cuda:
-        op = torch_cluster.graclus_cuda
-    else:
-        op = torch_cluster.graclus_cpu
+    # Remove self-loops.
+    mask = row == col
+    row, col = row[mask], col[mask]
 
+    if weight is not None:
+        weight = weight[mask]
+
+    # Randomly shuffle nodes.
     if weight is None:
-        cluster = op.graclus(row, col, num_nodes)
-    else:
-        cluster = op.weighted_graclus(row, col, weight, num_nodes)
+        perm = torch.randperm(row.size(0), dtype=torch.long, device=row.device)
+        row, col = row[perm], col[perm]
 
-    return cluster
+    # To CSR.
+    perm = torch.argsort(row)
+    row, col = row[perm], col[perm]
+
+    if weight is not None:
+        weight = weight[perm]
+
+    deg = row.new_zeros(num_nodes)
+    deg.scatter_add_(0, row, torch.ones_like(row))
+    rowptr = row.new_zeros(num_nodes + 1)
+    torch.cumsum(deg, 0, out=rowptr[1:])
+
+    return torch.ops.torch_cluster.graclus(rowptr, col, weight)

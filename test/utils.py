@@ -1,17 +1,11 @@
 import torch
-from torch.testing import get_all_dtypes
 
-dtypes = get_all_dtypes()
-dtypes.remove(torch.half)
-dtypes.remove(torch.bool)
-if hasattr(torch, 'bfloat16'):
-    dtypes.remove(torch.bfloat16)
-
+dtypes = [torch.float, torch.double, torch.int, torch.long]
 grad_dtypes = [torch.float, torch.double]
 
 devices = [torch.device('cpu')]
 if torch.cuda.is_available():
-    devices += [torch.device('cuda:{}'.format(torch.cuda.current_device()))]
+    devices += [torch.device(f'cuda:{torch.cuda.current_device()}')]
 
 
 def tensor(x, dtype, device):

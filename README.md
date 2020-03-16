@@ -27,7 +27,30 @@ All included operations work on varying data types and are implemented both for 
 
 ## Installation
 
-Ensure that at least PyTorch 1.1.0 is installed and verify that `cuda/bin` and `cuda/include` are in your `$PATH` and `$CPATH` respectively, *e.g.*:
+### Binaries
+
+We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/index.html).
+To install from binaries, simply run
+
+```
+pip install torch-cluster==latest+${CUDA} -f https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/torch-1.4.0.html
+```
+
+where `${CUDA}` should be replaced by either `cpu`, `cu92`, `cu100` or `cu101` depending on your PyTorch installation.
+
+|             | `cpu` | `cu92` | `cu100` | `cu101` |
+|-------------|-------|--------|---------|---------|
+| **Linux**   | ✅    | ✅     | ✅      | ✅      |
+| **Windows** | ✅    | ❌     | ❌      | ✅      |
+| **macOS**   | ✅    |        |         |         |
+
+### From source
+
+Ensure that at least PyTorch 1.4.0 is installed and verify that `cuda/bin` and `cuda/include` are in your `$PATH` and `$CPATH` respectively, *e.g.*:
+
+```
+$ python -c "import torch; print(torch.__version__)"
+>>> 1.4.0
 
 ```
 $ python -c "import torch; print(torch.__version__)"
@@ -46,10 +69,16 @@ Then run:
 pip install torch-cluster
 ```
 
-If you are running into any installation problems, please create an [issue](https://github.com/rusty1s/pytorch_cluster/issues).
-Be sure to import `torch` first before using this package to resolve symbols the dynamic linker must see.
+When running in a docker container without NVIDIA driver, PyTorch needs to evaluate the compute capabilities and may fail.
+In this case, ensure that the compute capabilities are set via `TORCH_CUDA_ARCH_LIST`, *e.g.*:
 
-## Graclus
+```
+export TORCH_CUDA_ARCH_LIST = "6.0 6.1 7.2+PTX 7.5+PTX"
+```
+
+## Functions
+
+### Graclus
 
 A greedy clustering algorithm of picking an unmarked vertex and matching it with one its unmarked neighbors (that maximizes its edge weight).
 The GPU algorithm is adapted from Fagginger Auer and Bisseling: [A GPU Algorithm for Greedy Graph Matching](http://www.staff.science.uu.nl/~bisse101/Articles/match12.pdf) (LNCS 2012)
@@ -70,7 +99,7 @@ print(cluster)
 tensor([0, 0, 1])
 ```
 
-## VoxelGrid
+### VoxelGrid
 
 A clustering algorithm, which overlays a regular grid of user-defined size over a point cloud and clusters all points within a voxel.
 
@@ -89,7 +118,7 @@ print(cluster)
 tensor([0, 5, 3, 0, 1])
 ```
 
-## FarthestPointSampling
+### FarthestPointSampling
 
 A sampling algorithm, which iteratively samples the most distant point with regard to the rest points.
 
@@ -107,7 +136,7 @@ print(sample)
 tensor([0, 3])
 ```
 
-## kNN-Graph
+### kNN-Graph
 
 Computes graph edges to the nearest *k* points.
 
@@ -126,7 +155,7 @@ tensor([[1, 2, 0, 3, 0, 3, 1, 2],
         [0, 0, 1, 1, 2, 2, 3, 3]])
 ```
 
-## Radius-Graph
+### Radius-Graph
 
 Computes graph edges to all points within a given distance.
 
@@ -145,7 +174,7 @@ tensor([[1, 2, 0, 3, 0, 3, 1, 2],
         [0, 0, 1, 1, 2, 2, 3, 3]])
 ```
 
-## Nearest
+### Nearest
 
 Clusters points in *x* together which are nearest to a given query point in *y*.
 
@@ -165,7 +194,7 @@ print(cluster)
 tensor([0, 0, 1, 1])
 ```
 
-## RandomWalk-Sampling
+### RandomWalk-Sampling
 
 Samples random walks of length `walk_length` from all node indices in `start` in the graph given by `(row, col)`.
 
