@@ -33,7 +33,7 @@ def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
         num_nodes = max(int(row.max()), int(col.max())) + 1
 
     # Remove self-loops.
-    mask = row == col
+    mask = row != col
     row, col = row[mask], col[mask]
 
     if weight is not None:
