@@ -131,7 +131,7 @@ index = fps(x, batch, ratio=0.5, random_start=False)
 ```
 
 ```
-print(sample)
+print(index)
 tensor([0, 3])
 ```
 
