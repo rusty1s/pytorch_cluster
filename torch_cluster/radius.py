@@ -7,7 +7,7 @@ import scipy.spatial
 @torch.jit.script
 def sample(col: torch.Tensor, count: int) -> torch.Tensor:
     if col.size(0) > count:
-        col = col[torch.randperm(col.size(0))][:count]
+        col = col[torch.randperm(col.size(0), dtype=torch.long)][:count]
     return col
 
 
