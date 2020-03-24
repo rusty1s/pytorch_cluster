@@ -4,7 +4,7 @@
 
 #include "utils.cuh"
 
-#define THREADS 1024
+#define THREADS 256
 
 template <typename scalar_t>
 __global__ void fps_kernel(const scalar_t *src, const int64_t *ptr,
@@ -31,15 +31,15 @@ __global__ void fps_kernel(const scalar_t *src, const int64_t *ptr,
     int64_t best_idx = 0;
 
     for (int64_t n = start_idx + thread_idx; n < end_idx; n += THREADS) {
-      scalar_t tmp;
-      scalar_t dd = (scalar_t)0.;
+      scalar_t tmp, dd = (scalar_t)0.;
       for (int64_t d = 0; d < dim; d++) {
         tmp = src[dim * old + d] - src[dim * n + d];
         dd += tmp * tmp;
       }
-      dist[n] = min(dist[n], dd);
-      if (dist[n] > best) {
-        best = dist[n];
+      dd = min(dist[n], dd);
+      dist[n] = dd;
+      if (dd > best) {
+        best = dd;
         best_idx = n;
       }
     }

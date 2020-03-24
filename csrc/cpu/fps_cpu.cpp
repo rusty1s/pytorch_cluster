@@ -35,7 +35,7 @@ torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, double ratio,
 
     int64_t start_idx = 0;
     if (random_start) {
-      start_idx = rand() % src.size(0);
+      start_idx = rand() % y.size(0);
     }
 
     out_data[out_start] = src_start + start_idx;
