@@ -25,6 +25,7 @@ __global__ void fps_kernel(const scalar_t *src, const int64_t *ptr,
   }
 
   for (int64_t m = out_ptr[batch_idx] + 1; m < out_ptr[batch_idx + 1]; m++) {
+    __syncthreads();
     int64_t old = out[m - 1];
 
     scalar_t best = (scalar_t)-1.;
