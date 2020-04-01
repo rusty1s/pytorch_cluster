@@ -75,8 +75,8 @@ after_success:
   - codecov
 deploy:
   provider: s3
-  region: eu-central-1
   edge: true
+  region: eu-central-1
   access_key_id: ${S3_ACCESS_KEY}
   secret_access_key: ${S3_SECRET_ACCESS_KEY}
   bucket: pytorch-geometric.com
