@@ -7,7 +7,7 @@ import torch
 @torch.jit.script
 def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
                 walk_length: int, p: float = 1, q: float = 1,
-                coalesced: bool = False, num_nodes: Optional[int] = None):
+                coalesced: bool = True, num_nodes: Optional[int] = None):
     """Samples random walks of length :obj:`walk_length` from all node indices
     in :obj:`start` in the graph given by :obj:`(row, col)` as described in the
     `"node2vec: Scalable Feature Learning for Networks"
@@ -26,7 +26,7 @@ def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
             breadth-first strategy and depth-first strategy (default: :obj:`1`)
         coalesced (bool, optional): If set to :obj:`True`, will coalesce/sort
             the graph given by :obj:`(row, col)` according to :obj:`row`.
-            (default: :obj:`False`)
+            (default: :obj:`True`)
         num_nodes (int, optional): The number of nodes. (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
