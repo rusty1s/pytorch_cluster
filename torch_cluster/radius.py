@@ -92,7 +92,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
         tree = scipy.spatial.cKDTree(x.detach().numpy())
         col = tree.query_ball_point(y.detach().numpy(), r)
-        col = [sample(torch.tensor(c), max_num_neighbors) for c in col]
+        col = [torch.tensor(c, dtype=torch.long) for c in col]
+        col = [sample(c, max_num_neighbors) for c in col]
         row = [torch.full_like(c, i) for i, c in enumerate(col)]
         row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
         mask = col < int(tree.n)
