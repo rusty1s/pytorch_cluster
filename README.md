@@ -241,3 +241,16 @@ tensor([[0, 1, 2, 4],
 ```
 python setup.py test
 ```
+
+## C++ API
+
+`torch-cluster` also offers a C++ API that contains C++ equivalent of python models.
+
+```
+mkdir build
+cd build
+# Add -DWITH_CUDA=on support for the CUDA if needed
+cmake ..
+make
+make install
+```
