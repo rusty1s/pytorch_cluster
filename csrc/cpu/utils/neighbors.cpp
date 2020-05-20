@@ -51,7 +51,7 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 	for (auto& p0 : pcd_query.pts){
 
 		// Find neighbors
-		scalar_t query_pt[dim];
+		scalar_t* query_pt = new scalar_t[dim];
 		std::copy(p0.begin(), p0.end(), query_pt); 
 
 		//for(int i=0; i < p0.size(); i++)
@@ -60,7 +60,7 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 		list_matches[i0].reserve(max_count);
 		std::vector<std::pair<size_t, scalar_t> > ret_matches;
 
-		const size_t nMatches = index->radiusSearch(&query_pt[0], search_radius+eps, ret_matches, search_params);
+		const size_t nMatches = index->radiusSearch(query_pt, search_radius+eps, ret_matches, search_params);
 		list_matches[i0] = ret_matches;
 		if(max_count < nMatches) max_count = nMatches;
 		i0++;
