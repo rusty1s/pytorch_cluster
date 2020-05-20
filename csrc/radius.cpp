@@ -4,6 +4,7 @@
 #ifdef WITH_CUDA
 #include "cuda/radius_cuda.h"
 #endif
+#include "cpu/radius_cpu.h"
 
 #ifdef _WIN32
 PyMODINIT_FUNC PyInit__radius(void) { return NULL; }
@@ -18,7 +19,7 @@ torch::Tensor radius(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
     AT_ERROR("Not compiled with CUDA support");
 #endif
   } else {
-    AT_ERROR("No CPU version supported");
+    return radius_cpu(x, y, ptr_x, ptr_y, r, max_num_neighbors);
   }
 }
 

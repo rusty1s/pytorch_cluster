@@ -87,9 +87,13 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         assert x.size(0) == batch_x.size(0)
         assert y.size(0) == batch_y.size(0)
 
+        
         x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
         y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
 
+        return torch.ops.torch_cluster.radius(x, y, x, y, r,
+                                              max_num_neighbors)
+        """
         tree = scipy.spatial.cKDTree(x.detach().numpy())
         col = tree.query_ball_point(y.detach().numpy(), r)
         col = [torch.tensor(c, dtype=torch.long) for c in col]
@@ -98,7 +102,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
         mask = col < int(tree.n)
         return torch.stack([row[mask], col[mask]], dim=0)
-
+        """
 
 def radius_graph(x: torch.Tensor, r: float,
                  batch: Optional[torch.Tensor] = None, loop: bool = False,
@@ -136,7 +140,11 @@ def radius_graph(x: torch.Tensor, r: float,
     assert flow in ['source_to_target', 'target_to_source']
     row, col = radius(x, x, r, batch, batch,
                       max_num_neighbors if loop else max_num_neighbors + 1)
-    row, col = (col, row) if flow == 'source_to_target' else (row, col)
+    if x.is_cuda:
+        row, col = (col, row) if flow == 'source_to_target' else (row, col)
+    else:
+        row, col = (col, row) if flow == 'target_to_source' else (row, col)
+        
     if not loop:
         mask = row != col
         row, col = row[mask], col[mask]
