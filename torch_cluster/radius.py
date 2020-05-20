@@ -1,12 +1,5 @@
 from typing import Optional
-
 import torch
-
-@torch.jit.script
-def sample(col: torch.Tensor, count: int) -> torch.Tensor:
-    if col.size(0) > count:
-        col = col[torch.randperm(col.size(0), dtype=torch.long)][:count]
-    return col
 
 
 def radius(x: torch.Tensor, y: torch.Tensor, r: float,
@@ -70,8 +63,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         else:
             ptr_y = torch.tensor([0, y.size(0)], device=y.device)
 
-        return torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
-                                              max_num_neighbors)
+        result = torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
+                                                max_num_neighbors)
     else:
         if batch_x is None:
             batch_x = x.new_zeros(x.size(0), dtype=torch.long)
@@ -79,27 +72,19 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         if batch_y is None:
             batch_y = y.new_zeros(y.size(0), dtype=torch.long)
 
+        batch_x = batch_x.to(x.dtype)
+        batch_y = batch_y.to(y.dtype)
+
         assert x.dim() == 2 and batch_x.dim() == 1
         assert y.dim() == 2 and batch_y.dim() == 1
         assert x.size(1) == y.size(1)
         assert x.size(0) == batch_x.size(0)
         assert y.size(0) == batch_y.size(0)
 
-        x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
-        y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
+        result = torch.ops.torch_cluster.radius(x, y, batch_x, batch_y, r,
+                                                max_num_neighbors)
 
-        return torch.ops.torch_cluster.radius(x, y, x, y, r,
-                                              max_num_neighbors)
-        """
-        tree = scipy.spatial.cKDTree(x.detach().numpy())
-        col = tree.query_ball_point(y.detach().numpy(), r)
-        col = [torch.tensor(c, dtype=torch.long) for c in col]
-        col = [sample(c, max_num_neighbors) for c in col]
-        row = [torch.full_like(c, i) for i, c in enumerate(col)]
-        row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
-        mask = col < int(tree.n)
-        return torch.stack([row[mask], col[mask]], dim=0)
-        """
+    return result
 
 
 def radius_graph(x: torch.Tensor, r: float,
@@ -138,6 +123,7 @@ def radius_graph(x: torch.Tensor, r: float,
     assert flow in ['source_to_target', 'target_to_source']
     row, col = radius(x, x, r, batch, batch,
                       max_num_neighbors if loop else max_num_neighbors + 1)
+
     if x.is_cuda:
         row, col = (col, row) if flow == 'source_to_target' else (row, col)
     else:

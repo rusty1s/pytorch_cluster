@@ -26,14 +26,14 @@ struct PointCloud
 
 		// pts = std::vector<Point>((Point*)new_pts, (Point*)new_pts+new_pts.size()/3);
 		std::vector<std::vector<scalar_t>> temp(new_pts.size()/dim);
-		for(unsigned int i=0; i < new_pts.size(); i++){
+		for(size_t i=0; i < new_pts.size(); i++){
 			if(i%dim == 0){
 
 				//Point point;
 				std::vector<scalar_t> point(dim);
 				//std::vector<scalar_t> vect(sizeof(scalar_t)*dim, 0)
 				//point.pt = temp;
-				for (unsigned int j = 0; j < dim; j++) {
+				for (size_t j = 0; j < (size_t)dim; j++) {
 					point[j]=new_pts[i+j];
 					//point.pt[j] = new_pts[i+j];
 				}
@@ -47,9 +47,8 @@ struct PointCloud
 		std::vector<std::vector<scalar_t>> temp(size);
 		for(int i=0; i < size; i++){
 			//std::vector<scalar_t> temp(sizeof(scalar_t)*dim, 0);
-			//point.pt = temp;
 			std::vector<scalar_t> point(dim);
-			for (unsigned int j = 0; j < dim; j++) {
+			for (size_t j = 0; j < (size_t)dim; j++) {
 					point[j] = new_pts[dim*(begin+i)+j];
 			}
 

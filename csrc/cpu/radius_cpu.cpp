@@ -2,25 +2,26 @@
 
 #include "utils.h"
 
-torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support, 
+torch::Tensor radius_cpu(torch::Tensor q, torch::Tensor s, 
              torch::Tensor ptr_x, torch::Tensor ptr_y, 
 			 float radius, int max_num){
 
-	CHECK_CPU(query);
-	CHECK_CPU(support);
+	CHECK_CPU(q);
+	CHECK_CPU(s);
 
 	/*
 	x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
     y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
-	auto batch_x = ptr_x.clone();
-	auto batch_y = ptr_y.clone();
-
-	batch_x._mul(2*radius);
-	batch_y._mul(2*radius);
-
-	auto query = torch::cat({query,batch_x},-1);
-	auto support = torch::cat({support,batch_y},-1);
 	*/
+
+	auto batch_x = ptr_x.clone().reshape({-1, 1});
+	auto batch_y = ptr_y.clone().reshape({-1, 1});
+
+	batch_x.mul_(2*radius);
+	batch_y.mul_(2*radius);
+
+	auto query = torch::cat({q,batch_x},-1);
+	auto support = torch::cat({s,batch_y},-1);
 
 	torch::Tensor out;
 	std::vector<long> neighbors_indices;
@@ -43,9 +44,18 @@ torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support,
 	});
 
 	long* neighbors_indices_ptr = neighbors_indices.data();
-	out = torch::from_blob(neighbors_indices_ptr, {neighbors_indices.size()/2, 2}, options=options);
 
-	return out.t().clone();
+	const long long tsize = static_cast<long long>(neighbors_indices.size()/2);
+	out = torch::from_blob(neighbors_indices_ptr, {tsize, 2}, options=options);
+	out = out.t();
+
+	auto result = torch::zeros_like(out);
+
+	auto index = torch::tensor({0,1});
+
+	result.index_copy_(0, index, out);
+
+	return result;
 }
 
 void get_size_batch(const vector<long>& batch, vector<long>& res){
