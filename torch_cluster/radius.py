@@ -1,11 +1,6 @@
 from typing import Optional
 import torch
-import scipy
 
-def sample(col, count):
-    if col.size(0) > count:
-        col = col[torch.randperm(col.size(0))][:count]
-    return col
 
 def radius(x: torch.Tensor, y: torch.Tensor, r: float,
            batch_x: Optional[torch.Tensor] = None,
@@ -55,7 +50,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             ptr_x = deg.new_zeros(batch_size + 1)
             torch.cumsum(deg, 0, out=ptr_x[1:])
         else:
-            ptr_x = None#torch.tensor([0, x.size(0)], device=x.device)
+            ptr_x = None
 
         if batch_y is not None:
             assert y.size(0) == batch_y.numel()
@@ -66,33 +61,25 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             ptr_y = deg.new_zeros(batch_size + 1)
             torch.cumsum(deg, 0, out=ptr_y[1:])
         else:
-            ptr_y = None#torch.tensor([0, y.size(0)], device=y.device)
+            ptr_y = None
 
         result = torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
                                                 max_num_neighbors)
     else:
-        #if batch_x is None:
-        #    batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-
-        #if batch_y is None:
-        #    batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
-        #batch_x = batch_x.to(x.dtype)
-        #batch_y = batch_y.to(y.dtype)
 
         assert x.dim() == 2
-        if batch_x is not None: 
+        if batch_x is not None:
             assert batch_x.dim() == 1
             assert x.size(0) == batch_x.size(0)
 
         assert y.dim() == 2
-        if batch_y is not None: 
+        if batch_y is not None:
             assert batch_y.dim() == 1
             assert y.size(0) == batch_y.size(0)
         assert x.size(1) == y.size(1)
 
         result = torch.ops.torch_cluster.radius(x, y, batch_x, batch_y, r,
-                                                    max_num_neighbors)
+                                                max_num_neighbors)
 
     return result
 

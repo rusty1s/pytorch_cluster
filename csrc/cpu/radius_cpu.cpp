@@ -15,8 +15,8 @@ torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support,
 
 	AT_DISPATCH_ALL_TYPES(query.scalar_type(), "radius_cpu", [&] {
 
-	auto data_q = query.DATA_PTR<scalar_t>();
-	auto data_s = support.DATA_PTR<scalar_t>();
+	auto data_q = query.data_ptr<scalar_t>();
+	auto data_s = support.data_ptr<scalar_t>();
 	std::vector<scalar_t> queries_stl = std::vector<scalar_t>(data_q,
 								   data_q + query.size(0)*query.size(1));
 	std::vector<scalar_t> supports_stl = std::vector<scalar_t>(data_s,
@@ -34,13 +34,7 @@ torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support,
 	out = torch::from_blob(neighbors_indices_ptr, {tsize, 2}, options=options);
 	out = out.t();
 
-	auto result = torch::zeros_like(out);
-
-	auto index = torch::tensor({0,1});
-
-	result.index_copy_(0, index, out);
-
-	return result;
+	return out.clone();
 }
 
 
@@ -49,7 +43,7 @@ void get_size_batch(const vector<long>& batch, vector<long>& res){
 	res.resize(batch[batch.size()-1]-batch[0]+1, 0);
 	long ind = batch[0];
 	long incr = 1;
-	for(int i=1; i < batch.size(); i++){
+	for(unsigned long i=1; i < batch.size(); i++){
 
 		if(batch[i] == ind)
 			incr++;
@@ -81,8 +75,7 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 	auto options = torch::TensorOptions().dtype(torch::kLong).device(torch::kCPU);
 	int max_count = 0;
 
-	
-	AT_DISPATCH_ALL_TYPES(query.scalar_type(), "batch_radius_search", [&] {
+	AT_DISPATCH_ALL_TYPES(query.scalar_type(), "batch_radius_cpu", [&] {
 	auto data_q = query.data_ptr<scalar_t>();
 	auto data_s = support.data_ptr<scalar_t>();
 	std::vector<scalar_t> queries_stl = std::vector<scalar_t>(data_q,

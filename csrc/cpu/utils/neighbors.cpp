@@ -127,20 +127,18 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 // Initiate variables
 // ******************
 // indices
-	int i0 = 0;
+	size_t i0 = 0;
 
 // Square radius
 	const scalar_t r2 = static_cast<scalar_t>(radius*radius);
 
 	// Counting vector
-	int max_count = 0;
-	float d2;
-
+	size_t max_count = 0;
 
 	// batch index
-	long b = 0;
-	long sum_qb = 0;
-	long sum_sb = 0;
+	size_t b = 0;
+	size_t sum_qb = 0;
+	size_t sum_sb = 0;
 
 	float eps = 0.000001;
 	// Nanoflann related variables
@@ -173,16 +171,9 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	for (auto& p0 : query_pcd.pts){
 // Check if we changed batch
 
-		scalar_t query_pt[dim];
+		scalar_t* query_pt = new scalar_t[dim];
 		std::copy(p0.begin(), p0.end(), query_pt); 
 
-		/*
-		std::cout << "\n ========== \n";
-		for(int i=0; i < dim; i++)
-			std::cout << query_pt[i] << '\n';
-		std::cout << "\n ========== \n";
-		*/
-	
 		if (i0 == sum_qb + q_batches[b]){
 			sum_qb += q_batches[b];
 			sum_sb += s_batches[b];
@@ -218,7 +209,7 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	}
 // Reserve the memory
 	
-	int size = 0; // total number of edges
+	size_t size = 0; // total number of edges
 	for (auto& inds_dists : all_inds_dists){
 		if(inds_dists.size() <= max_count)
 			size += inds_dists.size();
@@ -230,14 +221,14 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	sum_sb = 0;
 	sum_qb = 0;
 	b = 0;
-	int u = 0;
+	size_t u = 0;
 	for (auto& inds_dists : all_inds_dists){
 		if (i0 == sum_qb + q_batches[b]){
 			sum_qb += q_batches[b];
 			sum_sb += s_batches[b];
 			b++;
 		}
-		for (int j = 0; j < max_count; j++){
+		for (size_t j = 0; j < max_count; j++){
 			if (j < inds_dists.size()){
 				neighbors_indices[u] = inds_dists[j].first + sum_sb;
 				neighbors_indices[u + 1] = i0;
