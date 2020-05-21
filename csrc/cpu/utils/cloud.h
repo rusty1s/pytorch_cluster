@@ -24,18 +24,13 @@ struct PointCloud
 
 	void set(std::vector<scalar_t> new_pts, int dim){
 
-		// pts = std::vector<Point>((Point*)new_pts, (Point*)new_pts+new_pts.size()/3);
 		std::vector<std::vector<scalar_t>> temp(new_pts.size()/dim);
 		for(size_t i=0; i < new_pts.size(); i++){
 			if(i%dim == 0){
-
-				//Point point;
 				std::vector<scalar_t> point(dim);
-				//std::vector<scalar_t> vect(sizeof(scalar_t)*dim, 0)
-				//point.pt = temp;
+
 				for (size_t j = 0; j < (size_t)dim; j++) {
 					point[j]=new_pts[i+j];
-					//point.pt[j] = new_pts[i+j];
 				}
 				temp[i/dim] = point;
 			}
@@ -46,7 +41,6 @@ struct PointCloud
 	void set_batch(std::vector<scalar_t> new_pts, int begin, int size, int dim){
 		std::vector<std::vector<scalar_t>> temp(size);
 		for(int i=0; i < size; i++){
-			//std::vector<scalar_t> temp(sizeof(scalar_t)*dim, 0);
 			std::vector<scalar_t> point(dim);
 			for (size_t j = 0; j < (size_t)dim; j++) {
 					point[j] = new_pts[dim*(begin+i)+j];

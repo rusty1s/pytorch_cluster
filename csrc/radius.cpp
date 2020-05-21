@@ -10,16 +10,48 @@
 PyMODINIT_FUNC PyInit__radius(void) { return NULL; }
 #endif
 
-torch::Tensor radius(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
-                     torch::Tensor ptr_y, double r, int64_t max_num_neighbors) {
+torch::Tensor radius(torch::Tensor x, torch::Tensor y, torch::optional<torch::Tensor> ptr_x,
+                     torch::optional<torch::Tensor> ptr_y, double r, int64_t max_num_neighbors) {
   if (x.device().is_cuda()) {
 #ifdef WITH_CUDA
-    return radius_cuda(x, y, ptr_x, ptr_y, r, max_num_neighbors);
+    if (!(ptr_x.has_value()) && !(ptr_y.has_value())) {
+      auto batch_x = torch::tensor({0,torch::size(x,0)}).to(torch::kLong).to(torch::kCUDA);
+      auto batch_y = torch::tensor({0,torch::size(y,0)}).to(torch::kLong).to(torch::kCUDA);
+      return radius_cuda(x, y, batch_x, batch_y, r, max_num_neighbors);
+    }
+    else if (!(ptr_x.has_value())) {
+      auto batch_x = torch::tensor({0,torch::size(x,0)}).to(torch::kLong).to(torch::kCUDA);
+      auto batch_y = ptr_y.value();
+      return radius_cuda(x, y, batch_x, batch_y, r, max_num_neighbors);
+    }
+    else if (!(ptr_y.has_value())) {
+      auto batch_x = ptr_x.value();
+      auto batch_y = torch::tensor({0,torch::size(y,0)}).to(torch::kLong).to(torch::kCUDA);
+      return radius_cuda(x, y, batch_x, batch_y, r, max_num_neighbors);
+    }
+    auto batch_x = ptr_x.value();
+    auto batch_y = ptr_y.value();
+    return radius_cuda(x, y, batch_x, batch_y, r, max_num_neighbors);
 #else
     AT_ERROR("Not compiled with CUDA support");
 #endif
   } else {
-    return radius_cpu(x, y, ptr_x, ptr_y, r, max_num_neighbors);
+    if (!(ptr_x.has_value()) && !(ptr_y.has_value())) {
+      return radius_cpu(x,y,r,max_num_neighbors);
+    }
+    if (!(ptr_x.has_value())) {
+      auto batch_x = torch::zeros({torch::size(x,0)}).to(torch::kLong);
+      auto batch_y = ptr_y.value();
+      return batch_radius_cpu(x, y, batch_x, batch_y, r, max_num_neighbors);
+    }
+    else if (!(ptr_y.has_value())) {
+      auto batch_x = ptr_x.value();
+      auto batch_y = torch::zeros({torch::size(y,0)}).to(torch::kLong);
+      return batch_radius_cpu(x, y, batch_x, batch_y, r, max_num_neighbors);
+    }
+    auto batch_x = ptr_x.value();
+    auto batch_y = ptr_y.value();
+    return batch_radius_cpu(x, y, batch_x, batch_y, r, max_num_neighbors);
   }
 }
 
