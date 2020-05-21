@@ -63,8 +63,8 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 			       float radius, int max_num) {
 
 	torch::Tensor out;
-	auto data_qb = query_batch.data_ptr<long>();
-	auto data_sb = support_batch.data_ptr<long>();
+	auto data_qb = query_batch.data_ptr<int64_t>();
+	auto data_sb = support_batch.data_ptr<int64_t>();
 	std::vector<long> query_batch_stl = std::vector<long>(data_qb, data_qb+query_batch.size(0));
 	std::vector<long> size_query_batch_stl;
 	get_size_batch(query_batch_stl, size_query_batch_stl);

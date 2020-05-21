@@ -7,16 +7,10 @@ template<typename scalar_t>
 int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 			vector<long>& neighbors_indices, float radius, int dim, int max_num){
 
-	// Initiate variables
-	// ******************
-
 	const scalar_t search_radius = static_cast<scalar_t>(radius*radius);
 
 	// Counting vector
 	size_t max_count = 1;
-
-	// Nanoflann related variables
-	// ***************************
 
 	// CLoud variable
 	PointCloud<scalar_t> pcd;
@@ -54,31 +48,14 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 		scalar_t* query_pt = new scalar_t[dim];
 		std::copy(p0.begin(), p0.end(), query_pt); 
 
-		//for(int i=0; i < p0.size(); i++)
-		//std::cout << query_pt[i] << '\n';
-
 		list_matches[i0].reserve(max_count);
 		std::vector<std::pair<size_t, scalar_t> > ret_matches;
 
 		const size_t nMatches = index->radiusSearch(query_pt, search_radius+eps, ret_matches, search_params);
 		
-		//cout << "radiusSearch(): radius=" << search_radius << " -> " << nMatches << " matches\n";
-		//for (size_t i = 0; i < nMatches; i++)
-		//	cout << "idx["<< i << "]=" << ret_matches[i].first << " dist["<< i << "]=" << ret_matches[i].second << endl;
-		//cout << "\n";
-		
 		list_matches[i0] = ret_matches;
 		if(max_count < nMatches) max_count = nMatches;
 		i0++;
-
-
-		// Get worst (furthest) point, without sorting:
-		
-		// cout << "\n neighbors: " << nMatches << "\n";
-
-		// Get worst (furthest) point, without sorting:
-		// for(int i=0; i < ret_matches.size(); i++)
-		// std::cout << ret_matches.at(i) << '\n';
 
 	}
 	// Reserve the memory
