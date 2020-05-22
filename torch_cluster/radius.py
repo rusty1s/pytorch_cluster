@@ -95,6 +95,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         col = [torch.tensor(c, dtype=torch.long) for c in col]
         col = [sample(c, max_num_neighbors) for c in col]
         row = [torch.full_like(c, i) for i, c in enumerate(col)]
+        row = [r for r in row if r.size(0) != 0]
+        col = [c for c in col if c.size(0) != 0]
         row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
         mask = col < int(tree.n)
         return torch.stack([row[mask], col[mask]], dim=0)
