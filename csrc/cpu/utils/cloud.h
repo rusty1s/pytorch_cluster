@@ -20,17 +20,17 @@
 template<typename scalar_t>
 struct PointCloud
 {
-	std::vector<std::vector<scalar_t>> pts;
+	std::vector<std::vector<scalar_t>*> pts;
 
 	void set(std::vector<scalar_t> new_pts, int dim){
 
-		std::vector<std::vector<scalar_t>> temp(new_pts.size()/dim);
+		std::vector<std::vector<scalar_t>*> temp(new_pts.size()/dim);
 		for(size_t i=0; i < new_pts.size(); i++){
 			if(i%dim == 0){
-				std::vector<scalar_t> point(dim);
+				std::vector<scalar_t>* point = new std::vector<scalar_t>(dim);
 
 				for (size_t j = 0; j < (size_t)dim; j++) {
-					point[j]=new_pts[i+j];
+					(*point)[j]=new_pts[i+j];
 				}
 				temp[i/dim] = point;
 			}
@@ -38,12 +38,12 @@ struct PointCloud
 
 		pts = temp;
 	}
-	void set_batch(std::vector<scalar_t> new_pts, int begin, int size, int dim){
-		std::vector<std::vector<scalar_t>> temp(size);
-		for(int i=0; i < size; i++){
-			std::vector<scalar_t> point(dim);
+	void set_batch(std::vector<scalar_t> new_pts, size_t begin, long size, int dim){
+		std::vector<std::vector<scalar_t>*> temp(size);
+		for(size_t i=0; i < (size_t)size; i++){
+			std::vector<scalar_t>* point = new std::vector<scalar_t>(dim);
 			for (size_t j = 0; j < (size_t)dim; j++) {
-					point[j] = new_pts[dim*(begin+i)+j];
+					(*point)[j] = new_pts[dim*(begin+i)+j];
 			}
 
 			temp[i] = point;
@@ -58,7 +58,7 @@ struct PointCloud
 	// Returns the dim'th component of the idx'th point in the class:
 	inline scalar_t kdtree_get_pt(const size_t idx, const size_t dim) const
 	{
-		return pts[idx][dim];
+		return (*pts[idx])[dim];
 	}
 
 	// Optional bounding-box computation: return false to default to a standard bbox computation loop.

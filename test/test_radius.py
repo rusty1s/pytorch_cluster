@@ -3,7 +3,6 @@ from itertools import product
 import pytest
 import torch
 from torch_cluster import radius, radius_graph
-
 from .utils import grad_dtypes, devices, tensor
 
 
@@ -115,8 +114,8 @@ def test_radius_graph_pointnet_small(dtype, device):
 
     row, col = radius_graph(x, r=0.2, flow='source_to_target', batch=batch)
 
-    edges = set([(i, j) for (i, j) in zip(row.cpu().numpy(),
-                                          col.cpu().numpy())])
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
 
     truth_row = [10, 11, 7, 9, 9, 1, 9, 1, 6, 7, 0, 11, 0, 10, 15, 12, 20, 16,
                  34, 31, 44, 43, 42, 41]
@@ -404,8 +403,8 @@ def test_radius_graph_pointnet_medium(dtype, device):
 
     row, col = radius_graph(x, r=0.2, flow='source_to_target', batch=batch)
 
-    edges = set([(i, j) for (i, j) in zip(row.cpu().numpy(),
-                                          col.cpu().numpy())])
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
 
     truth_row = [6, 27, 17, 31, 3, 23, 62, 2, 14, 23, 36, 38, 62, 15, 0, 11,
                  27, 29, 50, 49, 54, 56, 12, 61, 16, 21, 24, 39, 6, 27, 29,
@@ -573,8 +572,8 @@ def test_radius_graph_ndim(dtype, device):
 
     row, col = radius_graph(x, r=4.4, flow='source_to_target', batch=batch)
 
-    edges = set([(i, j) for (i, j) in zip(row.cpu().numpy(),
-                                          col.cpu().numpy())])
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
 
     truth_row = [2, 3, 2, 3, 0, 1, 3, 4, 0, 1, 2, 4, 2, 3, 6, 7, 9, 10, 5, 7,
                  8, 9, 10, 5, 6, 10, 6, 5, 6, 10, 5, 6, 7, 9, 13, 11, 16, 17,

@@ -1,15 +1,17 @@
 #include "radius_cpu.h"
 #include <algorithm>
 #include "utils.h"
+#include <cstdint>
+
 
 torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support, 
-			 float radius, int max_num){
+			 double radius, int64_t max_num){
 
 	CHECK_CPU(query);
 	CHECK_CPU(support);
 
 	torch::Tensor out;
-	std::vector<long> neighbors_indices;
+	std::vector<size_t>* neighbors_indices = new std::vector<size_t>(); 
 	auto options = torch::TensorOptions().dtype(torch::kLong).device(torch::kCPU);
 	int max_count = 0;
 
@@ -28,9 +30,9 @@ torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support,
 
 	});
 
-	long* neighbors_indices_ptr = neighbors_indices.data();
+	size_t* neighbors_indices_ptr = neighbors_indices->data();
 
-	const long long tsize = static_cast<long long>(neighbors_indices.size()/2);
+	const long long tsize = static_cast<long long>(neighbors_indices->size()/2);
 	out = torch::from_blob(neighbors_indices_ptr, {tsize, 2}, options=options);
 	out = out.t();
 
@@ -60,7 +62,7 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 			       torch::Tensor support,
 			       torch::Tensor query_batch,
 			       torch::Tensor support_batch,
-			       float radius, int max_num) {
+			       double radius, int64_t max_num) {
 
 	torch::Tensor out;
 	auto data_qb = query_batch.data_ptr<int64_t>();
@@ -71,7 +73,7 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 	std::vector<long> support_batch_stl = std::vector<long>(data_sb, data_sb+support_batch.size(0));
 	std::vector<long> size_support_batch_stl;
 	get_size_batch(support_batch_stl, size_support_batch_stl);
-	std::vector<long> neighbors_indices;
+	std::vector<size_t>* neighbors_indices = new std::vector<size_t>(); 
 	auto options = torch::TensorOptions().dtype(torch::kLong).device(torch::kCPU);
 	int max_count = 0;
 
@@ -95,10 +97,10 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 							    );
 	});
 
-	long* neighbors_indices_ptr = neighbors_indices.data();
+	size_t* neighbors_indices_ptr = neighbors_indices->data();
 
 
-	const long long tsize = static_cast<long long>(neighbors_indices.size()/2);
+	const long long tsize = static_cast<long long>(neighbors_indices->size()/2);
 	out = torch::from_blob(neighbors_indices_ptr, {tsize, 2}, options=options);
 	out = out.t();
 

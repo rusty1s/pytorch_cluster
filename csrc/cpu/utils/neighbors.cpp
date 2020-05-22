@@ -4,8 +4,8 @@
 #include "neighbors.h"
 
 template<typename scalar_t>
-int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
-			vector<long>& neighbors_indices, float radius, int dim, int max_num){
+size_t nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
+			vector<size_t>*& neighbors_indices, double radius, int dim, int64_t max_num){
 
 	const scalar_t search_radius = static_cast<scalar_t>(radius*radius);
 
@@ -37,13 +37,13 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 	// search_params.sorted = true;
 	std::vector< std::vector<std::pair<size_t, scalar_t> > > list_matches(pcd_query.pts.size());
 
-	float eps = 0.000001;
+	double eps = 0.000001;
 
 	// indices
 	size_t i0 = 0;
 
-	for (auto& p0 : pcd_query.pts){
-
+	for (auto& p : pcd_query.pts){
+		auto p0 = *p;
 		// Find neighbors
 		scalar_t* query_pt = new scalar_t[dim];
 		std::copy(p0.begin(), p0.end(), query_pt); 
@@ -51,7 +51,7 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 		list_matches[i0].reserve(max_count);
 		std::vector<std::pair<size_t, scalar_t> > ret_matches;
 
-		const size_t nMatches = index->radiusSearch(query_pt, search_radius+eps, ret_matches, search_params);
+		const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, search_params);
 		
 		list_matches[i0] = ret_matches;
 		if(max_count < nMatches) max_count = nMatches;
@@ -71,14 +71,14 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 			size += max_count;
 	}
 
-	neighbors_indices.resize(size*2);
+	neighbors_indices->resize(size*2);
 	size_t i1 = 0; // index of the query points
 	size_t u = 0; // curent index of the neighbors_indices
 	for (auto& inds : list_matches){
 		for (size_t j = 0; j < max_count; j++){
 			if(j < inds.size()){
-				neighbors_indices[u] = inds[j].first;
-				neighbors_indices[u + 1] = i1;
+				(*neighbors_indices)[u] = inds[j].first;
+				(*neighbors_indices)[u + 1] = i1;
 				u += 2;
 			}
 		}
@@ -93,12 +93,12 @@ int nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
 }
 
 template<typename scalar_t>
-int batch_nanoflann_neighbors (vector<scalar_t>& queries,
+size_t batch_nanoflann_neighbors (vector<scalar_t>& queries,
                                vector<scalar_t>& supports,
                                vector<long>& q_batches,
                                vector<long>& s_batches,
-                               vector<long>& neighbors_indices,
-                               float radius, int dim, int max_num){
+                               vector<size_t>*& neighbors_indices,
+                               double radius, int dim, int64_t max_num){
 
 
 // Initiate variables
@@ -117,7 +117,7 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	size_t sum_qb = 0;
 	size_t sum_sb = 0;
 
-	float eps = 0.000001;
+	double eps = 0.000001;
 	// Nanoflann related variables
 	// ***************************
 
@@ -145,7 +145,8 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	nanoflann::SearchParams search_params;
 	search_params.sorted = true;
 
-	for (auto& p0 : query_pcd.pts){
+	for (auto& p : query_pcd.pts){
+		auto p0 = *p;
 // Check if we changed batch
 
 		scalar_t* query_pt = new scalar_t[dim];
@@ -193,7 +194,7 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 		else
 			size += max_count;
 	}
-	neighbors_indices.resize(size * 2);
+	neighbors_indices->resize(size * 2);
 	i0 = 0;
 	sum_sb = 0;
 	sum_qb = 0;
@@ -207,8 +208,8 @@ int batch_nanoflann_neighbors (vector<scalar_t>& queries,
 		}
 		for (size_t j = 0; j < max_count; j++){
 			if (j < inds_dists.size()){
-				neighbors_indices[u] = inds_dists[j].first + sum_sb;
-				neighbors_indices[u + 1] = i0;
+				(*neighbors_indices)[u] = inds_dists[j].first + sum_sb;
+				(*neighbors_indices)[u + 1] = i0;
 				u += 2;
 			}
 		}
