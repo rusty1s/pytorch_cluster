@@ -5,7 +5,7 @@ import torch
 def radius(x: torch.Tensor, y: torch.Tensor, r: float,
            batch_x: Optional[torch.Tensor] = None,
            batch_y: Optional[torch.Tensor] = None,
-           max_num_neighbors: int = 32) -> torch.Tensor:
+           max_num_neighbors: int = 32, n_threads: int = 1) -> torch.Tensor:
     r"""Finds for each element in :obj:`y` all points in :obj:`x` within
     distance :obj:`r`.
 
@@ -23,6 +23,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             node to a specific example. (default: :obj:`None`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
             return for each element in :obj:`y`. (default: :obj:`32`)
+        n_threads (int): number of threads when the input is on CPU.
+            (default: :obj:`1`)
 
     .. code-block:: python
 
@@ -64,7 +66,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             ptr_y = None
 
         result = torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
-                                                max_num_neighbors)
+                                                max_num_neighbors, n_threads)
     else:
 
         assert x.dim() == 2
@@ -79,7 +81,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         assert x.size(1) == y.size(1)
 
         result = torch.ops.torch_cluster.radius(x, y, batch_x, batch_y, r,
-                                                max_num_neighbors)
+                                                max_num_neighbors, n_threads)
 
     return result
 
@@ -87,7 +89,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 def radius_graph(x: torch.Tensor, r: float,
                  batch: Optional[torch.Tensor] = None, loop: bool = False,
                  max_num_neighbors: int = 32,
-                 flow: str = 'source_to_target') -> torch.Tensor:
+                 flow: str = 'source_to_target',
+                 n_threads: int = 1) -> torch.Tensor:
     r"""Computes graph edges to all points within a given distance.
 
     Args:
@@ -104,6 +107,8 @@ def radius_graph(x: torch.Tensor, r: float,
         flow (string, optional): The flow direction when using in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
+        n_threads (int): number of threads when the input is on CPU.
+            (default: :obj:`1`)
 
     :rtype: :class:`LongTensor`
 
@@ -119,7 +124,8 @@ def radius_graph(x: torch.Tensor, r: float,
 
     assert flow in ['source_to_target', 'target_to_source']
     row, col = radius(x, x, r, batch, batch,
-                      max_num_neighbors if loop else max_num_neighbors + 1)
+                      max_num_neighbors if loop else max_num_neighbors + 1,
+                      n_threads)
 
     if x.is_cuda:
         row, col = (col, row) if flow == 'source_to_target' else (row, col)

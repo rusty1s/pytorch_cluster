@@ -1,29 +1,94 @@
+#include "cloud.h"
+#include "nanoflann.hpp"
+#include <set>
+#include <cstdint>
+#include <thread>
 
-// 3D Version https://github.com/HuguesTHOMAS/KPConv
-
-#include "neighbors.h"
+typedef struct thread_struct {
+	void* kd_tree;
+	void* matches;
+	void* queries;
+	size_t* max_count;
+	std::mutex* ct_m;
+	std::mutex* tree_m;
+	size_t start;
+	size_t end;
+	double search_radius;
+	bool small;
+} thread_args;
 
 template<typename scalar_t>
-size_t nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports,
-			vector<size_t>*& neighbors_indices, double radius, int dim, int64_t max_num){
+void thread_routine(thread_args* targs) {
+	typedef nanoflann::KDTreeSingleIndexAdaptor< nanoflann::L2_Adaptor<scalar_t, PointCloud<scalar_t> > , PointCloud<scalar_t>> my_kd_tree_t;
+	typedef std::vector< std::vector<std::pair<size_t, scalar_t> > > kd_pair;
+	my_kd_tree_t* index = (my_kd_tree_t*) targs->kd_tree;
+	kd_pair* matches = (kd_pair*)targs->matches;
+	PointCloud<scalar_t>* pcd_query = (PointCloud<scalar_t>*)targs->queries;
+	size_t* max_count = targs->max_count;
+	std::mutex* ct_m = targs->ct_m;
+	std::mutex* tree_m = targs->tree_m;
+	double eps;
+	if (targs->small) {
+		eps = 0.000001;
+	}
+	else {
+		eps = 0;
+	}
+	double search_radius = (double) targs->search_radius;
+	size_t start = targs->start;
+	size_t end = targs->end;
+	
+	for (size_t i = start; i < end; i++) {
+
+		std::vector<scalar_t> p0 = *(((*pcd_query).pts)[i]);
+
+		scalar_t* query_pt = new scalar_t[p0.size()];
+		std::copy(p0.begin(), p0.end(), query_pt);
+		(*matches)[i].reserve(*max_count);
+		std::vector<std::pair<size_t, scalar_t> > ret_matches;
+
+		tree_m->lock();
+
+		const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, nanoflann::SearchParams());
+		
+		tree_m->unlock();
+
+		(*matches)[i] = ret_matches;
+		
+		ct_m->lock();
+		if(*max_count < nMatches) {
+			*max_count = nMatches;
+		}
+		ct_m->unlock();
+	
+	}
+
+}
+
+template<typename scalar_t>
+size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>& supports,
+			std::vector<size_t>*& neighbors_indices, double radius, int dim, int64_t max_num, int64_t n_threads){
 
 	const scalar_t search_radius = static_cast<scalar_t>(radius*radius);
 
 	// Counting vector
-	size_t max_count = 1;
+	size_t* max_count = new size_t();
+	*max_count = 1;
 
+	size_t ssize = supports.size();
 	// CLoud variable
 	PointCloud<scalar_t> pcd;
 	pcd.set(supports, dim);
 	//Cloud query
-	PointCloud<scalar_t> pcd_query;
-	pcd_query.set(queries, dim);
+	PointCloud<scalar_t>* pcd_query = new PointCloud<scalar_t>();
+	(*pcd_query).set(queries, dim);
 
 	// Tree parameters
 	nanoflann::KDTreeSingleIndexAdaptorParams tree_params(15 /* max leaf */);
 
 	// KDTree type definition
 	typedef nanoflann::KDTreeSingleIndexAdaptor< nanoflann::L2_Adaptor<scalar_t, PointCloud<scalar_t> > , PointCloud<scalar_t>> my_kd_tree_t;
+	typedef std::vector< std::vector<std::pair<size_t, scalar_t> > > kd_pair;
 
 	// Pointer to trees
 	my_kd_tree_t* index;
@@ -35,47 +100,114 @@ size_t nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports
 	// Search params
 	nanoflann::SearchParams search_params;
 	// search_params.sorted = true;
-	std::vector< std::vector<std::pair<size_t, scalar_t> > > list_matches(pcd_query.pts.size());
+	kd_pair* list_matches = new kd_pair((*pcd_query).pts.size());
 
-	double eps = 0.000001;
+	// single threaded routine
+	if (n_threads == 1){
+		size_t i0 = 0;
+		double eps;
+		if (ssize < 10) {
+			eps = 0.000001;
+		}
+		else {
+			eps = 0;
+		}
 
-	// indices
-	size_t i0 = 0;
+		for (auto& p : (*pcd_query).pts){
+			auto p0 = *p;
+			// Find neighbors
+			scalar_t* query_pt = new scalar_t[dim];
+			std::copy(p0.begin(), p0.end(), query_pt); 
 
-	for (auto& p : pcd_query.pts){
-		auto p0 = *p;
-		// Find neighbors
-		scalar_t* query_pt = new scalar_t[dim];
-		std::copy(p0.begin(), p0.end(), query_pt); 
+			(*list_matches)[i0].reserve(*max_count);
+			std::vector<std::pair<size_t, scalar_t> > ret_matches;
 
-		list_matches[i0].reserve(max_count);
-		std::vector<std::pair<size_t, scalar_t> > ret_matches;
+			const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, search_params);
+			
+			(*list_matches)[i0] = ret_matches;
+			if(*max_count < nMatches) *max_count = nMatches;
+			i0++;
 
-		const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, search_params);
-		
-		list_matches[i0] = ret_matches;
-		if(max_count < nMatches) max_count = nMatches;
-		i0++;
-
+		}
 	}
+	else {// Multi-threaded routine
+		std::mutex* mtx = new std::mutex();
+		std::mutex* mtx_tree = new std::mutex();
+
+		size_t n_queries = (*pcd_query).pts.size();
+		size_t actual_threads = std::min((long long)n_threads, (long long)n_queries);
+
+		std::thread* tid[actual_threads];
+
+		size_t start, end;
+		size_t length;
+		if (n_queries) {
+			length = 1;
+		}
+		else {
+			auto res = std::lldiv((long long)n_queries, (long long)n_threads);
+			length = (size_t)res.quot;
+			/*
+			if (res.rem == 0) {
+				length = res.quot;
+			}
+			else {
+				length = 
+			}
+			*/
+		}
+		for (size_t t = 0; t < actual_threads; t++) {
+			//sem->wait();
+			start = t*length;
+			if (t == actual_threads-1) {
+				end = n_queries;
+			}
+			else {
+				end = (t+1)*length;
+			}
+			thread_args* targs = new thread_args();
+			targs->kd_tree = index;
+			targs->matches = list_matches;
+			targs->max_count = max_count;
+			targs->ct_m = mtx;
+			targs->tree_m = mtx_tree;
+			targs->search_radius = search_radius;
+			targs->queries = pcd_query;
+			targs->start = start;
+			targs->end = end;
+			if (ssize < 10) {
+				targs->small = true;
+			}
+			else {
+				targs->small = false;
+			}
+			std::thread* temp = new std::thread(thread_routine<scalar_t>, targs);
+			tid[t] = temp;
+		}
+
+		for (size_t t = 0; t < actual_threads; t++){
+			tid[t]->join();
+		}
+	}
+
 	// Reserve the memory
 	if(max_num > 0) {
-		max_count = max_num;
+		*max_count = max_num;
 	}
 	
 	size_t size = 0; // total number of edges
-	for (auto& inds : list_matches){
-		if(inds.size() <= max_count)
+	for (auto& inds : *list_matches){
+		if(inds.size() <= *max_count)
 			size += inds.size();
 		else
-			size += max_count;
+			size += *max_count;
 	}
 
 	neighbors_indices->resize(size*2);
 	size_t i1 = 0; // index of the query points
 	size_t u = 0; // curent index of the neighbors_indices
-	for (auto& inds : list_matches){
-		for (size_t j = 0; j < max_count; j++){
+	for (auto& inds : *list_matches){
+		for (size_t j = 0; j < *max_count; j++){
 			if(j < inds.size()){
 				(*neighbors_indices)[u] = inds[j].first;
 				(*neighbors_indices)[u + 1] = i1;
@@ -85,7 +217,7 @@ size_t nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports
 		i1++;
 	}
 
-	return max_count;
+	return *max_count;
 
 
 
@@ -93,11 +225,11 @@ size_t nanoflann_neighbors(vector<scalar_t>& queries, vector<scalar_t>& supports
 }
 
 template<typename scalar_t>
-size_t batch_nanoflann_neighbors (vector<scalar_t>& queries,
-                               vector<scalar_t>& supports,
-                               vector<long>& q_batches,
-                               vector<long>& s_batches,
-                               vector<size_t>*& neighbors_indices,
+size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
+                               std::vector<scalar_t>& supports,
+                               std::vector<long>& q_batches,
+                               std::vector<long>& s_batches,
+                               std::vector<size_t>*& neighbors_indices,
                                double radius, int dim, int64_t max_num){
 
 
@@ -117,7 +249,13 @@ size_t batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	size_t sum_qb = 0;
 	size_t sum_sb = 0;
 
-	double eps = 0.000001;
+	double eps;
+	if (supports.size() < 10){
+		eps = 0.000001;
+	}
+	else {
+		eps = 0;
+	}
 	// Nanoflann related variables
 	// ***************************
 
@@ -125,7 +263,7 @@ size_t batch_nanoflann_neighbors (vector<scalar_t>& queries,
 	PointCloud<scalar_t> current_cloud;
 	PointCloud<scalar_t> query_pcd;
 	query_pcd.set(queries, dim);
-	vector<vector<pair<size_t, scalar_t> > > all_inds_dists(query_pcd.pts.size());
+	std::vector<std::vector<std::pair<size_t, scalar_t> > > all_inds_dists(query_pcd.pts.size());
 
 	// Tree parameters
 	nanoflann::KDTreeSingleIndexAdaptorParams tree_params(10 /* max leaf */);

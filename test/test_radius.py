@@ -4,6 +4,7 @@ import pytest
 import torch
 from torch_cluster import radius, radius_graph
 from .utils import grad_dtypes, devices, tensor
+import pickle
 
 
 def coalesce(index):
@@ -40,10 +41,10 @@ def test_radius(dtype, device):
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius_graph(dtype, device):
     x = tensor([
-        [-1, -1],
-        [-1, +1],
-        [+1, +1],
-        [+1, -1],
+        [-1.0, -1.0],
+        [-1.0, +1.0],
+        [+1.0, +1.0],
+        [+1.0, -1.0],
     ], dtype, device)
 
     row, col = radius_graph(x, r=2, flow='target_to_source')
@@ -587,5 +588,37 @@ def test_radius_graph_ndim(dtype, device):
                  27, 27, 28, 29]
 
     truth = set([(i, j) for (i, j) in zip(truth_row, truth_col)])
+
+    assert(truth == edges)
+
+
+@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+def test_radius_graph_large(dtype, device):
+    d = pickle.load(open("test/radius_test_large.pkl", "rb"))
+    x = d['x'].to(device)
+    r = d['r']
+    truth = d['edges']
+
+    row, col = radius_graph(x, r=r, flow='source_to_target',
+                            batch=None, n_threads=24)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
+
+    assert(truth == edges)
+
+    row, col = radius_graph(x, r=r, flow='source_to_target',
+                            batch=None, n_threads=12)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
+
+    assert(truth == edges)
+
+    row, col = radius_graph(x, r=r, flow='source_to_target',
+                            batch=None, n_threads=1)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
 
     assert(truth == edges)

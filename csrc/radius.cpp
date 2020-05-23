@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <torch/script.h>
+#include <iostream>
 
 #ifdef WITH_CUDA
 #include "cuda/radius_cuda.h"
@@ -11,7 +12,7 @@ PyMODINIT_FUNC PyInit__radius(void) { return NULL; }
 #endif
 
 torch::Tensor radius(torch::Tensor x, torch::Tensor y, torch::optional<torch::Tensor> ptr_x,
-                     torch::optional<torch::Tensor> ptr_y, double r, int64_t max_num_neighbors) {
+                     torch::optional<torch::Tensor> ptr_y, double r, int64_t max_num_neighbors, int64_t n_threads) {
   if (x.device().is_cuda()) {
 #ifdef WITH_CUDA
     if (!(ptr_x.has_value()) && !(ptr_y.has_value())) {
@@ -37,7 +38,7 @@ torch::Tensor radius(torch::Tensor x, torch::Tensor y, torch::optional<torch::Te
 #endif
   } else {
     if (!(ptr_x.has_value()) && !(ptr_y.has_value())) {
-      return radius_cpu(x,y,r,max_num_neighbors);
+      return radius_cpu(x,y,r,max_num_neighbors, n_threads);
     }
     if (!(ptr_x.has_value())) {
       auto batch_x = torch::zeros({torch::size(x,0)}).to(torch::kLong);
