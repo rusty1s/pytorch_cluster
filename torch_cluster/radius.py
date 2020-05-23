@@ -1,5 +1,6 @@
 from typing import Optional
 import torch
+import numpy as np
 
 
 def radius(x: torch.Tensor, y: torch.Tensor, r: float,
@@ -15,16 +16,17 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         y (Tensor): Node feature matrix
             :math:`\mathbf{Y} \in \mathbb{R}^{M \times F}`.
         r (float): The radius.
-        batch_x (LongTensor, optional): Batch vector
+        batch_x (LongTensor, optional): Batch vector (must be sorted)
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
             node to a specific example. (default: :obj:`None`)
-        batch_y (LongTensor, optional): Batch vector
+        batch_y (LongTensor, optional): Batch vector (must be sorted)
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
             node to a specific example. (default: :obj:`None`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
             return for each element in :obj:`y`. (default: :obj:`32`)
-        n_threads (int): number of threads when the input is on CPU.
-            (default: :obj:`1`)
+        n_threads (int): number of threads when the input is on CPU. Note
+            that this has no effect when batch_x or batch_y is not None, or
+            x is on GPU. (default: :obj:`1`)
 
     .. code-block:: python
 
@@ -41,9 +43,13 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
 
+    def is_sorted(x):
+        return (np.diff(x.detach().cpu()) >= 0).all()
+
     if x.is_cuda:
         if batch_x is not None:
             assert x.size(0) == batch_x.numel()
+            assert is_sorted(batch_x)
             batch_size = int(batch_x.max()) + 1
 
             deg = x.new_zeros(batch_size, dtype=torch.long)
@@ -56,6 +62,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
         if batch_y is not None:
             assert y.size(0) == batch_y.numel()
+            assert is_sorted(batch_y)
             batch_size = int(batch_y.max()) + 1
 
             deg = y.new_zeros(batch_size, dtype=torch.long)
@@ -72,11 +79,13 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         assert x.dim() == 2
         if batch_x is not None:
             assert batch_x.dim() == 1
+            assert is_sorted(batch_x)
             assert x.size(0) == batch_x.size(0)
 
         assert y.dim() == 2
         if batch_y is not None:
             assert batch_y.dim() == 1
+            assert is_sorted(batch_y)
             assert y.size(0) == batch_y.size(0)
         assert x.size(1) == y.size(1)
 
@@ -97,7 +106,7 @@ def radius_graph(x: torch.Tensor, r: float,
         x (Tensor): Node feature matrix
             :math:`\mathbf{X} \in \mathbb{R}^{N \times F}`.
         r (float): The radius.
-        batch (LongTensor, optional): Batch vector
+        batch (LongTensor, optional): Batch vector (must be sorted)
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
             node to a specific example. (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
@@ -107,8 +116,9 @@ def radius_graph(x: torch.Tensor, r: float,
         flow (string, optional): The flow direction when using in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
-        n_threads (int): number of threads when the input is on CPU.
-            (default: :obj:`1`)
+        n_threads (int): number of threads when the input is on CPU. Note
+            that this has no effect when batch_x or batch_y is not None, or
+            x is on GPU. (default: :obj:`1`)
 
     :rtype: :class:`LongTensor`
 

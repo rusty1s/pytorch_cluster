@@ -64,15 +64,25 @@ torch::Tensor batch_radius_cpu(torch::Tensor query,
 			       torch::Tensor support_batch,
 			       double radius, int64_t max_num) {
 
+	CHECK_CPU(query);
+	CHECK_CPU(support);
+	CHECK_CPU(query_batch);
+	CHECK_CPU(support_batch);
+
 	torch::Tensor out;
 	auto data_qb = query_batch.data_ptr<int64_t>();
 	auto data_sb = support_batch.data_ptr<int64_t>();
+	
 	std::vector<long> query_batch_stl = std::vector<long>(data_qb, data_qb+query_batch.size(0));
 	std::vector<long> size_query_batch_stl;
+	CHECK_INPUT(std::is_sorted(query_batch_stl.begin(),query_batch_stl.end()));
 	get_size_batch(query_batch_stl, size_query_batch_stl);
+	
 	std::vector<long> support_batch_stl = std::vector<long>(data_sb, data_sb+support_batch.size(0));
 	std::vector<long> size_support_batch_stl;
+	CHECK_INPUT(std::is_sorted(support_batch_stl.begin(),support_batch_stl.end()));
 	get_size_batch(support_batch_stl, size_support_batch_stl);
+	
 	std::vector<size_t>* neighbors_indices = new std::vector<size_t>(); 
 	auto options = torch::TensorOptions().dtype(torch::kLong).device(torch::kCPU);
 	int max_count = 0;

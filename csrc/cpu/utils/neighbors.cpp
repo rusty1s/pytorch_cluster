@@ -79,7 +79,7 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 	// CLoud variable
 	PointCloud<scalar_t> pcd;
 	pcd.set(supports, dim);
-	//Cloud query
+	// Cloud query
 	PointCloud<scalar_t>* pcd_query = new PointCloud<scalar_t>();
 	(*pcd_query).set(queries, dim);
 
@@ -95,7 +95,6 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 	index = new my_kd_tree_t(dim, pcd, tree_params);
 	index->buildIndex();
 	// Search neigbors indices
-	// ***********************
 
 	// Search params
 	nanoflann::SearchParams search_params;
@@ -137,7 +136,7 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 		size_t n_queries = (*pcd_query).pts.size();
 		size_t actual_threads = std::min((long long)n_threads, (long long)n_queries);
 
-		std::thread* tid[actual_threads];
+		std::vector<std::thread*> tid(actual_threads);
 
 		size_t start, end;
 		size_t length;
@@ -147,17 +146,8 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 		else {
 			auto res = std::lldiv((long long)n_queries, (long long)n_threads);
 			length = (size_t)res.quot;
-			/*
-			if (res.rem == 0) {
-				length = res.quot;
-			}
-			else {
-				length = 
-			}
-			*/
 		}
 		for (size_t t = 0; t < actual_threads; t++) {
-			//sem->wait();
 			start = t*length;
 			if (t == actual_threads-1) {
 				end = n_queries;
@@ -233,12 +223,10 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
                                double radius, int dim, int64_t max_num){
 
 
-// Initiate variables
-// ******************
-// indices
+	// indices
 	size_t i0 = 0;
 
-// Square radius
+	// Square radius
 	const scalar_t r2 = static_cast<scalar_t>(radius*radius);
 
 	// Counting vector
@@ -257,7 +245,6 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 		eps = 0;
 	}
 	// Nanoflann related variables
-	// ***************************
 
 	// CLoud variable
 	PointCloud<scalar_t> current_cloud;
@@ -271,21 +258,20 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 	// KDTree type definition
 	typedef nanoflann::KDTreeSingleIndexAdaptor< nanoflann::L2_Adaptor<scalar_t, PointCloud<scalar_t> > , PointCloud<scalar_t>> my_kd_tree_t;
 
-// Pointer to trees
+	// Pointer to trees
 	my_kd_tree_t* index;
     // Build KDTree for the first batch element
 	current_cloud.set_batch(supports, sum_sb, s_batches[b], dim);
 	index = new my_kd_tree_t(dim, current_cloud, tree_params);
 	index->buildIndex();
-// Search neigbors indices
-// ***********************
-// Search params
+	// Search neigbors indices
+	// Search params
 	nanoflann::SearchParams search_params;
 	search_params.sorted = true;
 
 	for (auto& p : query_pcd.pts){
 		auto p0 = *p;
-// Check if we changed batch
+		// Check if we changed batch
 
 		scalar_t* query_pt = new scalar_t[dim];
 		std::copy(p0.begin(), p0.end(), query_pt); 
@@ -295,19 +281,19 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 			sum_sb += s_batches[b];
 			b++;
 
-// Change the points
+			// Change the points
 			current_cloud.pts.clear();
 			current_cloud.set_batch(supports, sum_sb, s_batches[b], dim);
-// Build KDTree of the current element of the batch
+			// Build KDTree of the current element of the batch
 			delete index;
 			index = new my_kd_tree_t(dim, current_cloud, tree_params);
 			index->buildIndex();
 		}
-// Initial guess of neighbors size
+		// Initial guess of neighbors size
 		all_inds_dists[i0].reserve(max_count);
-// Find neighbors
+		// Find neighbors
 		size_t nMatches = index->radiusSearch(query_pt, r2+eps, all_inds_dists[i0], search_params);
-// Update max count
+		// Update max count
 
 		std::vector<std::pair<size_t, float> > indices_dists;
 		nanoflann::RadiusResultSet<float,size_t> resultSet(r2, indices_dists);
@@ -316,14 +302,17 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 
 		if (nMatches > max_count)
 			max_count = nMatches;
-// Increment query idx
+		// Increment query idx
 		i0++;
 	}
+
+
+	
 	// how many neighbors do we keep
 	if(max_num > 0) {
 		max_count = max_num;
 	}
-// Reserve the memory
+	// Reserve the memory
 	
 	size_t size = 0; // total number of edges
 	for (auto& inds_dists : all_inds_dists){
@@ -332,6 +321,7 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 		else
 			size += max_count;
 	}
+
 	neighbors_indices->resize(size * 2);
 	i0 = 0;
 	sum_sb = 0;
