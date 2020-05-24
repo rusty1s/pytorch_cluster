@@ -107,7 +107,7 @@ from torch_cluster import graclus_cluster
 
 row = torch.tensor([0, 1, 1, 2])
 col = torch.tensor([1, 0, 2, 1])
-weight = torch.Tensor([1, 1, 1, 1])  # Optional edge weights.
+weight = torch.tensor([1., 1., 1., 1.])  # Optional edge weights.
 
 cluster = graclus_cluster(row, col, weight)
 ```
@@ -125,7 +125,7 @@ A clustering algorithm, which overlays a regular grid of user-defined size over 
 import torch
 from torch_cluster import grid_cluster
 
-pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+pos = torch.tensor([[0., 0.], [11., 9.], [2., 8.], [2., 2.], [8., 3.]])
 size = torch.Tensor([5, 5])
 
 cluster = grid_cluster(pos, size)
@@ -144,7 +144,7 @@ A sampling algorithm, which iteratively samples the most distant point with rega
 import torch
 from torch_cluster import fps
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 index = fps(x, batch, ratio=0.5, random_start=False)
 ```
@@ -162,7 +162,7 @@ Computes graph edges to the nearest *k* points.
 import torch
 from torch_cluster import knn_graph
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 edge_index = knn_graph(x, k=2, batch=batch, loop=False)
 ```
@@ -181,7 +181,7 @@ Computes graph edges to all points within a given distance.
 import torch
 from torch_cluster import radius_graph
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
 ```
