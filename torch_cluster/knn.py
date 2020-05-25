@@ -1,13 +1,13 @@
 from typing import Optional
 
 import torch
-import scipy.spatial
+import numpy as np
 
 
 def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         batch_x: Optional[torch.Tensor] = None,
         batch_y: Optional[torch.Tensor] = None,
-        cosine: bool = False) -> torch.Tensor:
+        cosine: bool = False, n_threads: int = 1) -> torch.Tensor:
     r"""Finds for each element in :obj:`y` the :obj:`k` nearest points in
     :obj:`x`.
 
@@ -44,9 +44,13 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
 
+    def is_sorted(x):
+        return (np.diff(x.detach().cpu()) >= 0).all()
+
     if x.is_cuda:
         if batch_x is not None:
             assert x.size(0) == batch_x.numel()
+            assert is_sorted(batch_x)
             batch_size = int(batch_x.max()) + 1
 
             deg = x.new_zeros(batch_size, dtype=torch.long)
@@ -59,6 +63,7 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
 
         if batch_y is not None:
             assert y.size(0) == batch_y.numel()
+            assert is_sorted(batch_y)
             batch_size = int(batch_y.max()) + 1
 
             deg = y.new_zeros(batch_size, dtype=torch.long)
@@ -69,51 +74,32 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         else:
             ptr_y = torch.tensor([0, y.size(0)], device=y.device)
 
-        return torch.ops.torch_cluster.knn(x, y, ptr_x, ptr_y, k, cosine)
+        return torch.ops.torch_cluster.knn(x, y, ptr_x,
+                                           ptr_y, k, cosine, n_threads)
     else:
-        if batch_x is None:
-            batch_x = x.new_zeros(x.size(0), dtype=torch.long)
+        assert x.dim() == 2
+        if batch_x is not None:
+            assert batch_x.dim() == 1
+            assert is_sorted(batch_x)
+            assert x.size(0) == batch_x.size(0)
 
-        if batch_y is None:
-            batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
-        assert x.dim() == 2 and batch_x.dim() == 1
-        assert y.dim() == 2 and batch_y.dim() == 1
+        assert y.dim() == 2
+        if batch_y is not None:
+            assert batch_y.dim() == 1
+            assert is_sorted(batch_y)
+            assert y.size(0) == batch_y.size(0)
         assert x.size(1) == y.size(1)
-        assert x.size(0) == batch_x.size(0)
-        assert y.size(0) == batch_y.size(0)
 
         if cosine:
             raise NotImplementedError('`cosine` argument not supported on CPU')
 
-        # Translate and rescale x and y to [0, 1].
-        min_xy = min(x.min().item(), y.min().item())
-        x, y = x - min_xy, y - min_xy
-
-        max_xy = max(x.max().item(), y.max().item())
-        x.div_(max_xy)
-        y.div_(max_xy)
-
-        # Concat batch/features to ensure no cross-links between examples.
-        x = torch.cat([x, 2 * x.size(1) * batch_x.view(-1, 1).to(x.dtype)], -1)
-        y = torch.cat([y, 2 * y.size(1) * batch_y.view(-1, 1).to(y.dtype)], -1)
-
-        tree = scipy.spatial.cKDTree(x.detach().numpy())
-        dist, col = tree.query(y.detach().cpu(), k=k,
-                               distance_upper_bound=x.size(1))
-        dist = torch.from_numpy(dist).to(x.dtype)
-        col = torch.from_numpy(col).to(torch.long)
-        row = torch.arange(col.size(0), dtype=torch.long)
-        row = row.view(-1, 1).repeat(1, k)
-        mask = ~torch.isinf(dist).view(-1)
-        row, col = row.view(-1)[mask], col.view(-1)[mask]
-
-        return torch.stack([row, col], dim=0)
+        return torch.ops.torch_cluster.knn(x, y, batch_x, batch_y,
+                                           k, cosine, n_threads)
 
 
 def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
               loop: bool = False, flow: str = 'source_to_target',
-              cosine: bool = False) -> torch.Tensor:
+              cosine: bool = False, n_threads: int = 1) -> torch.Tensor:
     r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
@@ -145,7 +131,8 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
     """
 
     assert flow in ['source_to_target', 'target_to_source']
-    row, col = knn(x, x, k if loop else k + 1, batch, batch, cosine=cosine)
+    row, col = knn(x, x, k if loop else k + 1, batch, batch,
+                   cosine=cosine, n_threads=n_threads)
     row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
         mask = row != col

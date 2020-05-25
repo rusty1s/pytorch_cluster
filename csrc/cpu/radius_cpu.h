@@ -1,7 +1,6 @@
 #pragma once
 
 #include <torch/extension.h>
-//#include "utils/neighbors.h"
 #include "utils/neighbors.cpp"
 #include <iostream>
 #include "compat.h"

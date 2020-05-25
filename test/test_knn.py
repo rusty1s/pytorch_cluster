@@ -3,7 +3,7 @@ from itertools import product
 import pytest
 import torch
 from torch_cluster import knn, knn_graph
-
+import pickle
 from .utils import grad_dtypes, devices, tensor
 
 
@@ -57,3 +57,35 @@ def test_knn_graph(dtype, device):
     row = row.view(-1, 2).sort(dim=-1)[0].view(-1)
     assert row.tolist() == [1, 3, 0, 2, 1, 3, 0, 2]
     assert col.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
+
+
+@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+def test_knn_graph_large(dtype, device):
+    d = pickle.load(open("test/knn_test_large.pkl", "rb"))
+    x = d['x'].to(device)
+    k = d['k']
+    truth = d['edges']
+
+    row, col = knn_graph(x, k=k, flow='source_to_target',
+                         batch=None, n_threads=24)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
+
+    assert(truth == edges)
+
+    row, col = knn_graph(x, k=k, flow='source_to_target',
+                         batch=None, n_threads=12)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
+
+    assert(truth == edges)
+
+    row, col = knn_graph(x, k=k, flow='source_to_target',
+                         batch=None, n_threads=1)
+
+    edges = set([(i, j) for (i, j) in zip(list(row.cpu().numpy()),
+                                          list(col.cpu().numpy()))])
+
+    assert(truth == edges)

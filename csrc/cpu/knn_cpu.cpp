@@ -4,8 +4,8 @@
 #include <cstdint>
 
 
-torch::Tensor radius_cpu(torch::Tensor support, torch::Tensor query, 
-			 double radius, int64_t max_num, int64_t n_threads){
+torch::Tensor knn_cpu(torch::Tensor support, torch::Tensor query, 
+			 int64_t k, int64_t n_threads){
 
 	CHECK_CPU(query);
 	CHECK_CPU(support);
@@ -26,7 +26,7 @@ torch::Tensor radius_cpu(torch::Tensor support, torch::Tensor query,
 
 	int dim = torch::size(query, 1);
 
-	max_count = nanoflann_neighbors<scalar_t>(queries_stl, supports_stl ,neighbors_indices, radius, dim, max_num, n_threads, 0, 1);
+	max_count = nanoflann_neighbors<scalar_t>(queries_stl, supports_stl ,neighbors_indices, 0, dim, 0, n_threads, k, 0);
 
 	});
 
@@ -64,11 +64,11 @@ void get_size_batch(const std::vector<long>& batch, std::vector<long>& res){
 	res[ind-batch[0]] = incr;
 }
 
-torch::Tensor batch_radius_cpu(torch::Tensor support,
+torch::Tensor batch_knn_cpu(torch::Tensor support,
 			       torch::Tensor query,
 			       torch::Tensor support_batch,
 			       torch::Tensor query_batch,
-			       double radius, int64_t max_num) {
+			       int64_t k) {
 
 	CHECK_CPU(query);
 	CHECK_CPU(support);
@@ -107,10 +107,10 @@ torch::Tensor batch_radius_cpu(torch::Tensor support,
 							    size_query_batch_stl,
 							    size_support_batch_stl,
 							    neighbors_indices,
-							    radius,
+							    0,
 								dim,
-							    max_num,
-								0, 1);
+							    0,
+							    k, 0);
 	});
 
 	size_t* neighbors_indices_ptr = neighbors_indices->data();

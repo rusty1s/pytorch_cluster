@@ -75,7 +75,6 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         result = torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
                                                 max_num_neighbors, n_threads)
     else:
-
         assert x.dim() == 2
         if batch_x is not None:
             assert batch_x.dim() == 1
@@ -136,12 +135,7 @@ def radius_graph(x: torch.Tensor, r: float,
     row, col = radius(x, x, r, batch, batch,
                       max_num_neighbors if loop else max_num_neighbors + 1,
                       n_threads)
-
-    if x.is_cuda:
-        row, col = (col, row) if flow == 'source_to_target' else (row, col)
-    else:
-        row, col = (col, row) if flow == 'target_to_source' else (row, col)
-
+    row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
         mask = row != col
         row, col = row[mask], col[mask]

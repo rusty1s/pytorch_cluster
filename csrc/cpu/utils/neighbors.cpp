@@ -3,6 +3,7 @@
 #include <set>
 #include <cstdint>
 #include <thread>
+#include <iostream>
 
 typedef struct thread_struct {
 	void* kd_tree;
@@ -15,6 +16,8 @@ typedef struct thread_struct {
 	size_t end;
 	double search_radius;
 	bool small;
+	bool option;
+	size_t k;
 } thread_args;
 
 template<typename scalar_t>
@@ -37,7 +40,7 @@ void thread_routine(thread_args* targs) {
 	double search_radius = (double) targs->search_radius;
 	size_t start = targs->start;
 	size_t end = targs->end;
-	
+	auto k = targs->k;
 	for (size_t i = start; i < end; i++) {
 
 		std::vector<scalar_t> p0 = *(((*pcd_query).pts)[i]);
@@ -46,11 +49,23 @@ void thread_routine(thread_args* targs) {
 		std::copy(p0.begin(), p0.end(), query_pt);
 		(*matches)[i].reserve(*max_count);
 		std::vector<std::pair<size_t, scalar_t> > ret_matches;
+		std::vector<size_t>* knn_ret_matches = new std::vector<size_t>(k);
+		std::vector<scalar_t>* knn_dist_matches = new std::vector<scalar_t>(k);
 
 		tree_m->lock();
 
-		const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, nanoflann::SearchParams());
-		
+		size_t nMatches;
+		if (targs->option){
+			nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, nanoflann::SearchParams());
+		}
+		else {
+			nMatches = index->knnSearch(query_pt, k, &(*knn_ret_matches)[0],&(* knn_dist_matches)[0]);
+			auto temp = new std::vector<std::pair<size_t, scalar_t> >((*knn_dist_matches).size());
+			for (size_t j = 0; j < (*knn_ret_matches).size(); j++){
+				(*temp)[j] = std::make_pair( (*knn_ret_matches)[j],(*knn_dist_matches)[j] );
+			}
+			ret_matches = *temp;
+		}
 		tree_m->unlock();
 
 		(*matches)[i] = ret_matches;
@@ -67,7 +82,8 @@ void thread_routine(thread_args* targs) {
 
 template<typename scalar_t>
 size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>& supports,
-			std::vector<size_t>*& neighbors_indices, double radius, int dim, int64_t max_num, int64_t n_threads){
+			std::vector<size_t>*& neighbors_indices, double radius, int dim, 
+			int64_t max_num, int64_t n_threads, int64_t k, int option){
 
 	const scalar_t search_radius = static_cast<scalar_t>(radius*radius);
 
@@ -120,9 +136,21 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 
 			(*list_matches)[i0].reserve(*max_count);
 			std::vector<std::pair<size_t, scalar_t> > ret_matches;
+			std::vector<size_t>* knn_ret_matches = new std::vector<size_t>(k);
+			std::vector<scalar_t>* knn_dist_matches = new std::vector<scalar_t>(k);
 
-			const size_t nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, search_params);
-			
+			size_t nMatches;
+			if (!!(option)){
+				nMatches = index->radiusSearch(query_pt, (scalar_t)(search_radius+eps), ret_matches, search_params);
+			}
+			else {
+				nMatches = index->knnSearch(query_pt, (size_t)k, &(*knn_ret_matches)[0],&(* knn_dist_matches)[0]);
+				auto temp = new std::vector<std::pair<size_t, scalar_t> >((*knn_dist_matches).size());
+				for (size_t j = 0; j < (*knn_ret_matches).size(); j++){
+					(*temp)[j] = std::make_pair( (*knn_ret_matches)[j],(*knn_dist_matches)[j] );
+				}
+				ret_matches = *temp;
+			}
 			(*list_matches)[i0] = ret_matches;
 			if(*max_count < nMatches) *max_count = nMatches;
 			i0++;
@@ -171,6 +199,8 @@ size_t nanoflann_neighbors(std::vector<scalar_t>& queries, std::vector<scalar_t>
 			else {
 				targs->small = false;
 			}
+			targs->option = !!(option);
+			targs->k = k;
 			std::thread* temp = new std::thread(thread_routine<scalar_t>, targs);
 			tid[t] = temp;
 		}
@@ -220,7 +250,7 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
                                std::vector<long>& q_batches,
                                std::vector<long>& s_batches,
                                std::vector<size_t>*& neighbors_indices,
-                               double radius, int dim, int64_t max_num){
+                               double radius, int dim, int64_t max_num, int64_t k, int option){
 
 
 	// indices
@@ -292,14 +322,22 @@ size_t batch_nanoflann_neighbors (std::vector<scalar_t>& queries,
 		// Initial guess of neighbors size
 		all_inds_dists[i0].reserve(max_count);
 		// Find neighbors
-		size_t nMatches = index->radiusSearch(query_pt, r2+eps, all_inds_dists[i0], search_params);
-		// Update max count
 
-		std::vector<std::pair<size_t, float> > indices_dists;
-		nanoflann::RadiusResultSet<float,size_t> resultSet(r2, indices_dists);
-
-		index->findNeighbors(resultSet, query_pt, search_params);
-
+		size_t nMatches;
+		if (!!option) {
+			nMatches = index->radiusSearch(query_pt, r2+eps, all_inds_dists[i0], search_params);
+			// Update max count
+		}
+		else {
+			std::vector<size_t>* knn_ret_matches = new std::vector<size_t>(k);
+			std::vector<scalar_t>* knn_dist_matches = new std::vector<scalar_t>(k);
+			nMatches = index->knnSearch(query_pt, (size_t)k, &(*knn_ret_matches)[0],&(*knn_dist_matches)[0]);
+			auto temp = new std::vector<std::pair<size_t, scalar_t> >((*knn_dist_matches).size());
+			for (size_t j = 0; j < (*knn_ret_matches).size(); j++){
+				(*temp)[j] = std::make_pair( (*knn_ret_matches)[j],(*knn_dist_matches)[j] );
+			}
+			all_inds_dists[i0] = *temp;
+		}
 		if (nMatches > max_count)
 			max_count = nMatches;
 		// Increment query idx
