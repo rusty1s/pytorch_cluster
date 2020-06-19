@@ -4,7 +4,14 @@ import pytest
 import torch
 from torch_cluster import radius, radius_graph
 from .utils import grad_dtypes, devices, tensor
-import pickle
+import scipy.spatial
+
+
+@torch.jit.script
+def sample(col: torch.Tensor, count: int) -> torch.Tensor:
+    if col.size(0) > count:
+        col = col[torch.randperm(col.size(0), dtype=torch.long)][:count]
+    return col
 
 
 def coalesce(index):
@@ -594,10 +601,22 @@ def test_radius_graph_ndim(dtype, device):
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius_graph_large(dtype, device):
-    d = pickle.load(open("test/radius_test_large.pkl", "rb"))
-    x = d['x'].to(device)
-    r = d['r']
-    truth = d['edges']
+    x = torch.randn((8192*4, 6))
+    r = 0.5
+
+    tree = scipy.spatial.cKDTree(x.detach().cpu().numpy())
+    col = tree.query_ball_point(x.detach().cpu().numpy(), r)
+    col = [torch.tensor(c, dtype=torch.long) for c in col]
+    col = [sample(c, 32) for c in col]
+    row = [torch.full_like(c, i) for i, c in enumerate(col)]
+    row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
+    mask = col < int(tree.n)
+    row_truth, col_truth = torch.stack([row[mask], col[mask]], dim=0)
+    mask = row_truth != col_truth
+    row_truth, col_truth = row_truth[mask], col_truth[mask]
+
+    truth = (set([(i, j) for (i, j) in zip(list(row_truth.cpu().numpy()),
+                                           list(col_truth.cpu().numpy()))]))
 
     row, col = radius_graph(x, r=r, flow='source_to_target',
                             batch=None, n_threads=24)
