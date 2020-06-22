@@ -75,7 +75,7 @@ torch::Tensor radius_cuda(torch::Tensor x, torch::Tensor y,
 
   auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "radius_kernel", [&] {
-    radius_kernel<scalar_t><<<ptr_x.size(0) - 1, THREADS, 0, stream>>>(
+    radius_kernel<scalar_t><<<ptr_x.value().size(0) - 1, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
         row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), r, max_num_neighbors,

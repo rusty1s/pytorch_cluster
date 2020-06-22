@@ -101,12 +101,12 @@ torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y,
   CHECK_INPUT(ptr_x.value().numel() == ptr_y.value().numel());
 
   auto dist = torch::full(y.size(0) * k, 1e38, y.options());
-  auto row = torch::empty(y.size(0) * k, ptr_y.options());
-  auto col = torch::full(y.size(0) * k, -1, ptr_y.options());
+  auto row = torch::empty(y.size(0) * k, ptr_y.value().options());
+  auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "knn_kernel", [&] {
-    knn_kernel<scalar_t><<<ptr_x.size(0) - 1, THREADS, 0, stream>>>(
+    knn_kernel<scalar_t><<<ptr_x.value().size(0) - 1, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
         dist.data_ptr<scalar_t>(), row.data_ptr<int64_t>(),

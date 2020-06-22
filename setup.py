@@ -63,7 +63,7 @@ tests_require = ['pytest', 'pytest-cov', 'scipy']
 
 setup(
     name='torch_cluster',
-    version='1.5.4',
+    version='1.5.5',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',
     url='https://github.com/rusty1s/pytorch_cluster',
@@ -80,6 +80,7 @@ setup(
     install_requires=install_requires,
     setup_requires=setup_requires,
     tests_require=tests_require,
+    extras_require={'test': tests_require},
     ext_modules=get_extensions() if not BUILD_DOCS else [],
     cmdclass={
         'build_ext':
