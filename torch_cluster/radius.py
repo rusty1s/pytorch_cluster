@@ -45,7 +45,9 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
+    x, y = x.contiguous(), y.contiguous()
 
+    ptr_x: Optional[torch.Tensor] = None
     if batch_x is not None:
         assert x.size(0) == batch_x.numel()
         batch_size = int(batch_x.max()) + 1
@@ -55,9 +57,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
         ptr_x = deg.new_zeros(batch_size + 1)
         torch.cumsum(deg, 0, out=ptr_x[1:])
-    else:
-        ptr_x = None
 
+    ptr_y: Optional[torch.Tensor] = None
     if batch_y is not None:
         assert y.size(0) == batch_y.numel()
         batch_size = int(batch_y.max()) + 1
@@ -67,8 +68,6 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
         ptr_y = deg.new_zeros(batch_size + 1)
         torch.cumsum(deg, 0, out=ptr_y[1:])
-    else:
-        ptr_y = None
 
     return torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
                                           max_num_neighbors, num_workers)
@@ -113,11 +112,16 @@ def radius_graph(x: torch.Tensor, r: float,
     """
 
     assert flow in ['source_to_target', 'target_to_source']
-    row, col = radius(x, x, r, batch, batch,
-                      max_num_neighbors if loop else max_num_neighbors + 1,
-                      num_workers)
-    row, col = (col, row) if flow == 'source_to_target' else (row, col)
+    edge_index = radius(x, x, r, batch, batch,
+                        max_num_neighbors if loop else max_num_neighbors + 1,
+                        num_workers)
+    if flow == 'source_to_target':
+        row, col = edge_index[1], edge_index[0]
+    else:
+        row, col = edge_index[0], edge_index[1]
+
     if not loop:
         mask = row != col
         row, col = row[mask], col[mask]
+
     return torch.stack([row, col], dim=0)

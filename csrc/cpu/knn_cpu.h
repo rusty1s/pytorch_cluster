@@ -1,14 +1,8 @@
 #pragma once
 
 #include <torch/extension.h>
-#include "utils/neighbors.cpp"
-#include <iostream>
 
-torch::Tensor knn_cpu(torch::Tensor support, torch::Tensor query, 
-			 int64_t k, int64_t n_threads);
-
-torch::Tensor batch_knn_cpu(torch::Tensor support,
-			       torch::Tensor query,
-			       torch::Tensor support_batch,
-			       torch::Tensor query_batch,
-			       int64_t k);
+torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
+                      torch::optional<torch::Tensor> ptr_x,
+                      torch::optional<torch::Tensor> ptr_y, int64_t k,
+                      int64_t num_workers);

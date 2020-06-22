@@ -1,14 +1,8 @@
 #pragma once
 
 #include <torch/extension.h>
-#include "utils/neighbors.cpp"
-#include <iostream>
 
-torch::Tensor radius_cpu(torch::Tensor query, torch::Tensor support,
-			 			 double radius, int64_t max_num, int64_t n_threads);
-
-torch::Tensor batch_radius_cpu(torch::Tensor query,
-			       torch::Tensor support,
-			       torch::Tensor query_batch,
-			       torch::Tensor support_batch,
-			       double radius, int64_t max_num);
+torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
+                         torch::optional<torch::Tensor> ptr_x,
+                         torch::optional<torch::Tensor> ptr_y, double r,
+                         int64_t max_num_neighbors, int64_t num_workers);
