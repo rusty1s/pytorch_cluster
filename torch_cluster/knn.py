@@ -1,13 +1,13 @@
 from typing import Optional
 
 import torch
-import numpy as np
 
 
+@torch.jit.script
 def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         batch_x: Optional[torch.Tensor] = None,
-        batch_y: Optional[torch.Tensor] = None,
-        cosine: bool = False, n_threads: int = 1) -> torch.Tensor:
+        batch_y: Optional[torch.Tensor] = None, cosine: bool = False,
+        num_workers: int = 1) -> torch.Tensor:
     r"""Finds for each element in :obj:`y` the :obj:`k` nearest points in
     :obj:`x`.
 
@@ -19,13 +19,18 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         k (int): The number of neighbors.
         batch_x (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
-            node to a specific example. (default: :obj:`None`)
+            node to a specific example. :obj:`batch_x` needs to be sorted.
+            (default: :obj:`None`)
         batch_y (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
-            node to a specific example. (default: :obj:`None`)
-        cosine (boolean, optional): If :obj:`True`, will use the cosine
-            distance instead of euclidean distance to find nearest neighbors.
-            (default: :obj:`False`)
+            node to a specific example. :obj:`batch_y` needs to be sorted.
+            (default: :obj:`None`)
+        cosine (boolean, optional): If :obj:`True`, will use the Cosine
+            distance instead of the Euclidean distance to find nearest
+            neighbors. (default: :obj:`False`)
+        num_workers (int): Number of workers to use for computation. Has no
+            effect in case :obj:`batch_x` or :obj:`batch_y` is not
+            :obj:`None`, or the input lies on the GPU. (default: :obj:`1`)
 
     :rtype: :class:`LongTensor`
 
@@ -44,62 +49,36 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
 
-    def is_sorted(x):
-        return (np.diff(x.detach().cpu()) >= 0).all()
+    if batch_x is not None:
+        assert x.size(0) == batch_x.numel()
+        batch_size = int(batch_x.max()) + 1
 
-    if x.is_cuda:
-        if batch_x is not None:
-            assert x.size(0) == batch_x.numel()
-            assert is_sorted(batch_x)
-            batch_size = int(batch_x.max()) + 1
+        deg = x.new_zeros(batch_size, dtype=torch.long)
+        deg.scatter_add_(0, batch_x, torch.ones_like(batch_x))
 
-            deg = x.new_zeros(batch_size, dtype=torch.long)
-            deg.scatter_add_(0, batch_x, torch.ones_like(batch_x))
+        ptr_x = deg.new_zeros(batch_size + 1)
+        torch.cumsum(deg, 0, out=ptr_x[1:])
 
-            ptr_x = deg.new_zeros(batch_size + 1)
-            torch.cumsum(deg, 0, out=ptr_x[1:])
-        else:
-            ptr_x = torch.tensor([0, x.size(0)], device=x.device)
+    if batch_y is not None:
+        assert y.size(0) == batch_y.numel()
+        batch_size = int(batch_y.max()) + 1
 
-        if batch_y is not None:
-            assert y.size(0) == batch_y.numel()
-            assert is_sorted(batch_y)
-            batch_size = int(batch_y.max()) + 1
+        deg = y.new_zeros(batch_size, dtype=torch.long)
+        deg.scatter_add_(0, batch_y, torch.ones_like(batch_y))
 
-            deg = y.new_zeros(batch_size, dtype=torch.long)
-            deg.scatter_add_(0, batch_y, torch.ones_like(batch_y))
-
-            ptr_y = deg.new_zeros(batch_size + 1)
-            torch.cumsum(deg, 0, out=ptr_y[1:])
-        else:
-            ptr_y = torch.tensor([0, y.size(0)], device=y.device)
-
-        return torch.ops.torch_cluster.knn(x, y, ptr_x,
-                                           ptr_y, k, cosine, n_threads)
+        ptr_y = deg.new_zeros(batch_size + 1)
+        torch.cumsum(deg, 0, out=ptr_y[1:])
     else:
-        assert x.dim() == 2
-        if batch_x is not None:
-            assert batch_x.dim() == 1
-            assert is_sorted(batch_x)
-            assert x.size(0) == batch_x.size(0)
+        ptr_y = torch.tensor([0, y.size(0)], device=y.device)
 
-        assert y.dim() == 2
-        if batch_y is not None:
-            assert batch_y.dim() == 1
-            assert is_sorted(batch_y)
-            assert y.size(0) == batch_y.size(0)
-        assert x.size(1) == y.size(1)
-
-        if cosine:
-            raise NotImplementedError('`cosine` argument not supported on CPU')
-
-        return torch.ops.torch_cluster.knn(x, y, batch_x, batch_y,
-                                           k, cosine, n_threads)
+    return torch.ops.torch_cluster.knn(x, y, ptr_x, ptr_y, k, cosine,
+                                       num_workers)
 
 
+@torch.jit.script
 def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
               loop: bool = False, flow: str = 'source_to_target',
-              cosine: bool = False, n_threads: int = 1) -> torch.Tensor:
+              cosine: bool = False, num_workers: int = 1) -> torch.Tensor:
     r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
@@ -108,7 +87,8 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
         k (int): The number of neighbors.
         batch (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
-            node to a specific example. (default: :obj:`None`)
+            node to a specific example. :obj:`batch` needs to be sorted.
+            (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
         flow (string, optional): The flow direction when using in combination
@@ -117,6 +97,9 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
         cosine (boolean, optional): If :obj:`True`, will use the cosine
             distance instead of euclidean distance to find nearest neighbors.
             (default: :obj:`False`)
+        num_workers (int): Number of workers to use for computation. Has no
+            effect in case :obj:`batch` is not :obj:`None`, or the input lies
+            on the GPU. (default: :obj:`1`)
 
     :rtype: :class:`LongTensor`
 
@@ -131,8 +114,8 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
     """
 
     assert flow in ['source_to_target', 'target_to_source']
-    row, col = knn(x, x, k if loop else k + 1, batch, batch,
-                   cosine=cosine, n_threads=n_threads)
+    row, col = knn(x, x, k if loop else k + 1, batch, batch, cosine,
+                   num_workers)
     row, col = (col, row) if flow == 'source_to_target' else (row, col)
     if not loop:
         mask = row != col
