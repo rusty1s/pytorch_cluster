@@ -17,6 +17,6 @@ def test_rw(device):
 
     for n in range(start.size(0)):
         cur = start[n].item()
-        for le in range(1, walk_length):
-            assert out[n, le].item() in col[row == cur].tolist()
-            cur = out[n, le].item()
+        for i in range(1, walk_length):
+            assert out[n, i].item() in col[row == cur].tolist()
+            cur = out[n, i].item()
