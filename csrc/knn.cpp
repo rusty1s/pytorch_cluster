@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <torch/script.h>
 
+#include "cpu/knn_cpu.h"
+
 #ifdef WITH_CUDA
 #include "cuda/knn_cuda.h"
 #endif
@@ -9,8 +11,10 @@
 PyMODINIT_FUNC PyInit__knn(void) { return NULL; }
 #endif
 
-torch::Tensor knn(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
-                  torch::Tensor ptr_y, int64_t k, bool cosine) {
+torch::Tensor knn(torch::Tensor x, torch::Tensor y,
+                  torch::optional<torch::Tensor> ptr_x,
+                  torch::optional<torch::Tensor> ptr_y, int64_t k, bool cosine,
+                  int64_t num_workers) {
   if (x.device().is_cuda()) {
 #ifdef WITH_CUDA
     return knn_cuda(x, y, ptr_x, ptr_y, k, cosine);
@@ -18,7 +22,9 @@ torch::Tensor knn(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
     AT_ERROR("Not compiled with CUDA support");
 #endif
   } else {
-    AT_ERROR("No CPU version supported");
+    if (cosine)
+      AT_ERROR("`cosine` argument not supported on CPU");
+    return knn_cpu(x, y, ptr_x, ptr_y, k, num_workers);
   }
 }
 
