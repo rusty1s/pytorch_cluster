@@ -17,7 +17,7 @@ torch::Tensor knn(torch::Tensor x, torch::Tensor y,
                   int64_t num_workers) {
   if (x.device().is_cuda()) {
 #ifdef WITH_CUDA
-    return knn_cuda(x, y, ptr_x, ptr_x, k, cosine);
+    return knn_cuda(x, y, ptr_x, ptr_y, k, cosine);
 #else
     AT_ERROR("Not compiled with CUDA support");
 #endif
