@@ -92,11 +92,11 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
             (default: :obj:`None`)
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
-        flow (string, optional): The flow direction when using in combination
+        flow (string, optional): The flow direction when used in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
-        cosine (boolean, optional): If :obj:`True`, will use the cosine
-            distance instead of euclidean distance to find nearest neighbors.
+        cosine (boolean, optional): If :obj:`True`, will use the Cosine
+            distance instead of Euclidean distance to find nearest neighbors.
             (default: :obj:`False`)
         num_workers (int): Number of workers to use for computation. Has no
             effect in case :obj:`batch` is not :obj:`None`, or the input lies

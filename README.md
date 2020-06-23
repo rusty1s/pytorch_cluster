@@ -158,6 +158,16 @@ tensor([0, 3])
 
 Computes graph edges to the nearest *k* points.
 
+**Args:**
+
+* **x** *(Tensor)*: Node feature matrix of shape `[N, F]`.
+* **r** *(float)*: The radius.
+* **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
+* **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
+* **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
+* **cosine** *(boolean, optional)*: If `True`, will use the Cosine distance instead of Euclidean distance to find nearest neighbors. (default: `False`)
+* **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
+
 ```python
 import torch
 from torch_cluster import knn_graph
@@ -176,6 +186,16 @@ tensor([[1, 2, 0, 3, 0, 3, 1, 2],
 ### Radius-Graph
 
 Computes graph edges to all points within a given distance.
+
+**Args:**
+
+* **x** *(Tensor)*: Node feature matrix of shape `[N, F]`.
+* **r** *(float)*: The radius.
+* **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
+* **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
+* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. (default: `32`)
+* **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
+* **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
 
 ```python
 import torch

@@ -91,8 +91,8 @@ def radius_graph(x: torch.Tensor, r: float,
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element in :obj:`y`. (default: :obj:`32`)
-        flow (string, optional): The flow direction when using in combination
+            return for each element. (default: :obj:`32`)
+        flow (string, optional): The flow direction when used in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)
         num_workers (int): Number of workers to use for computation. Has no
