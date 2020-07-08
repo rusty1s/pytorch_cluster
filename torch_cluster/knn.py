@@ -42,7 +42,7 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         batch_x = torch.tensor([0, 0, 0, 0])
         y = torch.Tensor([[-1, 0], [1, 0]])
-        batch_x = torch.tensor([0, 0])
+        batch_y = torch.tensor([0, 0])
         assign_index = knn(x, y, 2, batch_x, batch_y)
     """
 
