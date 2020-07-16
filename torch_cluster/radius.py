@@ -1,34 +1,9 @@
 from typing import Optional
 
 import torch
-import scipy.spatial
 
 
-def radius_cpu(x: torch.Tensor, y: torch.Tensor, r: float,
-               batch_x: Optional[torch.Tensor] = None,
-               batch_y: Optional[torch.Tensor] = None,
-               max_num_neighbors: int = 32,
-               num_workers: int = 1) -> torch.Tensor:
-
-    if batch_x is None:
-        batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-
-    if batch_y is None:
-        batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
-    x = torch.cat([x, 2 * r * batch_x.view(-1, 1).to(x.dtype)], dim=-1)
-    y = torch.cat([y, 2 * r * batch_y.view(-1, 1).to(y.dtype)], dim=-1)
-
-    tree = scipy.spatial.cKDTree(x.detach().numpy())
-    col = tree.query_ball_point(y.detach().numpy(), r)
-    col = [torch.tensor(c)[:max_num_neighbors] for c in col]
-    row = [torch.full_like(c, i) for i, c in enumerate(col)]
-    row, col = torch.cat(row, dim=0), torch.cat(col, dim=0)
-    mask = col < int(tree.n)
-    return torch.stack([row[mask], col[mask]], dim=0)
-
-
-# @torch.jit.script
+@torch.jit.script
 def radius(x: torch.Tensor, y: torch.Tensor, r: float,
            batch_x: Optional[torch.Tensor] = None,
            batch_y: Optional[torch.Tensor] = None, max_num_neighbors: int = 32,
@@ -72,10 +47,6 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
     y = y.view(-1, 1) if y.dim() == 1 else y
     x, y = x.contiguous(), y.contiguous()
 
-    if not x.is_cuda:
-        return radius_cpu(x, y, r, batch_x, batch_y, max_num_neighbors,
-                          num_workers)
-
     ptr_x: Optional[torch.Tensor] = None
     if batch_x is not None:
         assert x.size(0) == batch_x.numel()
@@ -102,7 +73,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
                                           max_num_neighbors, num_workers)
 
 
-# @torch.jit.script
+@torch.jit.script
 def radius_graph(x: torch.Tensor, r: float,
                  batch: Optional[torch.Tensor] = None, loop: bool = False,
                  max_num_neighbors: int = 32, flow: str = 'source_to_target',

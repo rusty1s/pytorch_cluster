@@ -1,49 +1,9 @@
 from typing import Optional
 
 import torch
-import scipy.spatial
 
 
-def knn_cpu(x: torch.Tensor, y: torch.Tensor, k: int,
-            batch_x: Optional[torch.Tensor] = None,
-            batch_y: Optional[torch.Tensor] = None, cosine: bool = False,
-            num_workers: int = 1) -> torch.Tensor:
-
-    if cosine:
-        raise NotImplementedError('`cosine` argument not supported on CPU')
-
-    if batch_x is None:
-        batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-
-    if batch_y is None:
-        batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
-    # Translate and rescale x and y to [0, 1].
-    min_xy = min(x.min().item(), y.min().item())
-    x, y = x - min_xy, y - min_xy
-
-    max_xy = max(x.max().item(), y.max().item())
-    x.div_(max_xy)
-    y.div_(max_xy)
-
-    # Concat batch/features to ensure no cross-links between examples.
-    x = torch.cat([x, 2 * x.size(1) * batch_x.view(-1, 1).to(x.dtype)], -1)
-    y = torch.cat([y, 2 * y.size(1) * batch_y.view(-1, 1).to(y.dtype)], -1)
-
-    tree = scipy.spatial.cKDTree(x.detach().numpy())
-    dist, col = tree.query(y.detach().cpu(), k=k,
-                           distance_upper_bound=x.size(1))
-    dist = torch.from_numpy(dist).to(x.dtype)
-    col = torch.from_numpy(col).to(torch.long)
-    row = torch.arange(col.size(0), dtype=torch.long)
-    row = row.view(-1, 1).repeat(1, k)
-    mask = ~torch.isinf(dist).view(-1)
-    row, col = row.view(-1)[mask], col.view(-1)[mask]
-
-    return torch.stack([row, col], dim=0)
-
-
-# @torch.jit.script
+@torch.jit.script
 def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         batch_x: Optional[torch.Tensor] = None,
         batch_y: Optional[torch.Tensor] = None, cosine: bool = False,
@@ -90,9 +50,6 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
     y = y.view(-1, 1) if y.dim() == 1 else y
     x, y = x.contiguous(), y.contiguous()
 
-    if not x.is_cuda:
-        return knn_cpu(x, y, k, batch_x, batch_y, cosine, num_workers)
-
     ptr_x: Optional[torch.Tensor] = None
     if batch_x is not None:
         assert x.size(0) == batch_x.numel()
@@ -119,7 +76,7 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
                                        num_workers)
 
 
-# @torch.jit.script
+@torch.jit.script
 def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
               loop: bool = False, flow: str = 'source_to_target',
               cosine: bool = False, num_workers: int = 1) -> torch.Tensor:
