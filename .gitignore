@@ -2,6 +2,7 @@ __pycache__/
 _ext/
 build/
 dist/
+alpha/
 .cache/
 .eggs/
 *.egg-info/
