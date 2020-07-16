@@ -67,7 +67,7 @@ def test_radius_graph_large(dtype, device):
                               max_num_neighbors=2000, num_workers=6)
 
     tree = scipy.spatial.cKDTree(x.numpy())
-    col = tree.query_ball_point(x.cpu(), r=0.5)
+    col = tree.query_ball_point(x.cpu(), r=0.5 + 0.00001)
     truth = set([(i, j) for i, ns in enumerate(col) for j in ns])
 
     assert to_set(edge_index) == truth
