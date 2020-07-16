@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(torchcluster)
 set(CMAKE_CXX_STANDARD 14)
-set(TORCHCLUSTER_VERSION 1.5.4)
+set(TORCHCLUSTER_VERSION 1.5.5)
 
 option(WITH_CUDA "Enable CUDA support" OFF)
 
@@ -73,4 +73,9 @@ if(WITH_CUDA)
     csrc/cuda/radius_cuda.h
     csrc/cuda/rw_cuda.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/cuda)
+endif()
+
+if(WITH_CUDA)
+  set_property(TARGET torch_cuda PROPERTY INTERFACE_COMPILE_OPTIONS "")
+  set_property(TARGET torch_cpu PROPERTY INTERFACE_COMPILE_OPTIONS "")
 endif()

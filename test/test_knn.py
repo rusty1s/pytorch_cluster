@@ -2,9 +2,14 @@ from itertools import product
 
 import pytest
 import torch
+import scipy.spatial
 from torch_cluster import knn, knn_graph
 
 from .utils import grad_dtypes, devices, tensor
+
+
+def to_set(edge_index):
+    return set([(i, j) for i, j in edge_index.t().tolist()])
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
@@ -27,16 +32,15 @@ def test_knn(dtype, device):
     batch_x = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
     batch_y = tensor([0, 1], torch.long, device)
 
-    row, col = knn(x, y, 2, batch_x, batch_y)
-    col = col.view(-1, 2).sort(dim=-1)[0].view(-1)
+    edge_index = knn(x, y, 2)
+    assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 0), (1, 1)])
 
-    assert row.tolist() == [0, 0, 1, 1]
-    assert col.tolist() == [2, 3, 4, 5]
+    edge_index = knn(x, y, 2, batch_x, batch_y)
+    assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
 
     if x.is_cuda:
-        row, col = knn(x, y, 2, batch_x, batch_y, cosine=True)
-        assert row.tolist() == [0, 0, 1, 1]
-        assert col.tolist() == [0, 1, 4, 5]
+        edge_index = knn(x, y, 2, batch_x, batch_y, cosine=True)
+        assert to_set(edge_index) == set([(0, 0), (0, 1), (1, 4), (1, 5)])
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
@@ -48,12 +52,24 @@ def test_knn_graph(dtype, device):
         [+1, -1],
     ], dtype, device)
 
-    row, col = knn_graph(x, k=2, flow='target_to_source')
-    col = col.view(-1, 2).sort(dim=-1)[0].view(-1)
-    assert row.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
-    assert col.tolist() == [1, 3, 0, 2, 1, 3, 0, 2]
+    edge_index = knn_graph(x, k=2, flow='target_to_source')
+    assert to_set(edge_index) == set([(0, 1), (0, 3), (1, 0), (1, 2), (2, 1),
+                                      (2, 3), (3, 0), (3, 2)])
 
-    row, col = knn_graph(x, k=2, flow='source_to_target')
-    row = row.view(-1, 2).sort(dim=-1)[0].view(-1)
-    assert row.tolist() == [1, 3, 0, 2, 1, 3, 0, 2]
-    assert col.tolist() == [0, 0, 1, 1, 2, 2, 3, 3]
+    edge_index = knn_graph(x, k=2, flow='source_to_target')
+    assert to_set(edge_index) == set([(1, 0), (3, 0), (0, 1), (2, 1), (1, 2),
+                                      (3, 2), (0, 3), (2, 3)])
+
+
+@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+def test_knn_graph_large(dtype, device):
+    x = torch.randn(1000, 3)
+
+    edge_index = knn_graph(x, k=5, flow='target_to_source', loop=True,
+                           num_workers=6)
+
+    tree = scipy.spatial.cKDTree(x.numpy())
+    _, col = tree.query(x.cpu(), k=5)
+    truth = set([(i, j) for i, ns in enumerate(col) for j in ns])
+
+    assert to_set(edge_index) == truth

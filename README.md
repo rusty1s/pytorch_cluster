@@ -107,7 +107,7 @@ from torch_cluster import graclus_cluster
 
 row = torch.tensor([0, 1, 1, 2])
 col = torch.tensor([1, 0, 2, 1])
-weight = torch.Tensor([1, 1, 1, 1])  # Optional edge weights.
+weight = torch.tensor([1., 1., 1., 1.])  # Optional edge weights.
 
 cluster = graclus_cluster(row, col, weight)
 ```
@@ -125,7 +125,7 @@ A clustering algorithm, which overlays a regular grid of user-defined size over 
 import torch
 from torch_cluster import grid_cluster
 
-pos = torch.Tensor([[0, 0], [11, 9], [2, 8], [2, 2], [8, 3]])
+pos = torch.tensor([[0., 0.], [11., 9.], [2., 8.], [2., 2.], [8., 3.]])
 size = torch.Tensor([5, 5])
 
 cluster = grid_cluster(pos, size)
@@ -144,7 +144,7 @@ A sampling algorithm, which iteratively samples the most distant point with rega
 import torch
 from torch_cluster import fps
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 index = fps(x, batch, ratio=0.5, random_start=False)
 ```
@@ -158,11 +158,21 @@ tensor([0, 3])
 
 Computes graph edges to the nearest *k* points.
 
+**Args:**
+
+* **x** *(Tensor)*: Node feature matrix of shape `[N, F]`.
+* **r** *(float)*: The radius.
+* **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
+* **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
+* **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
+* **cosine** *(boolean, optional)*: If `True`, will use the Cosine distance instead of Euclidean distance to find nearest neighbors. (default: `False`)
+* **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
+
 ```python
 import torch
 from torch_cluster import knn_graph
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 edge_index = knn_graph(x, k=2, batch=batch, loop=False)
 ```
@@ -177,11 +187,21 @@ tensor([[1, 2, 0, 3, 0, 3, 1, 2],
 
 Computes graph edges to all points within a given distance.
 
+**Args:**
+
+* **x** *(Tensor)*: Node feature matrix of shape `[N, F]`.
+* **r** *(float)*: The radius.
+* **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
+* **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
+* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. (default: `32`)
+* **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
+* **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
+
 ```python
 import torch
 from torch_cluster import radius_graph
 
-x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
+x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
 edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
 ```

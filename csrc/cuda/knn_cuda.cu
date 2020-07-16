@@ -75,26 +75,42 @@ __global__ void knn_kernel(const scalar_t *x, const scalar_t *y,
   }
 }
 
-torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
-                       torch::Tensor ptr_y, int64_t k, bool cosine) {
+torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y,
+                       torch::optional<torch::Tensor> ptr_x,
+                       torch::optional<torch::Tensor> ptr_y, int64_t k,
+                       bool cosine) {
+
   CHECK_CUDA(x);
+  CHECK_INPUT(x.dim() == 2);
   CHECK_CUDA(y);
-  CHECK_CUDA(ptr_x);
-  CHECK_CUDA(ptr_y);
+  CHECK_INPUT(y.dim() == 2);
   cudaSetDevice(x.get_device());
 
-  x = x.view({x.size(0), -1}).contiguous();
-  y = y.view({y.size(0), -1}).contiguous();
+  if (ptr_x.has_value()) {
+    CHECK_CUDA(ptr_x.value());
+    CHECK_INPUT(ptr_x.value().dim() == 1);
+  } else {
+    ptr_x = torch::arange(0, x.size(0) + 1, x.size(0),
+                          x.options().dtype(torch::kLong));
+  }
+  if (ptr_y.has_value()) {
+    CHECK_CUDA(ptr_y.value());
+    CHECK_INPUT(ptr_y.value().dim() == 1);
+  } else {
+    ptr_y = torch::arange(0, y.size(0) + 1, y.size(0),
+                          y.options().dtype(torch::kLong));
+  }
+  CHECK_INPUT(ptr_x.value().numel() == ptr_y.value().numel());
 
   auto dist = torch::full(y.size(0) * k, 1e38, y.options());
-  auto row = torch::empty(y.size(0) * k, ptr_y.options());
-  auto col = torch::full(y.size(0) * k, -1, ptr_y.options());
+  auto row = torch::empty(y.size(0) * k, ptr_y.value().options());
+  auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "knn_kernel", [&] {
-    knn_kernel<scalar_t><<<ptr_x.size(0) - 1, THREADS, 0, stream>>>(
+    knn_kernel<scalar_t><<<ptr_x.value().size(0) - 1, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
-        ptr_x.data_ptr<int64_t>(), ptr_y.data_ptr<int64_t>(),
+        ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
         dist.data_ptr<scalar_t>(), row.data_ptr<int64_t>(),
         col.data_ptr<int64_t>(), k, x.size(1), cosine);
   });
