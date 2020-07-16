@@ -64,7 +64,7 @@ def test_radius_graph_large(dtype, device):
     x = torch.randn(1000, 3)
 
     edge_index = radius_graph(x, r=0.5, flow='target_to_source', loop=True,
-                              max_num_neighbors=1000, num_workers=6)
+                              max_num_neighbors=2000, num_workers=6)
 
     tree = scipy.spatial.cKDTree(x.numpy())
     col = tree.query_ball_point(x.cpu(), r=0.5)
