@@ -85,7 +85,7 @@ template <typename scalar_t> void thread_routine(thread_args *targs) {
 template <typename scalar_t>
 size_t nanoflann_neighbors(std::vector<scalar_t> &queries,
                            std::vector<scalar_t> &supports,
-                           std::vector<size_t> *&neighbors_indices,
+                           std::vector<size_t> &neighbors_indices,
                            double radius, int dim, int64_t max_num,
                            int64_t n_threads, int64_t k, int option) {
 
@@ -230,14 +230,14 @@ size_t nanoflann_neighbors(std::vector<scalar_t> &queries,
       size += *max_count;
   }
 
-  neighbors_indices->resize(size * 2);
+  neighbors_indices.resize(size * 2);
   size_t i1 = 0; // index of the query points
   size_t u = 0;  // curent index of the neighbors_indices
   for (auto &inds : *list_matches) {
     for (size_t j = 0; j < *max_count; j++) {
       if (j < inds.size()) {
-        (*neighbors_indices)[u] = inds[j].first;
-        (*neighbors_indices)[u + 1] = i1;
+        neighbors_indices[u] = inds[j].first;
+        neighbors_indices[u + 1] = i1;
         u += 2;
       }
     }
@@ -252,7 +252,7 @@ size_t batch_nanoflann_neighbors(std::vector<scalar_t> &queries,
                                  std::vector<scalar_t> &supports,
                                  std::vector<long> &q_batches,
                                  std::vector<long> &s_batches,
-                                 std::vector<size_t> *&neighbors_indices,
+                                 std::vector<size_t> &neighbors_indices,
                                  double radius, int dim, int64_t max_num,
                                  int64_t k, int option) {
 
@@ -365,7 +365,7 @@ size_t batch_nanoflann_neighbors(std::vector<scalar_t> &queries,
       size += max_count;
   }
 
-  neighbors_indices->resize(size * 2);
+  neighbors_indices.resize(size * 2);
   i0 = 0;
   sum_sb = 0;
   sum_qb = 0;
@@ -379,8 +379,8 @@ size_t batch_nanoflann_neighbors(std::vector<scalar_t> &queries,
     }
     for (size_t j = 0; j < max_count; j++) {
       if (j < inds_dists.size()) {
-        (*neighbors_indices)[u] = inds_dists[j].first + sum_sb;
-        (*neighbors_indices)[u + 1] = i0;
+        neighbors_indices[u] = inds_dists[j].first + sum_sb;
+        neighbors_indices[u + 1] = i0;
         u += 2;
       }
     }

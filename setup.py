@@ -57,9 +57,9 @@ def get_extensions():
     return extensions
 
 
-install_requires = []
+install_requires = ['scipy']
 setup_requires = ['pytest-runner']
-tests_require = ['pytest', 'pytest-cov', 'scipy']
+tests_require = ['pytest', 'pytest-cov']
 
 setup(
     name='torch_cluster',

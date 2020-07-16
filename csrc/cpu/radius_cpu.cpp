@@ -22,7 +22,7 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
     CHECK_INPUT(ptr_y.value().dim() == 1);
   }
 
-  std::vector<size_t> *out_vec = new std::vector<size_t>();
+  std::vector<size_t> out_vec = std::vector<size_t>();
 
   AT_DISPATCH_ALL_TYPES(x.scalar_type(), "radius_cpu", [&] {
     auto x_data = x.data_ptr<scalar_t>();
@@ -48,8 +48,8 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
     }
   });
 
-  const int64_t size = out_vec->size() / 2;
-  auto out = torch::from_blob(out_vec->data(), {size, 2},
+  const int64_t size = out_vec.size() / 2;
+  auto out = torch::from_blob(out_vec.data(), {size, 2},
                               x.options().dtype(torch::kLong));
   return out.t().index_select(0, torch::tensor({1, 0}));
 }
