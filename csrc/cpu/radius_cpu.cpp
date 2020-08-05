@@ -88,7 +88,8 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
           size_t num_matches = mat_index.index->radiusSearch(
               y_data + i * y.size(1), r * r + 0.00001, ret_matches, params);
 
-          for (size_t j = 0; j < num_matches; j++) {
+          for (size_t j = 0;
+               j < std::min(num_matches, (size_t)max_num_neighbors); j++) {
             out_vec.push_back(x_start + ret_matches[j].first);
             out_vec.push_back(i);
           }
