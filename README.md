@@ -31,6 +31,22 @@ All included operations work on varying data types and are implemented both for 
 
 We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/index.html).
 
+#### PyTorch 1.6.0
+
+To install the binaries for PyTorch 1.6.0, simply run
+
+```
+pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+```
+
+where `${CUDA}` should be replaced by either `cpu`, `cu92`, `cu101` or `cu102` depending on your PyTorch installation.
+
+|             | `cpu` | `cu92` | `cu101` | `cu102` |
+|-------------|-------|--------|---------|---------|
+| **Linux**   | ✅    | ✅     | ✅      | ✅      |
+| **Windows** | ✅    | ❌     | ✅      | ✅      |
+| **macOS**   | ✅    |        |         |         |
+
 #### PyTorch 1.5.0
 
 To install the binaries for PyTorch 1.5.0, simply run
