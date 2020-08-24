@@ -40,7 +40,7 @@ def test_knn(dtype, device):
 
     if x.is_cuda:
         edge_index = knn(x, y, 2, batch_x, batch_y, cosine=True)
-        assert to_set(edge_index) == set([(0, 0), (0, 1), (1, 4), (1, 5)])
+        assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
