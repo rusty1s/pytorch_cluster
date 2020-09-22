@@ -5,7 +5,7 @@ import torch
 
 @torch.jit.script
 def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
-        ratio: float = 0.5, random_start: bool = True) -> torch.Tensor:
+        ratio: torch.Tensor = torch.tensor(0.5), random_start: bool = True) -> torch.Tensor:
     r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
     Learning on Point Sets in a Metric Space"
     <https://arxiv.org/abs/1706.02413>`_ paper, which iteratively samples the
@@ -17,7 +17,7 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
         batch (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
             node to a specific example. (default: :obj:`None`)
-        ratio (float, optional): Sampling ratio. (default: :obj:`0.5`)
+        ratio (Tensor, optional): Sampling ratio. (default: :obj:`0.5`)
         random_start (bool, optional): If set to :obj:`False`, use the first
             node in :math:`\mathbf{X}` as starting node. (default: obj:`True`)
 
@@ -32,6 +32,11 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
         batch = torch.tensor([0, 0, 0, 0])
         index = fps(src, batch, ratio=0.5)
     """
+
+    assert len(ratio.shape) < 2, 'Invalid ratio'
+    ratio = ratio.to(src.device)
+    if len(ratio.shape) == 1:
+        assert ratio.shape[0] == int(batch.max()) + 1, 'Mismatched input and ratio numbers'
 
     if batch is not None:
         assert src.size(0) == batch.numel()
