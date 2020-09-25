@@ -27,4 +27,4 @@ def test_rw(device):
     walk_length = 4
 
     out = random_walk(row, col, start, walk_length, num_nodes=3)
-    assert out.tolist() == [[0, 1, 0, 1], [1, 0, 1, 0], [2, 2, 2, 2]]
+    assert out.tolist() == [[0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [2, 2, 2, 2, 2]]
