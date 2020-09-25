@@ -23,8 +23,12 @@ __global__ void uniform_random_walk_kernel(const int64_t *rowptr,
       cur = out[i];
       row_start = rowptr[cur], row_end = rowptr[cur + 1];
 
-      out[l * numel + thread_idx] =
-          col[row_start + int64_t(rand[i] * (row_end - row_start))];
+      if (row_end - row_start == 0) {
+        out[l * numel + thread_idx] = cur;
+      } else {
+        out[l * numel + thread_idx] =
+            col[row_start + int64_t(rand[i] * (row_end - row_start))];
+      }
     }
   }
 }
@@ -43,7 +47,7 @@ torch::Tensor random_walk_cuda(torch::Tensor rowptr, torch::Tensor col,
 
   auto rand = torch::rand({start.size(0), walk_length},
                           start.options().dtype(torch::kFloat));
-  auto out = torch::full({walk_length + 1, start.size(0)}, -1, start.options());
+  auto out = torch::empty({walk_length + 1, start.size(0)}, start.options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
   uniform_random_walk_kernel<<<BLOCKS(start.numel()), THREADS, 0, stream>>>(
