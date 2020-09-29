@@ -16,7 +16,7 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
   auto rand = torch::rand({start.size(0), walk_length},
                           start.options().dtype(torch::kFloat));
 
-  auto out = torch::full({start.size(0), walk_length + 1}, -1, start.options());
+  auto out = torch::empty({start.size(0), walk_length + 1}, start.options());
 
   auto rowptr_data = rowptr.data_ptr<int64_t>();
   auto col_data = col.data_ptr<int64_t>();
@@ -29,12 +29,16 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
     auto offset = n * (walk_length + 1);
     out_data[offset] = cur;
 
-    int64_t row_start, row_end;
+    int64_t row_start, row_end, rnd;
     for (auto l = 1; l <= walk_length; l++) {
       row_start = rowptr_data[cur], row_end = rowptr_data[cur + 1];
-
-      cur = col_data[row_start + int64_t(rand_data[n * walk_length + (l - 1)] *
-                                         (row_end - row_start))];
+      if (row_end - row_start == 0) {
+        cur = n;
+      } else {
+        rnd = int64_t(rand_data[n * walk_length + (l - 1)] *
+                      (row_end - row_start));
+        cur = col_data[row_start + rnd];
+      }
       out_data[offset + l] = cur;
     }
   }
