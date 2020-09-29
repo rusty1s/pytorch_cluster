@@ -35,8 +35,6 @@ def fps(src: torch.Tensor, batch: Optional[torch.Tensor] = None,
 
     assert len(ratio.shape) < 2, 'Invalid ratio'
     ratio = ratio.to(src.device)
-    if len(ratio.shape) == 1:
-        assert ratio.shape[0] == int(batch.max()) + 1, 'Mismatched input and ratio numbers'
 
     if batch is not None:
         assert src.size(0) == batch.numel()
