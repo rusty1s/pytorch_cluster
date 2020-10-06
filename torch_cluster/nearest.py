@@ -66,12 +66,6 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
 
         return torch.ops.torch_cluster.nearest(x, y, ptr_x, ptr_y)
     else:
-        if batch_x is None:
-            batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-
-        if batch_y is None:
-            batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
         assert x.dim() == 2 and batch_x.dim() == 1
         assert y.dim() == 2 and batch_y.dim() == 1
         assert x.size(1) == y.size(1)
