@@ -38,6 +38,7 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
 
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
+    assert x.size(1) == y.size(1)
 
     if x.is_cuda:
         if batch_x is not None:
@@ -66,8 +67,6 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
 
         return torch.ops.torch_cluster.nearest(x, y, ptr_x, ptr_y)
     else:
-        assert x.size(1) == y.size(1)
-
         # Translate and rescale x and y to [0, 1].
         if batch_x is not None and batch_y is not None:
             assert x.dim() == 2 and batch_x.dim() == 1
