@@ -35,9 +35,9 @@ __global__ void uniform_random_walk_kernel(const int64_t *rowptr,
   }
 }
 
-torch::Tensor random_walk_cuda(torch::Tensor rowptr, torch::Tensor col,
-                               torch::Tensor start, int64_t walk_length,
-                               double p, double q) {
+std::tuple<torch::Tensor, torch::Tensor>
+random_walk_cuda(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
+                 int64_t walk_length, double p, double q) {
   CHECK_CUDA(rowptr);
   CHECK_CUDA(col);
   CHECK_CUDA(start);
@@ -60,5 +60,5 @@ torch::Tensor random_walk_cuda(torch::Tensor rowptr, torch::Tensor col,
       n_out.data_ptr<int64_t>(), e_out.data_ptr<int64_t>(), walk_length,
       start.numel());
 
-  return n_out.t().contiguous();
+  return std::make_tuple(n_out.t().contiguous(), e_out.t().contiguous());
 }

@@ -11,9 +11,9 @@
 PyMODINIT_FUNC PyInit__rw(void) { return NULL; }
 #endif
 
-torch::Tensor random_walk(torch::Tensor rowptr, torch::Tensor col,
-                          torch::Tensor start, int64_t walk_length, double p,
-                          double q) {
+std::tuple<torch::Tensor, torch::Tensor>
+random_walk(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
+            int64_t walk_length, double p, double q) {
   if (rowptr.device().is_cuda()) {
 #ifdef WITH_CUDA
     return random_walk_cuda(rowptr, col, start, walk_length, p, q);

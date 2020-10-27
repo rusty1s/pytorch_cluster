@@ -4,9 +4,9 @@
 
 #include "utils.h"
 
-torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
-                              torch::Tensor start, int64_t walk_length,
-                              double p, double q) {
+std::tuple<torch::Tensor, torch::Tensor>
+random_walk_cpu(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
+                int64_t walk_length, double p, double q) {
   CHECK_CPU(rowptr);
   CHECK_CPU(col);
   CHECK_CPU(start);
@@ -50,5 +50,5 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
     }
   });
 
-  return n_out;
+  return std::make_tuple(n_out, e_out);
 }
