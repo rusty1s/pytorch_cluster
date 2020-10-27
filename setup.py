@@ -19,7 +19,8 @@ BUILD_DOCS = os.getenv('BUILD_DOCS', '0') == '1'
 def get_extensions():
     Extension = CppExtension
     define_macros = []
-    extra_compile_args = {'cxx': []}
+    extra_compile_args = {'cxx': ['-fopenmp']}
+    extra_link_args = ['-lgomp']
 
     if WITH_CUDA:
         Extension = CUDAExtension
@@ -51,6 +52,7 @@ def get_extensions():
             include_dirs=[extensions_dir],
             define_macros=define_macros,
             extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
         )
         extensions += [extension]
 
