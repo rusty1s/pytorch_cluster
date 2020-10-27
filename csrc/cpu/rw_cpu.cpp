@@ -31,23 +31,20 @@ torch::Tensor random_walk_cpu(torch::Tensor rowptr, torch::Tensor col,
   int64_t grain_size = at::internal::GRAIN_SIZE / walk_length;
   at::parallel_for(0, start.numel(), grain_size, [&](int64_t b, int64_t e) {
     for (auto n = b; n < e; n++) {
-      auto n_cur = start_data[n];
-      int64_t e_cur = -1;
-      auto offset = n * (walk_length + 1);
-      n_out_data[offset] = n_cur;
+      int64_t n_cur = start_data[n], e_cur, row_start, row_end, rnd;
 
-      int64_t row_start, row_end, rnd;
+      n_out_data[n * (walk_length + 1)] = n_cur;
+
       for (auto l = 0; l < walk_length; l++) {
         row_start = rowptr_data[n_cur], row_end = rowptr_data[n_cur + 1];
         if (row_end - row_start == 0) {
-          n_cur = n;
           e_cur = -1;
         } else {
           rnd = int64_t(rand_data[n * walk_length + l] * (row_end - row_start));
           e_cur = row_start + rnd;
           n_cur = col_data[e_cur];
         }
-        n_out_data[offset + l + 1] = n_cur;
+        n_out_data[n * (walk_length + 1) + (l + 1)] = n_cur;
         e_out_data[n * walk_length + l] = e_cur;
       }
     }
