@@ -1,6 +1,6 @@
 #include "rw_cpu.h"
 
-#include <ATen/ParallelOpenMP.h>
+#include <ATen/Parallel.h>
 
 #include "utils.h"
 

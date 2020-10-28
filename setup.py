@@ -4,6 +4,7 @@ import glob
 from setuptools import setup, find_packages
 
 import torch
+from torch.__config__ import parallel_info
 from torch.utils.cpp_extension import BuildExtension
 from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME
 
@@ -19,8 +20,13 @@ BUILD_DOCS = os.getenv('BUILD_DOCS', '0') == '1'
 def get_extensions():
     Extension = CppExtension
     define_macros = []
-    extra_compile_args = {'cxx': ['-fopenmp']}
-    extra_link_args = ['-lgomp']
+    extra_compile_args = {'cxx': []}
+    extra_link_args = []
+
+    info = parallel_info()
+    if 'parallel backend: OpenMP' in info and 'OpenMP not found' not in info:
+        print('Using OpenMP')
+        extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP', '-fopenmp']
 
     if WITH_CUDA:
         Extension = CUDAExtension
