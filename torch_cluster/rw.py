@@ -1,4 +1,3 @@
-import warnings
 from typing import Optional
 
 import torch
@@ -43,11 +42,6 @@ def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
     deg.scatter_add_(0, row, torch.ones_like(row))
     rowptr = row.new_zeros(num_nodes + 1)
     torch.cumsum(deg, 0, out=rowptr[1:])
-
-    if p != 1. or q != 1.:  # pragma: no cover
-        warnings.warn('Parameters `p` and `q` are not supported yet and will'
-                      'be restored to their default values `p=1` and `q=1`.')
-        p = q = 1.
 
     return torch.ops.torch_cluster.random_walk(rowptr, col, start, walk_length,
                                                p, q)[0]
