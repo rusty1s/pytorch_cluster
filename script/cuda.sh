@@ -109,8 +109,3 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
   PATH=/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH
   nvcc --version
 fi
-
-# Fix Cuda9.2 on Windows: https://github.com/pytorch/pytorch/issues/6109
-if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" = "cu92" ]; then
-  sed -i.bak -e '129,141d' "${CUDA_HOME}/include/crt/host_config.h"
-fi
