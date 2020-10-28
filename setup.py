@@ -24,6 +24,7 @@ def get_extensions():
     extra_link_args = []
 
     info = parallel_info()
+    print(info)
     if 'parallel backend: OpenMP' in info and 'OpenMP not found' not in info:
         extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP', '-fopenmp']
     else:
