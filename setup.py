@@ -25,8 +25,9 @@ def get_extensions():
 
     info = parallel_info()
     if 'parallel backend: OpenMP' in info and 'OpenMP not found' not in info:
-        print('Using OpenMP')
         extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP', '-fopenmp']
+    else:
+        print('Compiling without OpenMP...')
 
     if WITH_CUDA:
         Extension = CUDAExtension
