@@ -55,7 +55,6 @@ jobs:
       env: PYTHON_VERSION=3.6 TORCH_VERSION=1.7.0 IDX=cu102
     - if: os = osx
       env: PYTHON_VERSION=3.6 TORCH_VERSION=1.7.0 IDX=cu110
-
     - if: not (tag is present or commit_message =~ ci-deploy) and os != osx
       env: PYTHON_VERSION=3.6 TORCH_VERSION=1.6.0 IDX=cpu
     - if: not (tag is present or commit_message =~ ci-deploy) or os != linux
@@ -92,7 +91,7 @@ jobs:
       env: PYTHON_VERSION=3.8 TORCH_VERSION=1.7.0 IDX=cu101
     - if: not (tag is present or commit_message =~ ci-deploy) or os = osx
       env: PYTHON_VERSION=3.8 TORCH_VERSION=1.7.0 IDX=cu102
-    - if: not (tag is present or commit_message =~ ci-deploy)
+    - if: not (tag is present or commit_message =~ ci-deploy) or os = osx
       env: PYTHON_VERSION=3.8 TORCH_VERSION=1.7.0 IDX=cu110
     - if: not (tag is present or commit_message =~ ci-deploy)
       env: PYTHON_VERSION=3.8 TORCH_VERSION=1.6.0 IDX=cpu

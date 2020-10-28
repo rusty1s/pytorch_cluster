@@ -30,6 +30,14 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu102" ]; then
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
+if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu110" ]; then
+  export CUDA_SHORT=11.0
+  export CUDA=11.0.2-450.51.05-1
+  export UBUNTU_VERSION=ubuntu1804
+  export CUBLAS=libcublas-dev
+  export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
+fi
+
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "$IDX" = "cpu" ]; then
   export TOOLKIT=cpuonly
 fi
@@ -52,6 +60,13 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "$IDX" = "cu102" ]; then
   export CUDA_SHORT=10.2
   export CUDA_URL=https://developer.download.nvidia.com/compute/cuda/${CUDA_SHORT}/Prod/local_installers
   export CUDA_FILE=cuda_${CUDA_SHORT}.89_441.22_win10.exe
+  export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
+fi
+
+if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "$IDX" = "cu110" ]; then
+  export CUDA_SHORT=11.0
+  export CUDA_URL=https://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers
+  export CUDA_FILE=cuda_${CUDA_SHORT}.2_451.48_win10.exe
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
