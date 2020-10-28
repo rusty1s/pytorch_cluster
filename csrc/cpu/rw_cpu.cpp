@@ -58,7 +58,7 @@ void rejection_sampling(const int64_t *rowptr, const int64_t *col,
   int64_t grain_size = at::internal::GRAIN_SIZE / walk_length;
   at::parallel_for(0, numel, grain_size, [&](int64_t begin, int64_t end) {
     for (auto n = begin; n < end; n++) {
-      int64_t t = start[n], v, x, e_cur, row_start, row_end, idx;
+      int64_t t = start[n], v, x, e_cur, row_start, row_end;
 
       n_out[n * (walk_length + 1)] = t;
 
@@ -75,6 +75,7 @@ void rejection_sampling(const int64_t *rowptr, const int64_t *col,
 
       for (auto l = 1; l < walk_length; l++) {
         row_start = rowptr[v], row_end = rowptr[v + 1];
+
         if (row_end - row_start == 0) {
           e_cur = -1;
           x = v;
@@ -88,13 +89,11 @@ void rejection_sampling(const int64_t *rowptr, const int64_t *col,
 
             auto r = ((double)rand() / (RAND_MAX)); // [0, 1)
 
-            if (x == t) {
-              if (r < prob_0)
-                break;
-            } else if (is_neighbor(rowptr, col, x, t)) {
-              if (r < prob_1)
-                break;
-            } else if (r < prob_2)
+            if (x == t && r < prob_0)
+              break;
+            else if (is_neighbor(rowptr, col, x, t) && r < prob_1)
+              break;
+            else if (r < prob_2)
               break;
           }
         }
