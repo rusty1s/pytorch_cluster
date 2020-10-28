@@ -87,7 +87,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ]; then
   wget -nv "https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub"
   sudo apt-key add 7fa2af80.pub
   sudo apt update -qq
-  sudo apt install -y "cuda-core-${CUDA_SHORT/./-}" "cuda-cudart-dev-${CUDA_SHORT/./-}" "${CUBLAS}" "cuda-cusparse-dev-${CUDA_SHORT/./-}" "cuda-cusolver-dev-${CUDA_SHORT/./-}"
+  sudo apt install -y "cuda-core-${CUDA_SHORT/./-}" "cuda-cudart-dev-${CUDA_SHORT/./-}" "${CUBLAS}" "cuda-cusparse-dev-${CUDA_SHORT/./-}" "cuda-cusolver-dev-${CUDA_SHORT/./-}" "cuda-curand-dev-${CUDA_SHORT/./-}"
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
@@ -103,7 +103,7 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
 
   # Install CUDA
   wget -nv "${CUDA_URL}/${CUDA_FILE}"
-  PowerShell -Command "Start-Process -FilePath \"${CUDA_FILE}\" -ArgumentList \"-s nvcc_${CUDA_SHORT} cublas_dev_${CUDA_SHORT} cusparse_dev_${CUDA_SHORT}\" cusolver_dev_${CUDA_SHORT} -Wait -NoNewWindow"
+  PowerShell -Command "Start-Process -FilePath \"${CUDA_FILE}\" -ArgumentList \"-s nvcc_${CUDA_SHORT} cublas_dev_${CUDA_SHORT} cusparse_dev_${CUDA_SHORT}\" cusolver_dev_${CUDA_SHORT} curand_dev_${CUDA_SHORT} -Wait -NoNewWindow"
   CUDA_HOME=/c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}
   PATH=${CUDA_HOME}/bin:$PATH
   PATH=/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH
