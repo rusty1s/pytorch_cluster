@@ -87,7 +87,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ]; then
   wget -nv "https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub"
   sudo apt-key add 7fa2af80.pub
   sudo apt update -qq
-  sudo apt install -y "cuda-${CUDA_SHORT/./-}"
+  sudo apt install -y cuda
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
