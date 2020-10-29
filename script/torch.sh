@@ -9,10 +9,10 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${TORCH_VERSION}" = "1.7.0" ]; then
   echo "Fix nvcc for PyTorch 1.7.0"
-  sed -i.bak -e 's/constexpr/ Symbol Kind = ::10::prim::profile;/const Symbol Kind;/g' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
+  sed -i.bak -e 's/constexpr Symbol Kind = ::c10::prim::profile;/const Symbol Kind;/g' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
   sed -i.bak '1346a\
     const Symbol ProfileOp::Kind = ::c10::prim::profile;' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
-  sed -i.bak -e 's/constexpr/ Symbol Kind = ::10::prim::profile_optional;/const Symbol Kind;/g' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
+  sed -i.bak -e 's/constexpr Symbol Kind = ::c10::prim::profile_optional;/const Symbol Kind;/g' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
   sed -i.bak '1368a\
     const Symbol ProfileOptionalOp::Kind = ::c10::prim::profile_optional;' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
 
