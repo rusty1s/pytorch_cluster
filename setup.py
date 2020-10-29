@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+import sys
 import glob
 from setuptools import setup, find_packages
 
@@ -26,7 +27,11 @@ def get_extensions():
     info = parallel_info()
     print(info)
     if 'parallel backend: OpenMP' in info and 'OpenMP not found' not in info:
-        extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP', '-fopenmp']
+        extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP']
+        if sys.platform == 'win32':
+            extra_compile_args['cxx'] += ['/openmp']
+        else:
+            extra_compile_args['cxx'] += ['-fopenmp']
     else:
         print('Compiling without OpenMP...')
 
