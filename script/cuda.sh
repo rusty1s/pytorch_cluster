@@ -32,7 +32,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu110" ]; then
   export CUDA_SHORT=11.0
-  export CUDA=11.0.2-450.51.05-1
+  export CUDA=11.0.3-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -103,7 +103,7 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
 
   # Install CUDA
   wget -nv "${CUDA_URL}/${CUDA_FILE}"
-  PowerShell -Command "Start-Process -FilePath \"${CUDA_FILE}\" -ArgumentList \"-s nvcc_${CUDA_SHORT} cublas_dev_${CUDA_SHORT} cusparse_dev_${CUDA_SHORT}\" cusolver_dev_${CUDA_SHORT} curand_dev_${CUDA_SHORT} -Wait -NoNewWindow"
+  PowerShell -Command "Start-Process -FilePath \"${CUDA_FILE}\" -ArgumentList \"-s nvcc_${CUDA_SHORT} cublas_dev_${CUDA_SHORT} cusparse_dev_${CUDA_SHORT} cusolver_dev_${CUDA_SHORT} curand_dev_${CUDA_SHORT}\" -Wait -NoNewWindow"
   CUDA_HOME=/c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}
   PATH=${CUDA_HOME}/bin:$PATH
   PATH=/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH

@@ -73,7 +73,7 @@ tests_require = ['pytest', 'pytest-cov', 'scipy']
 
 setup(
     name='torch_cluster',
-    version='1.5.7',
+    version='1.6.0',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',
     url='https://github.com/rusty1s/pytorch_cluster',
