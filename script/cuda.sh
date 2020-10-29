@@ -6,7 +6,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu92" ]; then
   export CUDA_SHORT=9.2
-  export CUDA=9.2.148-1
+  export CUDA=9-2_9.2.148-1
   export UBUNTU_VERSION=ubuntu1604
   export CUBLAS=cuda-cublas-dev-9-2
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -15,7 +15,7 @@ fi
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu101" ]; then
   export IDX=cu101
   export CUDA_SHORT=10.1
-  export CUDA=10.1.105-1
+  export CUDA=10-1_10.1.243-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -24,7 +24,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu102" ]; then
   export CUDA_SHORT=10.2
-  export CUDA=10.2.89-1
+  export CUDA=10-2_10.2.89-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -32,7 +32,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu110" ]; then
   export CUDA_SHORT=11.0
-  export CUDA=11.0.3-1
+  export CUDA=11-1_11.0.3-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -81,7 +81,7 @@ else
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ]; then
-  INSTALLER=cuda-repo-${UBUNTU_VERSION}_${CUDA}_amd64.deb
+  INSTALLER="cuda-${CUDA}_amd64.deb"
   wget -nv "http://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/${INSTALLER}"
   sudo dpkg -i "${INSTALLER}"
   wget -nv "https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub"
