@@ -6,7 +6,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu92" ]; then
   export CUDA_SHORT=9.2
-  export CUDA=9-2_9.2.148-1
+  export CUDA=9.2.148-1
   export UBUNTU_VERSION=ubuntu1604
   export CUBLAS=cuda-cublas-dev-9-2
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -15,7 +15,7 @@ fi
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu101" ]; then
   export IDX=cu101
   export CUDA_SHORT=10.1
-  export CUDA=10-1_10.1.243-1
+  export CUDA=10.1.243-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -24,7 +24,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu102" ]; then
   export CUDA_SHORT=10.2
-  export CUDA=10-2_10.2.89-1
+  export CUDA=10.2.89-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -32,9 +32,9 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu110" ]; then
   export CUDA_SHORT=11.0
-  export CUDA=11-1_11.0.3-1
-  export UBUNTU_VERSION=ubuntu1804
-  export CUBLAS=libcublas-dev
+  # export CUDA=11-1_11.0.3-1
+  # export UBUNTU_VERSION=ubuntu1804
+  # export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
@@ -80,14 +80,29 @@ else
   export FORCE_CUDA=1
 fi
 
-if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ]; then
-  INSTALLER="cuda-${CUDA}_amd64.deb"
+if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "cu110" ]; then
+  INSTALLER="cuda-repo-${UBUNTU_VERSION}_${CUDA}_amd64.deb"
   wget -nv "http://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/${INSTALLER}"
   sudo dpkg -i "${INSTALLER}"
   wget -nv "https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub"
   sudo apt-key add 7fa2af80.pub
   sudo apt update -qq
-  sudo apt install -y cuda
+  sudo apt install -y "cuda-core-${CUDA_SHORT/./-}" "cuda-cudart-dev-${CUDA_SHORT/./-}" "${CUBLAS}" "cuda-cusparse-dev-${CUDA_SHORT/./-}" "cuda-cusolver-dev-${CUDA_SHORT/./-}" "cuda-curand-dev-${CUDA_SHORT/./-}"
+  sudo apt clean
+  CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
+  LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+  PATH=${CUDA_HOME}/bin:${PATH}
+  nvcc --version
+fi
+
+if [ "${TRAVIS_OS_NAME}" = "linux" ] [ "${IDX}" = "cu110" ]; then
+  wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+  sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+  wget https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
+  sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
+  sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
+  sudo apt update -qq
+  sudo apt install cuda
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
