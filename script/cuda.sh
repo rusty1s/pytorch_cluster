@@ -99,12 +99,20 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
   sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
   sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
   sudo apt update -qq
+  sudo apt search cuda
   sudo apt install cuda-nvcc-11-0 libcusolver-dev-11-0 libcusparse7.5 libcurand7.5
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
   PATH=${CUDA_HOME}/bin:${PATH}
   nvcc --version
+
+  echo "LIB"
+  ls $CUDA_HOME/lib
+  echo "LIB64"
+  ls $CUDA_HOME/lib64
+  echo "LIB"
+  ls $CUDA_HOME/include
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
