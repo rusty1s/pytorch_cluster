@@ -32,9 +32,6 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu110" ]; then
   export CUDA_SHORT=11.0
-  # export CUDA=11-1_11.0.3-1
-  # export UBUNTU_VERSION=ubuntu1804
-  # export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
@@ -102,24 +99,12 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
   sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
   sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
   sudo apt update -qq
-  # echo "SEARCH 1"
-  # sudo apt search cuda
-  # echo "SEARCH 2"
-  # sudo apt-cache search cuda
-  # echo "END"
-  sudo apt install cuda-nvcc-11-0
+  sudo apt install cuda-nvcc-11-0 libcusolver-dev-11-0 libcusparse7.5 libcurand7.5
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
   PATH=${CUDA_HOME}/bin:${PATH}
   nvcc --version
-
-  echo "lib=========="
-  ls $CUDA_HOME/lib
-  echo "lib64=========="
-  ls $CUDA_HOME/lib64
-  echo "include=========="
-  ls $CUDA_HOME/include
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
@@ -135,12 +120,4 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
   PATH=${CUDA_HOME}/bin:$PATH
   PATH=/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH
   nvcc --version
-
-  # TODO
-  echo "lib=============="
-  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/lib/x64
-  echo "include=============="
-  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/include
-  echo "bin=============="
-  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/bin
 fi
