@@ -125,6 +125,10 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
   nvcc --version
 
   # TODO
-  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v11.0
-  nvidia-smi
+  echo "lib=============="
+  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/lib
+  echo "include=============="
+  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/include
+  echo "bin=============="
+  ls /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}/bin
 fi
