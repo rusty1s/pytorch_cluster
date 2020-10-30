@@ -65,7 +65,7 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "$IDX" = "cu110" ]; then
   export CUDA_SHORT=11.0
-  export CUDA_URL=https://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers
+  export CUDA_URL=https://developer.download.nvidia.com/compute/cuda/${CUDA_SHORT}.2/local_installers
   export CUDA_FILE=cuda_${CUDA_SHORT}.2_451.48_win10.exe
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
@@ -96,9 +96,9 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
-  wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+  wget -nv https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
   sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-  wget https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
+  wget -nv https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
   sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
   sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
   sudo apt update -qq
@@ -123,4 +123,8 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
   PATH=${CUDA_HOME}/bin:$PATH
   PATH=/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH
   nvcc --version
+
+  # TODO
+  ls C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.0
+  nvidia-smi
 fi

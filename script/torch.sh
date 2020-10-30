@@ -10,8 +10,4 @@ fi
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${TORCH_VERSION}" = "1.7.0" ]; then
   echo "Fix nvcc for PyTorch 1.7.0"
   sed -i.bak '/static constexpr Symbol Kind/d' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
-
-  echo "-------------------------"
-  sed -n '1327,1375p' /c/tools/miniconda3/envs/test/lib/site-packages/torch/include/torch/csrc/jit/ir/ir.h
-  echo "-------------------------"
 fi
