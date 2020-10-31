@@ -100,7 +100,9 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
   sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
   sudo apt update -qq
   sudo apt search cuda
-  sudo apt install cuda-nvcc-11-0 libcusolver-dev-11-0 libcusparse7.5 libcurand7.5
+  sudo apt install cuda-nvcc-11-0
+  sudo apt install cuda-libraries-11-0
+  sudo apt libcusolver-dev-11-0 libcusparse7.5 libcurand7.5
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
