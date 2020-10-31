@@ -102,7 +102,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
   echo "-----------"
   ls /usr/include/x86_64-linux-gnu
   echo "----------- FIND -------------------"
-  sudo find . -name "*cublas*"
+  sudo find / -name "*cublas*"
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
