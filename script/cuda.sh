@@ -8,7 +8,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu92" ]; then
   export CUDA_SHORT=9.2
   export CUDA=9.2.148-1
   export UBUNTU_VERSION=ubuntu1604
-  export CUBLAS=cuda-cublas-dev-9-2
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
@@ -17,7 +16,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu101" ]; then
   export CUDA_SHORT=10.1
   export CUDA=10.1.243-1
   export UBUNTU_VERSION=ubuntu1804
-  export CUBLAS=cuda-cublas-dev-10-1
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
@@ -26,7 +24,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu102" ]; then
   export CUDA_SHORT=10.2
   export CUDA=10.2.89-1
   export UBUNTU_VERSION=ubuntu1804
-  export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
 fi
 
@@ -90,6 +87,11 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
   PATH=${CUDA_HOME}/bin:${PATH}
   nvcc --version
+
+  echo "-----------"
+  ls $CUDA_HOME/include
+  echo "-----------"
+  ls /usr/include
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
