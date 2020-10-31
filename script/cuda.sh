@@ -99,21 +99,12 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
   sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.3-450.51.06-1_amd64.deb
   sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
   sudo apt update -qq
-  sudo apt search cuda
-  sudo apt install cuda-nvcc-11-0
-  sudo apt install cuda-libraries-dev-11-0
+  sudo apt install cuda-nvcc-11-0 cuda-libraries-dev-11-0
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
   PATH=${CUDA_HOME}/bin:${PATH}
   nvcc --version
-
-  echo "LIB"
-  ls $CUDA_HOME/lib
-  echo "LIB64"
-  ls $CUDA_HOME/lib64
-  echo "LIB"
-  ls $CUDA_HOME/include
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
@@ -122,7 +113,7 @@ if [ "${TRAVIS_OS_NAME}" = "windows" ] && [ "${IDX}" != "cpu" ]; then
   curl -k -L "https://drive.google.com/u/0/uc?id=1injUyo3lnarMgWyRcXqKg4UGnN0ysmuq&export=download" --output "/tmp/gpu_driver_dlls.zip"
   7z x "/tmp/gpu_driver_dlls.zip" -o"/c/Windows/System32"
 
-  # Install CUDA
+  # Install CUDA:
   wget -nv "${CUDA_URL}/${CUDA_FILE}"
   PowerShell -Command "Start-Process -FilePath \"${CUDA_FILE}\" -ArgumentList \"-s nvcc_${CUDA_SHORT} cuobjdump_${CUDA_SHORT} nvprune_${CUDA_SHORT} cupti_${CUDA_SHORT} cublas_dev_${CUDA_SHORT} cudart_${CUDA_SHORT} cufft_dev_${CUDA_SHORT} curand_dev_${CUDA_SHORT} cusolver_dev_${CUDA_SHORT} cusparse_dev_${CUDA_SHORT} npp_dev_${CUDA_SHORT} nvrtc_dev_${CUDA_SHORT} nvml_dev_${CUDA_SHORT}\" -Wait -NoNewWindow"
   CUDA_HOME=/c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v${CUDA_SHORT}
