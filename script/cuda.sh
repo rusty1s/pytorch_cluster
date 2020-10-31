@@ -15,7 +15,7 @@ fi
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu101" ]; then
   export IDX=cu101
   export CUDA_SHORT=10.1
-  export CUDA=10.1.243-1
+  export CUDA=10.1.105-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
