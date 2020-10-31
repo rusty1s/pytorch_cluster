@@ -101,7 +101,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
   sudo apt update -qq
   sudo apt search cuda
   sudo apt install cuda-nvcc-11-0
-  sudo apt install cuda-libraries-11-0
+  sudo apt install cuda-libraries-dev-11-0
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
   LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
