@@ -15,7 +15,7 @@ fi
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "$IDX" = "cu101" ]; then
   export IDX=cu101
   export CUDA_SHORT=10.1
-  export CUDA=10.1.105-1
+  export CUDA=10.1.243-1
   export UBUNTU_VERSION=ubuntu1804
   export CUBLAS=libcublas-dev
   export TOOLKIT="cudatoolkit=${CUDA_SHORT}"
@@ -84,6 +84,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
   wget -nv "https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub"
   sudo apt-key add 7fa2af80.pub
   sudo apt update -qq
+  sudo apt search cuda
   sudo apt install -y "cuda-core-${CUDA_SHORT/./-}" "cuda-cudart-dev-${CUDA_SHORT/./-}" "${CUBLAS}" "cuda-cusparse-dev-${CUDA_SHORT/./-}" "cuda-cusolver-dev-${CUDA_SHORT/./-}" "cuda-curand-dev-${CUDA_SHORT/./-}"
   sudo apt clean
   CUDA_HOME=/usr/local/cuda-${CUDA_SHORT}
