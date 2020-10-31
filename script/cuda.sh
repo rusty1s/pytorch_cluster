@@ -88,21 +88,13 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
   PATH=${CUDA_HOME}/bin:${PATH}
   nvcc --version
 
-  # if [ -d /usr/lib/x86_64-linux-gnu ]; then
-  #   cp /usr/lib/x86_64-linux-gnu/* /usr/lib/
-  # fi
-  # if [ -d /usr/include/x86_64-linux-gnu ]; then
-  #   cp /usr/include/x86_64-linux-gnu/* /usr/include/
-  # fi
-
-  echo "-----------"
-  ls $CUDA_HOME/include
-  echo "-----------"
-  ls /usr/include
-  echo "-----------"
-  ls /usr/include/x86_64-linux-gnu
-  echo "----------- FIND -------------------"
-  sudo find / -name "*cublas*"
+  # Fix cublas on CUDA 10.1:
+  if [ -d "${CUDA_HOME}/targets/x86_64-linux/include" ]; then
+    cp "${CUDA_HOME}/targets/x86_64-linux/include/*" "${CUDA_HOME}/include/"
+  fi
+  if [ -d "${CUDA_HOME}/targets/x86_64-linux/lib" ]; then
+    cp "${CUDA_HOME}/targets/x86_64-linux/lib/*" "${CUDA_HOME}/lib/"
+  fi
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
