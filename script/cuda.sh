@@ -92,6 +92,8 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
   ls $CUDA_HOME/include
   echo "-----------"
   ls /usr/include
+  echo "-----------"
+  ls /usr/include/x86_64-linux-gnu
 fi
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" = "cu110" ]; then
