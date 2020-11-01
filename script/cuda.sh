@@ -94,10 +94,10 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${IDX}" != "cpu" ] && [ "${IDX}" != "
 
   # Fix cublas on CUDA 10.1:
   if [ -d "/usr/local/cuda-10.2/targets/x86_64-linux/include" ]; then
-    sudo cp -r "/usr/local/cuda-10.2/targets/x86_64-linux/include/*" "${CUDA_HOME}/include/"
+    sudo cp -r /usr/local/cuda-10.2/targets/x86_64-linux/include/* "${CUDA_HOME}/include/"
   fi
   if [ -d "/usr/local/cuda-10.2/targets/x86_64-linux/lib" ]; then
-    sudo cp -r "/usr/local/cuda-10.2/targets/x86_64-linux/lib/*" "${CUDA_HOME}/lib/"
+    sudo cp -r /usr/local/cuda-10.2/targets/x86_64-linux/lib/* "${CUDA_HOME}/lib/"
   fi
 fi
 
