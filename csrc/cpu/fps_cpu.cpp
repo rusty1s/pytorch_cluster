@@ -3,7 +3,7 @@
 #include "utils.h"
 
 inline torch::Tensor get_dist(torch::Tensor x, int64_t idx) {
-  return (x - x[idx]).norm(2, 1);
+  return (x - x[idx]).pow_(2).sum(1);
 }
 
 torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, double ratio,
