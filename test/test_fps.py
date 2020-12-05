@@ -21,6 +21,9 @@ def test_fps(dtype, device):
     ], dtype, device)
     batch = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
 
+    out = fps(x, batch, ratio=0.5, random_start=False)
+    assert out.tolist() == [0, 2, 4, 6]
+
     out = fps(x, batch, ratio=torch.tensor(0.5), random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
