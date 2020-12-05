@@ -38,6 +38,7 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
 
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
+    assert x.size(1) == y.size(1)
 
     if x.is_cuda:
         if batch_x is not None:
@@ -66,29 +67,24 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
 
         return torch.ops.torch_cluster.nearest(x, y, ptr_x, ptr_y)
     else:
-        if batch_x is None:
-            batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-
-        if batch_y is None:
-            batch_y = y.new_zeros(y.size(0), dtype=torch.long)
-
-        assert x.dim() == 2 and batch_x.dim() == 1
-        assert y.dim() == 2 and batch_y.dim() == 1
-        assert x.size(1) == y.size(1)
-        assert x.size(0) == batch_x.size(0)
-        assert y.size(0) == batch_y.size(0)
-
         # Translate and rescale x and y to [0, 1].
-        min_xy = min(x.min().item(), y.min().item())
-        x, y = x - min_xy, y - min_xy
+        if batch_x is not None and batch_y is not None:
+            assert x.dim() == 2 and batch_x.dim() == 1
+            assert y.dim() == 2 and batch_y.dim() == 1
+            assert x.size(0) == batch_x.size(0)
+            assert y.size(0) == batch_y.size(0)
 
-        max_xy = max(x.max().item(), y.max().item())
-        x.div_(max_xy)
-        y.div_(max_xy)
+            min_xy = min(x.min().item(), y.min().item())
+            x, y = x - min_xy, y - min_xy
 
-        # Concat batch/features to ensure no cross-links between examples.
-        x = torch.cat([x, 2 * x.size(1) * batch_x.view(-1, 1).to(x.dtype)], -1)
-        y = torch.cat([y, 2 * y.size(1) * batch_y.view(-1, 1).to(y.dtype)], -1)
+            max_xy = max(x.max().item(), y.max().item())
+            x.div_(max_xy)
+            y.div_(max_xy)
+
+            # Concat batch/features to ensure no cross-links between examples.
+            D = x.size(-1)
+            x = torch.cat([x, 2 * D * batch_x.view(-1, 1).to(x.dtype)], -1)
+            y = torch.cat([y, 2 * D * batch_y.view(-1, 1).to(y.dtype)], -1)
 
         return torch.from_numpy(
             scipy.cluster.vq.vq(x.detach().cpu(),

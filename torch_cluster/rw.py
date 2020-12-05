@@ -1,13 +1,13 @@
-import warnings
 from typing import Optional
 
 import torch
+from torch import Tensor
 
 
 @torch.jit.script
-def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
-                walk_length: int, p: float = 1, q: float = 1,
-                coalesced: bool = True, num_nodes: Optional[int] = None):
+def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
+                p: float = 1, q: float = 1, coalesced: bool = True,
+                num_nodes: Optional[int] = None) -> Tensor:
     """Samples random walks of length :obj:`walk_length` from all node indices
     in :obj:`start` in the graph given by :obj:`(row, col)` as described in the
     `"node2vec: Scalable Feature Learning for Networks"
@@ -43,10 +43,5 @@ def random_walk(row: torch.Tensor, col: torch.Tensor, start: torch.Tensor,
     rowptr = row.new_zeros(num_nodes + 1)
     torch.cumsum(deg, 0, out=rowptr[1:])
 
-    if p != 1. or q != 1.:  # pragma: no cover
-        warnings.warn('Parameters `p` and `q` are not supported yet and will'
-                      'be restored to their default values `p=1` and `q=1`.')
-        p = q = 1.
-
     return torch.ops.torch_cluster.random_walk(rowptr, col, start, walk_length,
-                                               p, q)
+                                               p, q)[0]

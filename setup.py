@@ -1,9 +1,11 @@
 import os
 import os.path as osp
+import sys
 import glob
 from setuptools import setup, find_packages
 
 import torch
+from torch.__config__ import parallel_info
 from torch.utils.cpp_extension import BuildExtension
 from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME
 
@@ -20,6 +22,17 @@ def get_extensions():
     Extension = CppExtension
     define_macros = []
     extra_compile_args = {'cxx': []}
+    extra_link_args = []
+
+    info = parallel_info()
+    if 'parallel backend: OpenMP' in info and 'OpenMP not found' not in info:
+        extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP']
+        if sys.platform == 'win32':
+            extra_compile_args['cxx'] += ['/openmp']
+        else:
+            extra_compile_args['cxx'] += ['-fopenmp']
+    else:
+        print('Compiling without OpenMP...')
 
     if WITH_CUDA:
         Extension = CUDAExtension
@@ -51,6 +64,7 @@ def get_extensions():
             include_dirs=[extensions_dir],
             define_macros=define_macros,
             extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
         )
         extensions += [extension]
 
@@ -63,7 +77,7 @@ tests_require = ['pytest', 'pytest-cov', 'scipy']
 
 setup(
     name='torch_cluster',
-    version='1.5.7',
+    version='1.5.8',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',
     url='https://github.com/rusty1s/pytorch_cluster',
