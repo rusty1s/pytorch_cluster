@@ -3,19 +3,19 @@ from torch import Tensor
 import torch
 
 
-@torch.jit._overload
-def fps(src, batch=None, ratio=None, random_start=True):
+@torch.jit._overload  # noqa
+def fps(src, batch, ratio, random_start):
     # type: (Tensor, Optional[Tensor], Optional[int], bool) -> Tensor
     pass
 
 
-@torch.jit._overload
-def fps(src, batch=None, ratio=None, random_start=True):
+@torch.jit._overload  # noqa
+def fps(src, batch, ratio, random_start):
     # type: (Tensor, Optional[Tensor], Optional[Tensor], bool) -> Tensor
     pass
 
 
-def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):
+def fps(src: torch.Tensor, batch=None, ratio=0.5, random_start=True):  # noqa
     r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
     Learning on Point Sets in a Metric Space"
     <https://arxiv.org/abs/1706.02413>`_ paper, which iteratively samples the
@@ -27,11 +27,13 @@ def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):
         batch (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
             node to a specific example. (default: :obj:`None`)
-        ratio (Tensor, optional): Sampling ratio. (default: :obj:`0.5`)
+        ratio (float or Tensor, optional): Sampling ratio.
+            (default: :obj:`0.5`)
         random_start (bool, optional): If set to :obj:`False`, use the first
             node in :math:`\mathbf{X}` as starting node. (default: obj:`True`)
 
     :rtype: :class:`LongTensor`
+
 
     .. code-block:: python
 
@@ -44,10 +46,7 @@ def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):
     """
 
     if not isinstance(ratio, Tensor):
-        ratio = torch.tensor(ratio)
-
-    assert len(ratio.shape) < 2, f'ratio should be a scalar or a vector, received a tensor rank {len(ratio.shape)}'
-    ratio = ratio.to(src.device)
+        ratio = torch.tensor(ratio, device=src.device)
 
     if batch is not None:
         assert src.size(0) == batch.numel()
