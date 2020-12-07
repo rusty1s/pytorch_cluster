@@ -11,7 +11,7 @@
 PyMODINIT_FUNC PyInit__fps(void) { return NULL; }
 #endif
 
-torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, double ratio,
+torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
                   bool random_start) {
   if (src.device().is_cuda()) {
 #ifdef WITH_CUDA

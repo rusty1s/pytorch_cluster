@@ -64,21 +64,21 @@ __global__ void fps_kernel(const scalar_t *src, const int64_t *ptr,
   }
 }
 
-torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr, double ratio,
-                       bool random_start) {
+torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr,
+                       torch::Tensor ratio, bool random_start) {
 
   CHECK_CUDA(src);
   CHECK_CUDA(ptr);
+  CHECK_CUDA(ratio);
   CHECK_INPUT(ptr.dim() == 1);
-  AT_ASSERTM(ratio > 0 && ratio < 1, "Invalid input");
   cudaSetDevice(src.get_device());
 
   src = src.view({src.size(0), -1}).contiguous();
   ptr = ptr.contiguous();
-  auto batch_size = ptr.size(0) - 1;
+  auto batch_size = ptr.numel() - 1;
 
   auto deg = ptr.narrow(0, 1, batch_size) - ptr.narrow(0, 0, batch_size);
-  auto out_ptr = deg.toType(torch::kFloat) * (float)ratio;
+  auto out_ptr = deg.toType(torch::kFloat) * ratio;
   out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
   out_ptr = torch::cat({torch::zeros(1, ptr.options()), out_ptr}, 0);
 

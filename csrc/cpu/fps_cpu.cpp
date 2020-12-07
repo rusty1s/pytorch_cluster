@@ -8,20 +8,20 @@ inline torch::Tensor get_dist(torch::Tensor x, int64_t idx) {
   return (x - x[idx]).pow_(2).sum(1);
 }
 
-torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, double ratio,
+torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
                       bool random_start) {
 
   CHECK_CPU(src);
   CHECK_CPU(ptr);
+  CHECK_CPU(ratio);
   CHECK_INPUT(ptr.dim() == 1);
-  AT_ASSERTM(ratio > 0 && ratio < 1, "Invalid input");
 
   src = src.view({src.size(0), -1}).contiguous();
   ptr = ptr.contiguous();
-  auto batch_size = ptr.size(0) - 1;
+  auto batch_size = ptr.numel() - 1;
 
   auto deg = ptr.narrow(0, 1, batch_size) - ptr.narrow(0, 0, batch_size);
-  auto out_ptr = deg.toType(torch::kFloat) * (float)ratio;
+  auto out_ptr = deg.toType(torch::kFloat) * ratio;
   out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
 
   auto out = torch::empty(out_ptr[-1].data_ptr<int64_t>()[0], ptr.options());
