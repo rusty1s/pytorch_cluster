@@ -6,7 +6,11 @@
 #endif
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__nearest(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__nearest_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__nearest_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor nearest(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,

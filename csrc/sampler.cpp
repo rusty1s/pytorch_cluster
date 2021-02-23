@@ -4,7 +4,11 @@
 #include "cpu/sampler_cpu.h"
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__sampler(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__sampler_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__sampler_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor neighbor_sampler(torch::Tensor start, torch::Tensor rowptr,

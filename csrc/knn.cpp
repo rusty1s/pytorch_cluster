@@ -8,7 +8,11 @@
 #endif
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__knn(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__knn_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__knn_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor knn(torch::Tensor x, torch::Tensor y,

@@ -3,16 +3,18 @@ import os.path as osp
 
 import torch
 
-__version__ = '1.5.8'
+__version__ = '1.5.9'
+
+suffix = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 for library in [
         '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler', '_nearest',
         '_knn', '_radius'
 ]:
     torch.ops.load_library(importlib.machinery.PathFinder().find_spec(
-        library, [osp.dirname(__file__)]).origin)
+        f'{library}_{suffix}', [osp.dirname(__file__)]).origin)
 
-if torch.version.cuda is not None:  # pragma: no cover
+if torch.cuda.is_available():  # pragma: no cover
     cuda_version = torch.ops.torch_cluster.cuda_version()
 
     if cuda_version == -1:

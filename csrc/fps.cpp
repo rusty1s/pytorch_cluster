@@ -8,7 +8,11 @@
 #endif
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__fps(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__fps_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__fps_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,

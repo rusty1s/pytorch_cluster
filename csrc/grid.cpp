@@ -8,7 +8,11 @@
 #endif
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__grid(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__grid_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__grid_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor grid(torch::Tensor pos, torch::Tensor size,

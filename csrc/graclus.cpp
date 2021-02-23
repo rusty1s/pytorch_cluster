@@ -8,7 +8,11 @@
 #endif
 
 #ifdef _WIN32
-PyMODINIT_FUNC PyInit__graclus(void) { return NULL; }
+#ifdef WITH_CUDA
+PyMODINIT_FUNC PyInit__graclus_cuda(void) { return NULL; }
+#else
+PyMODINIT_FUNC PyInit__graclus_cpu(void) { return NULL; }
+#endif
 #endif
 
 torch::Tensor graclus(torch::Tensor rowptr, torch::Tensor col,
