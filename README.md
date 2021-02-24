@@ -164,7 +164,7 @@ Computes graph edges to the nearest *k* points.
 **Args:**
 
 * **x** *(Tensor)*: Node feature matrix of shape `[N, F]`.
-* **r** *(float)*: The radius.
+* **k** *(int)*: The number of neighbors.
 * **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
 * **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
 * **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
