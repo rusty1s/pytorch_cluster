@@ -206,7 +206,7 @@ from torch_cluster import radius_graph
 
 x = torch.tensor([[-1., -1.], [-1., 1.], [1., -1.], [1., 1.]])
 batch = torch.tensor([0, 0, 0, 0])
-edge_index = radius_graph(x, r=1.5, batch=batch, loop=False)
+edge_index = radius_graph(x, r=2.5, batch=batch, loop=False)
 ```
 
 ```
