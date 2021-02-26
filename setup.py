@@ -58,7 +58,7 @@ def get_extensions():
             sources += [path]
 
         path = osp.join(extensions_dir, 'cuda', f'{name}_cuda.cu')
-        if WITH_CUDA and osp.exists(path):
+        if suffix == 'cuda' and osp.exists(path):
             sources += [path]
 
         Extension = CppExtension if suffix == 'cpu' else CUDAExtension

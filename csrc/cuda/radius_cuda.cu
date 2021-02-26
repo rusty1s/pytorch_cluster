@@ -31,7 +31,7 @@ __global__ void radius_kernel(const scalar_t *x, const scalar_t *y,
       }
       dist = sqrt(dist);
 
-      if (dist <= radius) {
+      if (dist < radius) {
         row[n_y * max_num_neighbors + count] = n_y;
         col[n_y * max_num_neighbors + count] = n_x;
         count++;
