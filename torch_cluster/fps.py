@@ -5,13 +5,13 @@ from torch import Tensor
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch=None, ratio=None, random_start=True):
+def fps(src, batch=None, ratio=None, random_start=True):  # noqa
     # type: (Tensor, Optional[Tensor], Optional[float], bool) -> Tensor
     pass
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch=None, ratio=None, random_start=True):
+def fps(src, batch=None, ratio=None, random_start=True):  # noqa
     # type: (Tensor, Optional[Tensor], Optional[Tensor], bool) -> Tensor
     pass
 
