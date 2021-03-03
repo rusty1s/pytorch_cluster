@@ -17,10 +17,12 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
             :math:`\mathbf{Y} \in \mathbb{R}^{M \times F}`.
         batch_x (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
-            node to a specific example. (default: :obj:`None`)
+            node to a specific example. :obj:`batch_x` needs to be sorted.
+            (default: :obj:`None`)
         batch_y (LongTensor, optional): Batch vector
             :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^M`, which assigns each
-            node to a specific example. (default: :obj:`None`)
+            node to a specific example. :obj:`batch_y` needs to be sorted.
+            (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
 

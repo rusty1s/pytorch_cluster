@@ -218,6 +218,7 @@ tensor([[1, 2, 0, 3, 0, 3, 1, 2],
 ### Nearest
 
 Clusters points in *x* together which are nearest to a given query point in *y*.
+`batch_{x,y}` vectors need to be sorted.
 
 ```python
 import torch
