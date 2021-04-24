@@ -86,7 +86,7 @@ torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y,
         CHECK_CUDA(batch_y.value());
         CHECK_INPUT(batch_y.value().dim() == 1);
     } else {
-        batch_y = torch::zeros({x.size(0)}, x.options().dtype(torch::kLong));
+        batch_y = torch::zeros({y.size(0)}, y.options().dtype(torch::kLong));
     }
 
 //    CHECK_INPUT(ptr_x.value().numel() == batch_y.value().numel());
