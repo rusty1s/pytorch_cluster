@@ -61,18 +61,7 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         ptr_x = deg.new_zeros(batch_size + 1)
         torch.cumsum(deg, 0, out=ptr_x[1:])
 
-    ptr_y: Optional[torch.Tensor] = None
-    if batch_y is not None:
-        assert y.size(0) == batch_y.numel()
-        batch_size = int(batch_y.max()) + 1
-
-        deg = y.new_zeros(batch_size, dtype=torch.long)
-        deg.scatter_add_(0, batch_y, torch.ones_like(batch_y))
-
-        ptr_y = deg.new_zeros(batch_size + 1)
-        torch.cumsum(deg, 0, out=ptr_y[1:])
-
-    return torch.ops.torch_cluster.knn(x, y, ptr_x, ptr_y, k, cosine,
+    return torch.ops.torch_cluster.knn(x, y, ptr_x, batch_y, k, cosine,
                                        num_workers)
 
 
