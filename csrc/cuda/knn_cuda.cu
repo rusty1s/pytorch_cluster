@@ -45,8 +45,12 @@ __global__ void knn_kernel(const scalar_t *x, const scalar_t *y,
 
     for (int64_t j = start_x; j < end_x; j++) {
         scalar_t dist = 0.;
-        for (int d = 0; d < dim; d++)
-            dist += (x[j * dim + d] - y[i * dim + d]) * (x[j * dim + d] - y[i * dim + d]);
+        if (cosine)
+            dist = Cosine<scalar_t>::dot(x, y, j, i, dim) /
+                    (Cosine<scalar_t>:: norm(x, j, dim) * Cosine<scalar_t>::norm(y, i, dim));
+        else
+            for (int d = 0; d < dim; d++)
+                dist += (x[j * dim + d] - y[i * dim + d]) * (x[j * dim + d] - y[i * dim + d]);
 
         for (int k = 0; k < K; k++) {
             if (dist < dists[i * K + k]) {
