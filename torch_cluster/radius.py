@@ -26,7 +26,10 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             node to a specific example. :obj:`batch_y` needs to be sorted.
             (default: :obj:`None`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element in :obj:`y`. (default: :obj:`32`)
+            return for each element in :obj:`y`.
+            If the number of actual neighbors is greater than
+            :obj:`max_num_neighbors`, returned neighbors are picked randomly.
+            (default: :obj:`32`)
         num_workers (int): Number of workers to use for computation. Has no
             effect in case :obj:`batch_x` or :obj:`batch_y` is not
             :obj:`None`, or the input lies on the GPU. (default: :obj:`1`)
@@ -91,7 +94,10 @@ def radius_graph(x: torch.Tensor, r: float,
         loop (bool, optional): If :obj:`True`, the graph will contain
             self-loops. (default: :obj:`False`)
         max_num_neighbors (int, optional): The maximum number of neighbors to
-            return for each element. (default: :obj:`32`)
+            return for each element.
+            If the number of actual neighbors is greater than
+            :obj:`max_num_neighbors`, returned neighbors are picked randomly.
+            (default: :obj:`32`)
         flow (string, optional): The flow direction when used in combination
             with message passing (:obj:`"source_to_target"` or
             :obj:`"target_to_source"`). (default: :obj:`"source_to_target"`)

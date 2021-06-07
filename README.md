@@ -195,7 +195,7 @@ Computes graph edges to all points within a given distance.
 * **r** *(float)*: The radius.
 * **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
 * **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
-* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. (default: `32`)
+* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. If the number of actual neighbors is greater than `max_num_neighbors`, returned neighbors are picked randomly. (default: `32`)
 * **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
 * **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
 
