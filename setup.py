@@ -25,7 +25,7 @@ BUILD_DOCS = os.getenv('BUILD_DOCS', '0') == '1'
 def get_extensions():
     extensions = []
 
-    extensions_dir = osp.join(osp.dirname(osp.abspath(__file__)), 'csrc')
+    extensions_dir = osp.join('csrc')
     main_files = glob.glob(osp.join(extensions_dir, '*.cpp'))
 
     for main, suffix in product(main_files, suffices):
@@ -34,7 +34,8 @@ def get_extensions():
         extra_link_args = ['-s']
 
         info = parallel_info()
-        if 'backend: OpenMP' in info and 'OpenMP not found' not in info:
+        if ('backend: OpenMP' in info and 'OpenMP not found' not in info
+                and sys.platform != 'darwin'):
             extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP']
             if sys.platform == 'win32':
                 extra_compile_args['cxx'] += ['/openmp']

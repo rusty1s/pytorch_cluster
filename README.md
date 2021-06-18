@@ -1,14 +1,17 @@
 [pypi-image]: https://badge.fury.io/py/torch-cluster.svg
 [pypi-url]: https://pypi.python.org/pypi/torch-cluster
-[build-image]: https://travis-ci.org/rusty1s/pytorch_cluster.svg?branch=master
-[build-url]: https://travis-ci.org/rusty1s/pytorch_cluster
+[testing-image]: https://github.com/rusty1s/pytorch_cluster/actions/workflows/testing.yml/badge.svg
+[testing-url]: https://github.com/rusty1s/pytorch_cluster/actions/workflows/testing.yml
+[linting-image]: https://github.com/rusty1s/pytorch_cluster/actions/workflows/linting.yml/badge.svg
+[linting-url]: https://github.com/rusty1s/pytorch_cluster/actions/workflows/linting.yml
 [coverage-image]: https://codecov.io/gh/rusty1s/pytorch_cluster/branch/master/graph/badge.svg
 [coverage-url]: https://codecov.io/github/rusty1s/pytorch_cluster?branch=master
 
 # PyTorch Cluster
 
 [![PyPI Version][pypi-image]][pypi-url]
-[![Build Status][build-image]][build-url]
+[![Testing Status][testing-image]][testing-url]
+[![Linting Status][linting-image]][linting-url]
 [![Code Coverage][coverage-image]][coverage-url]
 
 --------------------------------------------------------------------------------
@@ -31,39 +34,39 @@ All included operations work on varying data types and are implemented both for 
 
 We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/index.html).
 
-#### PyTorch 1.8.0
+#### PyTorch 1.9.0
 
-To install the binaries for PyTorch 1.8.0, simply run
+To install the binaries for PyTorch 1.9.0, simply run
+
+```
+pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-1.9.0+${CUDA}.html
+```
+
+where `${CUDA}` should be replaced by either `cpu`, `cu102`, or `cu111` depending on your PyTorch installation.
+
+|             | `cpu` | `cu102` | `cu111` |
+|-------------|-------|---------|---------|
+| **Linux**   | ✅    | ✅      | ✅      |
+| **Windows** | ✅    | ✅      | ✅      |
+| **macOS**   | ✅    |         |         |
+
+#### PyTorch 1.8.0/1.8.1
+
+To install the binaries for PyTorch 1.8.0 and 1.8.1, simply run
 
 ```
 pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-1.8.0+${CUDA}.html
 ```
 
-where `${CUDA}` should be replaced by either `cpu`, `cu101`, `cu102`, or `cu111` depending on your PyTorch installation.
+where `${CUDA}` should be replaced by either `cpu`,`cu101`, `cu102`, or `cu111` depending on your PyTorch installation.
 
 |             | `cpu` | `cu101` | `cu102` | `cu111` |
 |-------------|-------|---------|---------|---------|
 | **Linux**   | ✅    | ✅      | ✅      | ✅      |
-| **Windows** | ✅    | ✅      | ✅      | ✅      |
+| **Windows** | ✅    | ❌      | ✅      | ✅      |
 | **macOS**   | ✅    |         |         |         |
 
-#### PyTorch 1.7.0/1.7.1
-
-To install the binaries for PyTorch 1.7.0 and 1.7.1, simply run
-
-```
-pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-1.7.0+${CUDA}.html
-```
-
-where `${CUDA}` should be replaced by either `cpu`, `cu92`, `cu101`, `cu102`, or `cu110` depending on your PyTorch installation.
-
-|             | `cpu` | `cu92` | `cu101` | `cu102` | `cu110` |
-|-------------|-------|--------|---------|---------|---------|
-| **Linux**   | ✅    | ✅     | ✅      | ✅      | ✅      |
-| **Windows** | ✅    | ❌     | ✅      | ✅      | ✅      |
-| **macOS**   | ✅    |        |         |         |         |
-
-**Note:** Binaries of older versions are also provided for PyTorch 1.4.0, PyTorch 1.5.0 and PyTorch 1.6.0 (following the same procedure).
+**Note:** Binaries of older versions are also provided for PyTorch 1.4.0, PyTorch 1.5.0, PyTorch 1.6.0 and PyTorch 1.7.0/1.7.1 (following the same procedure).
 
 ### From source
 
@@ -195,7 +198,7 @@ Computes graph edges to all points within a given distance.
 * **r** *(float)*: The radius.
 * **batch** *(LongTensor, optional)*: Batch vector of shape `[N]`, which assigns each node to a specific example. `batch` needs to be sorted. (default: `None`)
 * **loop** *(bool, optional)*: If `True`, the graph will contain self-loops. (default: `False`)
-* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. (default: `32`)
+* **max_num_neighbors** *(int, optional)*: The maximum number of neighbors to return for each element. If the number of actual neighbors is greater than `max_num_neighbors`, returned neighbors are picked randomly. (default: `32`)
 * **flow** *(string, optional)*: The flow direction when using in combination with message passing (`"source_to_target"` or `"target_to_source"`). (default: `"source_to_target"`)
 * **num_workers** *(int)*: Number of workers to use for computation. Has no effect in case `batch` is not `None`, or the input lies on the GPU. (default: `1`)
 
