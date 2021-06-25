@@ -1,0 +1,35 @@
+package:
+  name: pytorch-cluster
+  version: 1.5.9
+
+source:
+  path: ../..
+
+requirements:
+  build:
+    - {{ compiler('c') }}  # [win]
+
+  host:
+    - python {{ environ.get('PYTHON_VERSION') }}
+    - {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
+    - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+
+  run:
+    - python {{ environ.get('PYTHON_VERSION') }}
+    - {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
+    - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+
+build:
+  string: py{{ environ.get('PYTHON_VERSION').replace('.', '') }}_torch_{{ environ['TORCH_VERSION'] }}_{{ environ['CUDA_VERSION'] }}
+  script: python setup.py install
+  script_env:
+    - FORCE_CUDA
+
+test:
+  imports:
+    - torch_cluster
+
+about:
+  home: https://github.com/rusty1s/pytorch_cluster
+  license: MIT
+  summary: PyTorch Extension Library of Optimized Graph Cluster Algorithms
