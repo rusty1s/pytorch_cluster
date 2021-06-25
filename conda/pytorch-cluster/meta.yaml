@@ -10,6 +10,7 @@ requirements:
     - {{ compiler('c') }}  # [win]
 
   host:
+    - scipy
     - python {{ environ.get('PYTHON_VERSION') }}
     - {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
     - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
