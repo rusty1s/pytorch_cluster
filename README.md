@@ -30,9 +30,18 @@ All included operations work on varying data types and are implemented both for 
 
 ## Installation
 
+### Anaconda
+
+**Update:** You can now install `pytorch-cluster` via [Anaconda](https://anaconda.org/rusty1s/pytorch-cluster) for all major OS/PyTorch/CUDA combinations 🤗
+Given that you have [`pytorch >= 1.8.0` installed](https://pytorch.org/get-started/locally/), simply run
+
+```
+conda install pytorch-cluster -c rusty1s
+```
+
 ### Binaries
 
-We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](https://s3.eu-central-1.amazonaws.com/pytorch-geometric.com/whl/index.html).
+We alternatively provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](https://pytorch-geometric.com/whl).
 
 #### PyTorch 1.9.0
 
