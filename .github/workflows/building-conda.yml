@@ -39,7 +39,7 @@ jobs:
       - name: Free up disk space
         if: ${{ runner.os == 'Linux' && matrix.cuda-version == 'cu111' }}
         run: |
-          sudo du -hs /usr/share
+          sudo du -hs /usr/share/*
           sudo rm -rf /usr/share/dotnet
 
       - name: Install Conda packages
