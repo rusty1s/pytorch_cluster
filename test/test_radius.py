@@ -61,13 +61,13 @@ def test_radius_graph(dtype, device):
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius_graph_large(dtype, device):
-    x = torch.randn(1000, 3)
+    x = torch.randn(1000, 3, dtype=dtype, device=device)
 
     edge_index = radius_graph(x, r=0.5, flow='target_to_source', loop=True,
                               max_num_neighbors=2000, num_workers=6)
 
-    tree = scipy.spatial.cKDTree(x.numpy())
+    tree = scipy.spatial.cKDTree(x.cpu().numpy())
     col = tree.query_ball_point(x.cpu(), r=0.5)
     truth = set([(i, j) for i, ns in enumerate(col) for j in ns])
 
-    assert to_set(edge_index) == truth
+    assert to_set(edge_index.cpu()) == truth
