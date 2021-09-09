@@ -32,7 +32,7 @@ def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
     :rtype: :class:`LongTensor`
     """
     if num_nodes is None:
-        num_nodes = max(int(row.max()), int(col.max())) + 1
+        num_nodes = max(int(row.max()), int(col.max()), int(start.max())) + 1
 
     if coalesced:
         perm = torch.argsort(row * num_nodes + col)
