@@ -40,6 +40,13 @@ def test_radius(dtype, device):
     assert to_set(edge_index) == set([(0, 0), (0, 1), (0, 2), (0, 3), (1, 5),
                                       (1, 6)])
 
+    # Skipping a batch
+    batch_x = tensor([0, 0, 0, 0, 2, 2, 2, 2], torch.long, device)
+    batch_y = tensor([0, 2], torch.long, device)
+    edge_index = radius(x, y, 2, batch_x, batch_y, max_num_neighbors=4)
+    assert to_set(edge_index) == set([(0, 0), (0, 1), (0, 2), (0, 3), (1, 5),
+                                      (1, 6)])
+
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_radius_graph(dtype, device):

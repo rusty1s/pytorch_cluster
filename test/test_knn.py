@@ -42,6 +42,12 @@ def test_knn(dtype, device):
         edge_index = knn(x, y, 2, batch_x, batch_y, cosine=True)
         assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
 
+    # Skipping a batch
+    batch_x = tensor([0, 0, 0, 0, 2, 2, 2, 2], torch.long, device)
+    batch_y = tensor([0, 2], torch.long, device)
+    edge_index = knn(x, y, 2, batch_x, batch_y)
+    assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
+
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_knn_graph(dtype, device):

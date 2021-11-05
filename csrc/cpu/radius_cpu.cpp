@@ -70,6 +70,9 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
         auto x_start = ptr_x_data[b], x_end = ptr_x_data[b + 1];
         auto y_start = ptr_y_data[b], y_end = ptr_y_data[b + 1];
 
+        if (x_start == x_end || y_start == y_end)
+          continue;
+
         vec_t pts(x_end - x_start);
         for (int64_t i = 0; i < x_end - x_start; i++) {
           pts[i].resize(x.size(1));
