@@ -31,6 +31,8 @@ def get_extensions():
     for main, suffix in product(main_files, suffices):
         define_macros = []
         extra_compile_args = {'cxx': ['-O2']}
+        if not os.name == 'nt':  # Not on Windows:
+            extra_compile_args['cxx'] += ['-Wno-sign-compare']
         extra_link_args = ['-s']
 
         info = parallel_info()
@@ -49,6 +51,8 @@ def get_extensions():
             nvcc_flags = os.getenv('NVCC_FLAGS', '')
             nvcc_flags = [] if nvcc_flags == '' else nvcc_flags.split(' ')
             nvcc_flags += ['--expt-relaxed-constexpr', '-O2']
+            if not os.name == 'nt':  # Not on Windows:
+                nvcc_flags += ['-Wno-sign-compare']
             extra_compile_args['nvcc'] = nvcc_flags
 
         name = main.split(os.sep)[-1][:-4]
