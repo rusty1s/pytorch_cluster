@@ -27,32 +27,27 @@ template <typename scalar_t> struct Cosine {
   }
 };
 
-__device__ int64_t get_example_idx(int64_t idx, const int64_t *ptr,
-                                   const int64_t num_examples) {
-  for (int64_t i = 0; i < num_examples; i++) {
-    if (ptr[i + 1] > idx)
-      return i;
-  }
-  return num_examples - 1;
-}
-
 template <typename scalar_t>
 __global__ void
 knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
            const int64_t *__restrict__ ptr_x, const int64_t *__restrict__ ptr_y,
-           scalar_t *__restrict__ dist, int64_t *__restrict__ row,
-           int64_t *__restrict__ col, const int64_t k, const int64_t n,
-           const int64_t m, const int64_t dim, const int64_t num_examples,
-           const bool cosine) {
+           int64_t *__restrict__ row, int64_t *__restrict__ col,
+           const int64_t k, const int64_t n, const int64_t m, const int64_t dim,
+           const int64_t num_examples, const bool cosine) {
 
   const int64_t n_y = blockIdx.x * blockDim.x + threadIdx.x;
   if (n_y >= m)
     return;
 
-  for (int64_t e = 0; e < k; e++)
-    row[n_y * k + e] = n_y;
-
   const int64_t example_idx = get_example_idx(n_y, ptr_y, num_examples);
+
+  scalar_t best_dist[100];
+  int64_t best_idx[100];
+
+  for (int e = 0; e < k; e++) {
+    best_dist[e] = 1e10;
+    best_idx[e] = -1;
+  }
 
   for (int64_t n_x = ptr_x[example_idx]; n_x < ptr_x[example_idx + 1]; n_x++) {
     scalar_t tmp_dist = 0;
@@ -70,16 +65,21 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
     }
 
     for (int64_t e1 = 0; e1 < k; e1++) {
-      if (dist[n_y * k + e1] > tmp_dist) {
+      if (best_dist[e1] > tmp_dist) {
         for (int64_t e2 = k - 1; e2 > e1; e2--) {
-          dist[n_y * k + e2] = dist[n_y * k + e2 - 1];
-          col[n_y * k + e2] = col[n_y * k + e2 - 1];
+          best_dist[e2] = best_dist[e2 - 1];
+          best_idx[e2] = best_idx[e2 - 1];
         }
-        dist[n_y * k + e1] = tmp_dist;
-        col[n_y * k + e1] = n_x;
+        best_dist[e1] = tmp_dist;
+        best_idx[e1] = n_x;
         break;
       }
     }
+  }
+
+  for (int64_t e = 0; e < k; e++) {
+    row[n_y * k + e] = n_y;
+    col[n_y * k + e] = best_idx[e];
   }
 }
 
@@ -89,10 +89,13 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
                        const bool cosine) {
 
   CHECK_CUDA(x);
+  CHECK_CONTIGUOUS(x);
   CHECK_INPUT(x.dim() == 2);
   CHECK_CUDA(y);
+  CHECK_CONTIGUOUS(y);
   CHECK_INPUT(y.dim() == 2);
   CHECK_INPUT(x.size(1) == y.size(1));
+  AT_ASSERTM(k <= 100, "`k` needs to smaller than or equal to 100");
 
   if (ptr_x.has_value()) {
     CHECK_CUDA(ptr_x.value());
@@ -112,7 +115,6 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
 
   cudaSetDevice(x.get_device());
 
-  auto dist = torch::full(y.size(0) * k, 1e10, y.options());
   auto row = torch::empty(y.size(0) * k, ptr_y.value().options());
   auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
 
@@ -123,9 +125,8 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
     knn_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
-        dist.data_ptr<scalar_t>(), row.data_ptr<int64_t>(),
-        col.data_ptr<int64_t>(), k, x.size(0), y.size(0), x.size(1),
-        ptr_x.value().numel() - 1, cosine);
+        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), k, x.size(0),
+        y.size(0), x.size(1), ptr_x.value().numel() - 1, cosine);
   });
 
   auto mask = col != -1;
