@@ -71,8 +71,7 @@ def test_knn_graph(dtype, device):
 def test_knn_graph_large(dtype, device):
     x = torch.randn(1000, 3, dtype=dtype, device=device)
 
-    edge_index = knn_graph(x, k=5, flow='target_to_source', loop=True,
-                           num_workers=6)
+    edge_index = knn_graph(x, k=5, flow='target_to_source', loop=True)
 
     tree = scipy.spatial.cKDTree(x.cpu().numpy())
     _, col = tree.query(x.cpu(), k=5)
