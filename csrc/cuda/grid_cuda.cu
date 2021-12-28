@@ -61,7 +61,7 @@ torch::Tensor grid_cuda(torch::Tensor pos, torch::Tensor size,
   auto out = torch::empty(pos.size(0), pos.options().dtype(torch::kLong));
 
   auto stream = at::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_ALL_TYPES_AND(at::SclarType::Half, pos.scalar_type(), "_", [&] {
+  AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, pos.scalar_type(), "_", [&] {
     grid_kernel<scalar_t><<<BLOCKS(out.numel()), THREADS, 0, stream>>>(
         pos.data_ptr<scalar_t>(), size.data_ptr<scalar_t>(),
         start.data_ptr<scalar_t>(), end.data_ptr<scalar_t>(),
