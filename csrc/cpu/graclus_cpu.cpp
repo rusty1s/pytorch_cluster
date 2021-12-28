@@ -46,7 +46,8 @@ torch::Tensor graclus_cpu(torch::Tensor rowptr, torch::Tensor col,
     }
   } else {
     auto weight = optional_weight.value();
-    AT_DISPATCH_ALL_TYPES_AND_HALF(weight.scalar_type(), "graclus", [&] {
+    auto scalar_type = weight.scalar_type();
+    AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, scalar_type, "_", [&] {
       auto weight_data = weight.data_ptr<scalar_t>();
 
       for (auto n = 0; n < num_nodes; n++) {

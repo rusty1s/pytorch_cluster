@@ -113,7 +113,8 @@ void propose(torch::Tensor out, torch::Tensor proposal, torch::Tensor rowptr,
         rowptr.data_ptr<int64_t>(), col.data_ptr<int64_t>(), out.numel());
   } else {
     auto weight = optional_weight.value();
-    AT_DISPATCH_ALL_TYPES_AND_HALF(weight.scalar_type(), "propose_kernel", [&] {
+    auto scalar_type = weight.scalar_type();
+    AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, scalar_type, "_", [&] {
       weighted_propose_kernel<scalar_t>
           <<<BLOCKS(out.numel()), THREADS, 0, stream>>>(
               out.data_ptr<int64_t>(), proposal.data_ptr<int64_t>(),
@@ -201,7 +202,8 @@ void respond(torch::Tensor out, torch::Tensor proposal, torch::Tensor rowptr,
         rowptr.data_ptr<int64_t>(), col.data_ptr<int64_t>(), out.numel());
   } else {
     auto weight = optional_weight.value();
-    AT_DISPATCH_ALL_TYPES_AND_HALF(weight.scalar_type(), "respond_kernel", [&] {
+    auto scalar_type = weight.scalar_type();
+    AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, scalar_type, "_", [&] {
       weighted_respond_kernel<scalar_t>
           <<<BLOCKS(out.numel()), THREADS, 0, stream>>>(
               out.data_ptr<int64_t>(), proposal.data_ptr<int64_t>(),
