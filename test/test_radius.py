@@ -66,7 +66,7 @@ def test_radius_graph(dtype, device):
                                       (3, 2), (0, 3), (2, 3)])
 
 
-@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+@pytest.mark.parametrize('dtype,device', product([torch.float], devices))
 def test_radius_graph_large(dtype, device):
     x = torch.randn(1000, 3, dtype=dtype, device=device)
 

@@ -45,7 +45,7 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
   int64_t best_idx[100];
 
   for (int e = 0; e < k; e++) {
-    best_dist[e] = 1e10;
+    best_dist[e] = 5e4;
     best_idx[e] = -1;
   }
 
@@ -121,7 +121,8 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
   dim3 BLOCKS((y.size(0) + THREADS - 1) / THREADS);
 
   auto stream = at::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "knn_kernel", [&] {
+  auto scalar_type = x.scalar_type();
+  AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::Half, scalar_type, "_", [&] {
     knn_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
