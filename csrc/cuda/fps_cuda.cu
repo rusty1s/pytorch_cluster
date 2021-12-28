@@ -98,7 +98,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr,
   auto out = torch::empty(out_size[0], out_ptr.options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_FLOATING_TYPES(src.scalar_type(), "fps_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_HALF(src.scalar_type(), "fps_kernel", [&] {
     fps_kernel<scalar_t><<<batch_size, THREADS, 0, stream>>>(
         src.data_ptr<scalar_t>(), ptr.data_ptr<int64_t>(),
         out_ptr.data_ptr<int64_t>(), start.data_ptr<int64_t>(),

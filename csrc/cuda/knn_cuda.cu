@@ -121,7 +121,7 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
   dim3 BLOCKS((y.size(0) + THREADS - 1) / THREADS);
 
   auto stream = at::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "knn_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_HALF(x.scalar_type(), "knn_kernel", [&] {
     knn_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),

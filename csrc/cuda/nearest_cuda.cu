@@ -79,7 +79,7 @@ torch::Tensor nearest_cuda(torch::Tensor x, torch::Tensor y,
   auto out = torch::empty({x.size(0)}, ptr_x.options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "nearest_kernel", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_HALF(x.scalar_type(), "nearest_kernel", [&] {
     nearest_kernel<scalar_t><<<x.size(0), THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.data_ptr<int64_t>(), ptr_y.data_ptr<int64_t>(),
