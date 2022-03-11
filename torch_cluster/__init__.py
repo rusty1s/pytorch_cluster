@@ -3,7 +3,7 @@ import os.path as osp
 
 import torch
 
-__version__ = '1.5.9'
+__version__ = '1.6.0'
 
 for library in [
         '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler', '_nearest',
@@ -36,11 +36,11 @@ if torch.cuda.is_available() and cuda_version != -1:  # pragma: no cover
             f'{major}.{minor}. Please reinstall the torch_cluster that '
             f'matches your PyTorch install.')
 
+from .fps import fps  # noqa
 from .graclus import graclus_cluster  # noqa
 from .grid import grid_cluster  # noqa
-from .fps import fps  # noqa
-from .nearest import nearest  # noqa
 from .knn import knn, knn_graph  # noqa
+from .nearest import nearest  # noqa
 from .radius import radius, radius_graph  # noqa
 from .rw import random_walk  # noqa
 from .sampler import neighbor_sampler  # noqa
