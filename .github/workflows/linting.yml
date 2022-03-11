@@ -52,4 +52,4 @@ jobs:
 
       - name: Check package metadata
         run: |
-          pyroma --min=9 .
+          pyroma --min=10 .
