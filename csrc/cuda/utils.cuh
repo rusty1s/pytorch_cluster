@@ -8,8 +8,9 @@
 #define CHECK_CONTIGUOUS(x)                                                    \
   AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
 
-__device__ int64_t get_example_idx(int64_t idx, const int64_t *ptr,
-                                   const int64_t num_examples) {
+__forceinline__ __device__ int64_t get_example_idx(int64_t idx,
+                                                   const int64_t *ptr,
+                                                   const int64_t num_examples) {
   for (int64_t i = 0; i < num_examples; i++) {
     if (ptr[i + 1] > idx)
       return i;
