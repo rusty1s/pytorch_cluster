@@ -58,7 +58,7 @@ torch::Tensor grid_cuda(torch::Tensor pos, torch::Tensor size,
   auto start = optional_start.value();
   auto end = optional_end.value();
 
-  auto out = torch::empty(pos.size(0), pos.options().dtype(torch::kLong));
+  auto out = torch::empty({pos.size(0)}, pos.options().dtype(torch::kLong));
 
   auto stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, pos.scalar_type(), "_", [&] {

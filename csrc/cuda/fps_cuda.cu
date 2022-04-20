@@ -80,14 +80,14 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr,
   auto deg = ptr.narrow(0, 1, batch_size) - ptr.narrow(0, 0, batch_size);
   auto out_ptr = deg.toType(ratio.scalar_type()) * ratio;
   out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
-  out_ptr = torch::cat({torch::zeros(1, ptr.options()), out_ptr}, 0);
+  out_ptr = torch::cat({torch::zeros({1}, ptr.options()), out_ptr}, 0);
 
   torch::Tensor start;
   if (random_start) {
     start = torch::rand(batch_size, src.options());
     start = (start * deg.toType(ratio.scalar_type())).toType(torch::kLong);
   } else {
-    start = torch::zeros(batch_size, ptr.options());
+    start = torch::zeros({batch_size}, ptr.options());
   }
 
   auto dist = torch::full(src.size(0), 5e4, src.options());
@@ -95,7 +95,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr,
   auto out_size = (int64_t *)malloc(sizeof(int64_t));
   cudaMemcpy(out_size, out_ptr[-1].data_ptr<int64_t>(), sizeof(int64_t),
              cudaMemcpyDeviceToHost);
-  auto out = torch::empty(out_size[0], out_ptr.options());
+  auto out = torch::empty({out_size[0]}, out_ptr.options());
 
   auto stream = at::cuda::getCurrentCUDAStream();
   auto scalar_type = src.scalar_type();
