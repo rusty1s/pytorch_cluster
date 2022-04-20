@@ -115,7 +115,7 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
 
   cudaSetDevice(x.get_device());
 
-  auto row = torch::empty(y.size(0) * k, ptr_y.value().options());
+  auto row = torch::empty({y.size(0) * k}, ptr_y.value().options());
   auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
 
   dim3 BLOCKS((y.size(0) + THREADS - 1) / THREADS);

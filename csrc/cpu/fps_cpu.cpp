@@ -24,7 +24,7 @@ torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
   auto out_ptr = deg.toType(torch::kFloat) * ratio;
   out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
 
-  auto out = torch::empty(out_ptr[-1].data_ptr<int64_t>()[0], ptr.options());
+  auto out = torch::empty({out_ptr[-1].data_ptr<int64_t>()[0]}, ptr.options());
 
   auto ptr_data = ptr.data_ptr<int64_t>();
   auto out_ptr_data = out_ptr.data_ptr<int64_t>();

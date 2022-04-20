@@ -35,7 +35,7 @@ torch::Tensor grid_cpu(torch::Tensor pos, torch::Tensor size,
   auto num_voxels = (end - start).true_divide(size).toType(torch::kLong) + 1;
   num_voxels = num_voxels.cumprod(0);
   num_voxels =
-      torch::cat({torch::ones(1, num_voxels.options()), num_voxels}, 0);
+      torch::cat({torch::ones({1}, num_voxels.options()), num_voxels}, 0);
   num_voxels = num_voxels.narrow(0, 0, size.size(0));
 
   auto out = pos.true_divide(size.view({1, -1})).toType(torch::kLong);
