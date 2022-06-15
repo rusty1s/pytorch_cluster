@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <torch/script.h>
 
+#include "extensions.h"
+
 #ifdef WITH_CUDA
 #include "cuda/nearest_cuda.h"
 #endif

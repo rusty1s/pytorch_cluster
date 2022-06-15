@@ -2,7 +2,7 @@
 
 #include <torch/extension.h>
 
-#include "marcos.h"
+#include "macros.h"
 
 namespace sparse {
 CLUSTER_API int64_t cuda_version() noexcept;
