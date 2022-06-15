@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <torch/script.h>
 #include "cluster.h"
+#include "macros.h"
 
 #ifdef WITH_CUDA
 #include <cuda.h>
@@ -14,13 +15,17 @@ PyMODINIT_FUNC PyInit__version_cpu(void) { return NULL; }
 #endif
 #endif
 
-CLUSTER_API int64_t cuda_version() {
+
+namespace cluster {
+CLUSTER_API int64_t cuda_version() noexcept {
 #ifdef WITH_CUDA
   return CUDA_VERSION;
 #else
   return -1;
 #endif
 }
+} // namespace sparse
+
 
 static auto registry =
-    torch::RegisterOperators().op("torch_cluster::cuda_version", &cuda_version);
+    torch::RegisterOperators().op("torch_cluster::cuda_version", &cluster::cuda_version);
