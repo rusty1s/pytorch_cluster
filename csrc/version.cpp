@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <torch/script.h>
+#include "cluster.h"
 
 #ifdef WITH_CUDA
 #include <cuda.h>
@@ -13,7 +14,7 @@ PyMODINIT_FUNC PyInit__version_cpu(void) { return NULL; }
 #endif
 #endif
 
-int64_t cuda_version() {
+CLUSTER_API int64_t cuda_version() {
 #ifdef WITH_CUDA
   return CUDA_VERSION;
 #else

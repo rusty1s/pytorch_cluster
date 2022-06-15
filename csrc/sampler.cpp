@@ -11,7 +11,7 @@ PyMODINIT_FUNC PyInit__sampler_cpu(void) { return NULL; }
 #endif
 #endif
 
-torch::Tensor neighbor_sampler(torch::Tensor start, torch::Tensor rowptr,
+CLUSTER_API torch::Tensor neighbor_sampler(torch::Tensor start, torch::Tensor rowptr,
                                int64_t count, double factor) {
   if (rowptr.device().is_cuda()) {
 #ifdef WITH_CUDA
