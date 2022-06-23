@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/extension.h>
+#include "../extensions.h"
 
 torch::Tensor knn_cuda(torch::Tensor x, torch::Tensor y,
                        torch::optional<torch::Tensor> ptr_x,

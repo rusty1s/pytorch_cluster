@@ -15,7 +15,7 @@ PyMODINIT_FUNC PyInit__grid_cpu(void) { return NULL; }
 #endif
 #endif
 
-torch::Tensor grid(torch::Tensor pos, torch::Tensor size,
+CLUSTER_API torch::Tensor grid(torch::Tensor pos, torch::Tensor size,
                    torch::optional<torch::Tensor> optional_start,
                    torch::optional<torch::Tensor> optional_end) {
   if (pos.device().is_cuda()) {

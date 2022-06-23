@@ -15,7 +15,7 @@ PyMODINIT_FUNC PyInit__rw_cpu(void) { return NULL; }
 #endif
 #endif
 
-std::tuple<torch::Tensor, torch::Tensor>
+CLUSTER_API std::tuple<torch::Tensor, torch::Tensor>
 random_walk(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
             int64_t walk_length, double p, double q) {
   if (rowptr.device().is_cuda()) {

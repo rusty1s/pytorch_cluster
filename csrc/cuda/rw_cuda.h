@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/extension.h>
+#include "../extensions.h"
 
 std::tuple<torch::Tensor, torch::Tensor>
 random_walk_cuda(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
