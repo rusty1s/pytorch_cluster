@@ -36,7 +36,7 @@ def get_extensions():
         define_macros = []
 
         if sys.platform == 'win32':
-            define_macros += [('torchsparse_EXPORTS', None)]
+            define_macros += [('torchcluster_EXPORTS', None)]
 
         extra_compile_args = {'cxx': ['-O2']}
         if not os.name == 'nt':  # Not on Windows:
