@@ -1,4 +1,4 @@
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -95,8 +95,8 @@ def _knn_return_output(
     num_workers: int = 1,
     return_distances: bool = False
 ) -> torch.Tensor:
-    output, _ =  _knn_impl(x, y, k, batch_x, batch_y, cosine, num_workers,
-        return_distances)
+    output, _ = _knn_impl(x, y, k, batch_x, batch_y, cosine,
+                          num_workers, return_distances)
 
     return output
 
@@ -168,7 +168,7 @@ def _knn_graph_impl(
 
     assert flow in ['source_to_target', 'target_to_source']
     edge_index, distances = knn(x, x, k if loop else k + 1, batch, batch,
-        cosine, num_workers, return_distances=True)
+                                cosine, num_workers, return_distances=True)
 
     if flow == 'source_to_target':
         row, col = edge_index[1], edge_index[0]
@@ -196,7 +196,7 @@ def _knn_graph_return_output(
     return_distances: bool = False,
 ) -> torch.Tensor:
     output, _ = _knn_graph_impl(x, k, batch, loop, flow, cosine, num_workers,
-        return_distances)
+                                return_distances)
 
     return output
 

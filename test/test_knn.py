@@ -35,11 +35,14 @@ def test_knn(dtype, device):
 
     edge_index, distances = knn(x, y, 2, return_distances=True)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 0), (1, 1)])
-    assert torch.allclose(distances, distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
 
-    edge_index, distances = knn(x, y, 2, batch_x, batch_y, return_distances=True)
+    edge_index, distances = knn(x, y, 2, batch_x, batch_y,
+                                return_distances=True)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
-    assert torch.allclose(distances, distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
 
     if x.is_cuda:
         edge_index, distances = knn(
@@ -53,16 +56,18 @@ def test_knn(dtype, device):
     # Skipping a batch
     batch_x = tensor([0, 0, 0, 0, 2, 2, 2, 2], torch.long, device)
     batch_y = tensor([0, 2], torch.long, device)
-    edge_index,distances = knn(x, y, 2, batch_x, batch_y, return_distances=True)
+    edge_index, distances = knn(x, y, 2, batch_x, batch_y,
+                                return_distances=True)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
-    assert torch.allclose(distances, distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
 def test_knn_jit(dtype, device):
     @torch.jit.script
-    def knn_jit(x: torch.Tensor, y: torch.Tensor, k: int, batch_x: torch.Tensor,
-                batch_y: torch.Tensor):
+    def knn_jit(x: torch.Tensor, y: torch.Tensor, k: int,
+                batch_x: torch.Tensor, batch_y: torch.Tensor):
         return knn(x, y, k, batch_x, batch_y)
 
     @torch.jit.script
@@ -93,7 +98,8 @@ def test_knn_jit(dtype, device):
 
     edge_index, distances = knn_jit_distance(x, y, 2, batch_x, batch_y)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
-    assert torch.allclose(distances, distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([1.0, 1.0, 1.0, 1.0]))
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
@@ -110,7 +116,8 @@ def test_knn_graph(dtype, device):
     )
     assert to_set(edge_index) == set([(0, 1), (0, 3), (1, 0), (1, 2), (2, 1),
                                       (2, 3), (3, 0), (3, 2)])
-    assert torch.allclose(distances, distances.new_tensor([4.0 for _ in range(8)]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([4.0 for _ in range(8)]))
 
     edge_index = knn_graph(
         x, k=2, flow='source_to_target', return_distances=False
@@ -143,7 +150,8 @@ def test_knn_graph_jit(dtype, device):
     edge_index, distances = knn_graph_jit_distance(x, k=2)
     assert to_set(edge_index) == set([(0, 1), (0, 3), (1, 0), (1, 2), (2, 1),
                                       (2, 3), (3, 0), (3, 2)])
-    assert torch.allclose(distances, distances.new_tensor([4.0 for _ in range(8)]))
+    assert torch.allclose(distances,
+                          distances.new_tensor([4.0 for _ in range(8)]))
 
 
 @pytest.mark.parametrize('dtype,device', product([torch.float], devices))
