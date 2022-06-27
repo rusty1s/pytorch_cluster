@@ -1,13 +1,18 @@
-from typing import Optional
+from typing import Optional, Union, Tuple
 
 import torch
 
 
-@torch.jit.script
-def knn(x: torch.Tensor, y: torch.Tensor, k: int,
-        batch_x: Optional[torch.Tensor] = None,
-        batch_y: Optional[torch.Tensor] = None, cosine: bool = False,
-        num_workers: int = 1) -> torch.Tensor:
+def _knn_impl(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    k: int,
+    batch_x: Optional[torch.Tensor] = None,
+    batch_y: Optional[torch.Tensor] = None,
+    cosine: bool = False,
+    num_workers: int = 1,
+    return_distances: bool = False
+) -> Tuple[torch.Tensor, torch.Tensor]:
     r"""Finds for each element in :obj:`y` the :obj:`k` nearest points in
     :obj:`x`.
 
@@ -31,8 +36,16 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         num_workers (int): Number of workers to use for computation. Has no
             effect in case :obj:`batch_x` or :obj:`batch_y` is not
             :obj:`None`, or the input lies on the GPU. (default: :obj:`1`)
+        return_distances (boolean, optional): if :attr:`return_distances` is
+            True, there will be an additional returned tensor (same shape as
+            output.size(1)) representing the distance between the pair of
+            nodes for each edge. If :attr:`cosine` is False, the returned
+            distance is the squared Euclidean distance. If :attr:`cosine` is
+            True, the returned distance is :math:`1 - \frac{\mathbf{a} \cdot
+            \mathbf{b}}{\left\lVert \mathbf{a} \right\rVert \left\lVert
+            \mathbf{b} \right\rVert}`. (default: :obj:`False`)
 
-    :rtype: :class:`LongTensor`
+    :rtype: (:class:`LongTensor`, :class:`Tensor`)
 
     .. code-block:: python
 
@@ -43,7 +56,8 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         batch_x = torch.tensor([0, 0, 0, 0])
         y = torch.Tensor([[-1, 0], [1, 0]])
         batch_y = torch.tensor([0, 0])
-        assign_index = knn(x, y, 2, batch_x, batch_y)
+        assign_index, distance = knn(x, y, 2, batch_x, batch_y,
+                                     return_distances=True)
     """
 
     x = x.view(-1, 1) if x.dim() == 1 else x
@@ -71,10 +85,44 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
                                        num_workers)
 
 
-@torch.jit.script
-def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
-              loop: bool = False, flow: str = 'source_to_target',
-              cosine: bool = False, num_workers: int = 1) -> torch.Tensor:
+def _knn_return_output(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    k: int,
+    batch_x: Optional[torch.Tensor] = None,
+    batch_y: Optional[torch.Tensor] = None,
+    cosine: bool = False,
+    num_workers: int = 1,
+    return_distances: bool = False
+) -> torch.Tensor:
+    output, _ =  _knn_impl(x, y, k, batch_x, batch_y, cosine, num_workers,
+        return_distances)
+
+    return output
+
+
+knn = torch._jit_internal.boolean_dispatch(
+    arg_name="return_distances",
+    arg_index=7,
+    default=False,
+    if_true=_knn_impl,
+    if_false=_knn_return_output,
+    module_name=__name__,
+    func_name="knn"
+)
+knn.__doc__ = _knn_impl.__doc__
+
+
+def _knn_graph_impl(
+    x: torch.Tensor,
+    k: int,
+    batch: Optional[torch.Tensor] = None,
+    loop: bool = False,
+    flow: str = 'source_to_target',
+    cosine: bool = False,
+    num_workers: int = 1,
+    return_distances: bool = False,
+) -> Tuple[torch.Tensor, torch.Tensor]:
     r"""Computes graph edges to the nearest :obj:`k` points.
 
     Args:
@@ -96,8 +144,16 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
         num_workers (int): Number of workers to use for computation. Has no
             effect in case :obj:`batch` is not :obj:`None`, or the input lies
             on the GPU. (default: :obj:`1`)
+        return_distances (boolean, optional): if :attr:`return_distances` is
+            True, there will be an additional returned tensor (same shape as
+            output.size(1)) representing the distance between the pair of
+            nodes for each edge. If :attr:`cosine` is False, the returned
+            distance is the squared Euclidean distance. If :attr:`cosine` is
+            True, the returned distance is :math:`1 - \frac{\mathbf{a} \cdot
+            \mathbf{b}}{\left\lVert \mathbf{a} \right\rVert \left\lVert
+            \mathbf{b} \right\rVert}`. (default: :obj:`False`)
 
-    :rtype: :class:`LongTensor`
+    :rtype: (:class:`LongTensor`, :class:`Tensor`)
 
     .. code-block:: python
 
@@ -106,12 +162,13 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
 
         x = torch.Tensor([[-1, -1], [-1, 1], [1, -1], [1, 1]])
         batch = torch.tensor([0, 0, 0, 0])
-        edge_index = knn_graph(x, k=2, batch=batch, loop=False)
+        edge_index, distance = knn_graph(x, k=2, batch=batch, loop=False,
+                                         return_distances=True)
     """
 
     assert flow in ['source_to_target', 'target_to_source']
-    edge_index = knn(x, x, k if loop else k + 1, batch, batch, cosine,
-                     num_workers)
+    edge_index, distances = knn(x, x, k if loop else k + 1, batch, batch,
+        cosine, num_workers, return_distances=True)
 
     if flow == 'source_to_target':
         row, col = edge_index[1], edge_index[0]
@@ -121,5 +178,36 @@ def knn_graph(x: torch.Tensor, k: int, batch: Optional[torch.Tensor] = None,
     if not loop:
         mask = row != col
         row, col = row[mask], col[mask]
+        distances = distances[mask]
 
-    return torch.stack([row, col], dim=0)
+    edge_index = torch.stack([row, col], dim=0)
+
+    return edge_index, distances
+
+
+def _knn_graph_return_output(
+    x: torch.Tensor,
+    k: int,
+    batch: Optional[torch.Tensor] = None,
+    loop: bool = False,
+    flow: str = 'source_to_target',
+    cosine: bool = False,
+    num_workers: int = 1,
+    return_distances: bool = False,
+) -> torch.Tensor:
+    output, _ = _knn_graph_impl(x, k, batch, loop, flow, cosine, num_workers,
+        return_distances)
+
+    return output
+
+
+knn_graph = torch._jit_internal.boolean_dispatch(
+    arg_name="return_distances",
+    arg_index=7,
+    default=False,
+    if_true=_knn_graph_impl,
+    if_false=_knn_graph_return_output,
+    module_name=__name__,
+    func_name="knn_graph"
+)
+knn_graph.__doc__ = _knn_graph_impl.__doc__

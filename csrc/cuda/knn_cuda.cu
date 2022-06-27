@@ -32,8 +32,9 @@ __global__ void
 knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
            const int64_t *__restrict__ ptr_x, const int64_t *__restrict__ ptr_y,
            int64_t *__restrict__ row, int64_t *__restrict__ col,
-           const int64_t k, const int64_t n, const int64_t m, const int64_t dim,
-           const int64_t num_examples, const bool cosine) {
+           scalar_t *__restrict__ dist, const int64_t k, const int64_t n,
+           const int64_t m, const int64_t dim, const int64_t num_examples,
+           const bool cosine) {
 
   const int64_t n_y = blockIdx.x * blockDim.x + threadIdx.x;
   if (n_y >= m)
@@ -80,13 +81,17 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
   for (int64_t e = 0; e < k; e++) {
     row[n_y * k + e] = n_y;
     col[n_y * k + e] = best_idx[e];
+    dist[n_y * k + e] = best_dist[e];
   }
 }
 
-torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
-                       torch::optional<torch::Tensor> ptr_x,
-                       torch::optional<torch::Tensor> ptr_y, const int64_t k,
-                       const bool cosine) {
+std::tuple<torch::Tensor, torch::Tensor>
+knn_cuda(const torch::Tensor x,
+         const torch::Tensor y,
+         torch::optional<torch::Tensor> ptr_x,
+         torch::optional<torch::Tensor> ptr_y,
+         const int64_t k,
+         const bool cosine) {
 
   CHECK_CUDA(x);
   CHECK_CONTIGUOUS(x);
@@ -117,6 +122,7 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
 
   auto row = torch::empty({y.size(0) * k}, ptr_y.value().options());
   auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
+  auto dist = torch::empty({y.size(0) * k}, y.options());
 
   dim3 BLOCKS((y.size(0) + THREADS - 1) / THREADS);
 
@@ -126,10 +132,13 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
     knn_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
         x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
         ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
-        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), k, x.size(0),
-        y.size(0), x.size(1), ptr_x.value().numel() - 1, cosine);
+        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), dist.data_ptr<scalar_t>(),
+        k, x.size(0), y.size(0), x.size(1), ptr_x.value().numel() - 1, cosine);
   });
 
   auto mask = col != -1;
-  return torch::stack({row.masked_select(mask), col.masked_select(mask)}, 0);
+  return std::make_tuple(
+    torch::stack({row.masked_select(mask), col.masked_select(mask)}, 0),
+    dist.masked_select(mask)
+  );
 }

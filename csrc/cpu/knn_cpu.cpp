@@ -4,10 +4,14 @@
 #include "utils/KDTreeVectorOfVectorsAdaptor.h"
 #include "utils/nanoflann.hpp"
 
-torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
-                      torch::optional<torch::Tensor> ptr_x,
-                      torch::optional<torch::Tensor> ptr_y, int64_t k,
-                      int64_t num_workers) {
+using torch::indexing::Slice;
+using torch::indexing::None;
+
+std::tuple<torch::Tensor, torch::Tensor>
+knn_cpu(torch::Tensor x, torch::Tensor y,
+        torch::optional<torch::Tensor> ptr_x,
+        torch::optional<torch::Tensor> ptr_y, int64_t k,
+        int64_t num_workers) {
 
   CHECK_CPU(x);
   CHECK_INPUT(x.dim() == 2);
@@ -24,12 +28,14 @@ torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
   }
 
   std::vector<size_t> out_vec = std::vector<size_t>();
+  torch::Tensor out_vec_dist_sqr = torch::empty({y.size(0) * k}, y.options());
 
   AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, x.scalar_type(), "_", [&] {
     // See: nanoflann/examples/vector_of_vectors_example.cpp
 
     auto x_data = x.data_ptr<scalar_t>();
     auto y_data = y.data_ptr<scalar_t>();
+    auto out_vec_dist_sqr_data = out_vec_dist_sqr.data_ptr<scalar_t>();
     typedef std::vector<std::vector<scalar_t>> vec_t;
 
     if (!ptr_x.has_value()) { // Single example.
@@ -54,6 +60,7 @@ torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
             y_data + i * y.size(1), k, &ret_index[0], &out_dist_sqr[0]);
 
         for (size_t j = 0; j < num_matches; j++) {
+	  out_vec_dist_sqr_data[out_vec.size() / 2] = out_dist_sqr[j];
           out_vec.push_back(ret_index[j]);
           out_vec.push_back(i);
         }
@@ -90,6 +97,7 @@ torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
               y_data + i * y.size(1), k, &ret_index[0], &out_dist_sqr[0]);
 
           for (size_t j = 0; j < num_matches; j++) {
+	    out_vec_dist_sqr_data[out_vec.size() / 2] = out_dist_sqr[j];
             out_vec.push_back(x_start + ret_index[j]);
             out_vec.push_back(i);
           }
@@ -101,5 +109,8 @@ torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
   const int64_t size = out_vec.size() / 2;
   auto out = torch::from_blob(out_vec.data(), {size, 2},
                               x.options().dtype(torch::kLong));
-  return out.t().index_select(0, torch::tensor({1, 0}));
+  return std::make_tuple(
+    out.t().index_select(0, torch::tensor({1, 0})),
+    out_vec_dist_sqr.index({Slice(None, size)})
+  );
 }

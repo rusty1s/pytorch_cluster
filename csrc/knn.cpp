@@ -15,10 +15,11 @@ PyMODINIT_FUNC PyInit__knn_cpu(void) { return NULL; }
 #endif
 #endif
 
-CLUSTER_API torch::Tensor knn(torch::Tensor x, torch::Tensor y,
-                  torch::optional<torch::Tensor> ptr_x,
-                  torch::optional<torch::Tensor> ptr_y, int64_t k, bool cosine,
-                  int64_t num_workers) {
+CLUSTER_API std::tuple<torch::Tensor, torch::Tensor> knn(
+    torch::Tensor x, torch::Tensor y,
+    torch::optional<torch::Tensor> ptr_x,
+    torch::optional<torch::Tensor> ptr_y, int64_t k, bool cosine,
+    int64_t num_workers) {
   if (x.device().is_cuda()) {
 #ifdef WITH_CUDA
     return knn_cuda(x, y, ptr_x, ptr_y, k, cosine);
