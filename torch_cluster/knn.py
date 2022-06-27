@@ -94,7 +94,7 @@ def _knn_return_output(
     cosine: bool = False,
     num_workers: int = 1,
     return_distances: bool = False
-) -> torch.Tensor:
+) -> torch.Tensor: # pragma: no cover
     output, _ = _knn_impl(x, y, k, batch_x, batch_y, cosine,
                           num_workers, return_distances)
 
