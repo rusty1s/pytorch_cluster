@@ -45,7 +45,7 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
   int64_t best_idx[100];
 
   for (int e = 0; e < k; e++) {
-    best_dist[e] = 5e4;
+    best_dist[e] = 1e10;
     best_idx[e] = -1;
   }
 
