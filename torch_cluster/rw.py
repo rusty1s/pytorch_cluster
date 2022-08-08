@@ -1,13 +1,21 @@
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 import torch
 from torch import Tensor
 
 
 @torch.jit.script
-def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
-                p: float = 1, q: float = 1, coalesced: bool = True,
-                num_nodes: Optional[int] = None) -> Tensor:
+def random_walk(
+    row: Tensor,
+    col: Tensor,
+    start: Tensor,
+    walk_length: int,
+    p: float = 1,
+    q: float = 1,
+    coalesced: bool = True,
+    num_nodes: Optional[int] = None,
+    return_edge_indices: bool = False,
+) -> Union[Tensor, Tuple[Tensor, Tensor]]:
     """Samples random walks of length :obj:`walk_length` from all node indices
     in :obj:`start` in the graph given by :obj:`(row, col)` as described in the
     `"node2vec: Scalable Feature Learning for Networks"
@@ -28,6 +36,9 @@ def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
             the graph given by :obj:`(row, col)` according to :obj:`row`.
             (default: :obj:`True`)
         num_nodes (int, optional): The number of nodes. (default: :obj:`None`)
+        return_edge_indices (bool, optional): Whether to additionally return
+            the indices of edges traversed during the random walk.
+            (default: :obj:`False`)
 
     :rtype: :class:`LongTensor`
     """
@@ -43,5 +54,11 @@ def random_walk(row: Tensor, col: Tensor, start: Tensor, walk_length: int,
     rowptr = row.new_zeros(num_nodes + 1)
     torch.cumsum(deg, 0, out=rowptr[1:])
 
-    return torch.ops.torch_cluster.random_walk(rowptr, col, start, walk_length,
-                                               p, q)[0]
+    node_seq, edge_seq = torch.ops.torch_cluster.random_walk(
+        rowptr, col, start, walk_length, p, q,
+    )
+
+    if return_edge_indices:
+        return node_seq, edge_seq
+
+    return node_seq
