@@ -125,5 +125,4 @@ setup(
         BuildExtension.with_options(no_python_abi_suffix=True, use_ninja=False)
     },
     packages=find_packages(),
-    include_package_data=True,
 )
