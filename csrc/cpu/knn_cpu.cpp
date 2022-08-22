@@ -25,7 +25,7 @@ torch::Tensor knn_cpu(torch::Tensor x, torch::Tensor y,
 
   std::vector<size_t> out_vec = std::vector<size_t>();
 
-  AT_DISPATCH_ALL_TYPES_AND(at::ScalarType::Half, x.scalar_type(), "_", [&] {
+  AT_DISPATCH_ALL_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, x.scalar_type(), "knn_cpu", [&] {
     // See: nanoflann/examples/vector_of_vectors_example.cpp
 
     auto x_data = x.data_ptr<scalar_t>();

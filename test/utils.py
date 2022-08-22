@@ -1,6 +1,7 @@
 import torch
 
-dtypes = [torch.half, torch.float, torch.double, torch.int, torch.long]
+dtypes = [torch.half, torch.bfloat16, torch.float, torch.double,
+          torch.int, torch.long]
 grad_dtypes = [torch.half, torch.float, torch.double]
 
 devices = [torch.device('cpu')]
