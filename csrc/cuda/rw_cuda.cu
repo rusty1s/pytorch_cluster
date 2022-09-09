@@ -159,10 +159,16 @@ __global__ void cdf_kernel(const int64_t *rowptr, const float_t *edge_weight,
   if (thread_idx < numel - 1) {
     int64_t row_start = rowptr[thread_idx], row_end = rowptr[thread_idx + 1];
 
+    float_t sum = 0.0;
+
+    for(int64_t i = row_start; i < row_end; i++) {
+      sum += edge_weight[i];
+    }
+
     float_t acc = 0.0;
 
     for(int64_t i = row_start; i < row_end; i++) {
-      acc += edge_weight[i];
+      acc += edge_weight[i] / sum;
       edge_weight_cdf[i] = acc;
     }
   }

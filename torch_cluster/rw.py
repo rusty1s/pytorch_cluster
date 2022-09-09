@@ -62,9 +62,6 @@ def random_walk(
             rowptr, col, start, walk_length, p, q,
         )
     else:
-        # Normalize edge weights by node degrees
-        edge_weight = edge_weight / deg[row]
-
         node_seq, edge_seq = torch.ops.torch_cluster.random_walk_weighted(
             rowptr, col, edge_weight, start, walk_length, p, q,
         )

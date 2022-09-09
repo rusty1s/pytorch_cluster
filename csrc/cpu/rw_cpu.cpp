@@ -148,10 +148,18 @@ void compute_cdf(const int64_t *rowptr, const float_t *edge_weight,
   at::parallel_for(0, numel - 1, at::internal::GRAIN_SIZE, [&](int64_t begin, int64_t end) {
     for(int64_t i = begin; i < end; i++) {
       int64_t row_start = rowptr[i], row_end = rowptr[i + 1];
+
+      // Compute sum to normalize weights
+      float_t sum = 0.0;
+
+      for(int64_t j = row_start; j < row_end; j++) {
+        sum += edge_weight[j];
+      }
+
       float_t acc = 0.0;
 
       for(int64_t j = row_start; j < row_end; j++) {
-        acc += edge_weight[j];
+        acc += edge_weight[j] / sum;
         edge_weight_cdf[j] = acc;
       }
     }
