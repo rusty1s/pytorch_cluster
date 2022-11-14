@@ -106,12 +106,13 @@ def get_extensions():
     return extensions
 
 
-install_requires = []
+install_requires = [
+    'scipy',
+]
 
 test_requires = [
     'pytest',
     'pytest-cov',
-    'scipy',
 ]
 
 # work-around hipify abs paths
