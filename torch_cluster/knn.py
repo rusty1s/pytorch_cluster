@@ -67,15 +67,8 @@ def knn(x: torch.Tensor, y: torch.Tensor, k: int,
         ptr_x = torch.bucketize(arange, batch_x)
         ptr_y = torch.bucketize(arange, batch_y)
 
-    print(ptr_x)
-    print(ptr_y)
-
-    print(x.shape, y.shape, k)
-
-    out = torch.ops.torch_cluster.knn(x, y, ptr_x, ptr_y, k, cosine,
-                                      num_workers)
-    print(out.shape)
-    return out
+    return torch.ops.torch_cluster.knn(x, y, ptr_x, ptr_y, k, cosine,
+                                       num_workers)
 
 
 @torch.jit.script
