@@ -43,7 +43,7 @@ jobs:
 
       - name: Upgrade pip
         run: |
-          pip install --upgrade pip setuptools
+          pip install --upgrade setuptools
           pip list
 
       - name: Free up disk space
