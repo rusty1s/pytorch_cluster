@@ -3,8 +3,7 @@ from itertools import product
 import pytest
 import torch
 from torch_cluster import graclus_cluster
-
-from .utils import dtypes, devices, tensor
+from torch_cluster.testing import devices, dtypes, tensor
 
 tests = [{
     'row': [0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
@@ -42,6 +41,9 @@ def assert_correct(row, col, cluster):
 
 @pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
 def test_graclus_cluster(test, dtype, device):
+    if dtype == torch.bfloat16 and device == torch.device('cuda:0'):
+        return
+
     row = tensor(test['row'], torch.long, device)
     col = tensor(test['col'], torch.long, device)
     weight = tensor(test.get('weight'), dtype, device)

@@ -3,8 +3,7 @@ from itertools import product
 import pytest
 import torch
 from torch_cluster import nearest
-
-from .utils import grad_dtypes, devices, tensor
+from torch_cluster.testing import devices, grad_dtypes, tensor
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))

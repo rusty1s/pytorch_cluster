@@ -1,9 +1,9 @@
 from itertools import product
 
 import pytest
+import torch
 from torch_cluster import grid_cluster
-
-from .utils import dtypes, devices, tensor
+from torch_cluster.testing import devices, dtypes, tensor
 
 tests = [{
     'pos': [2, 6],
@@ -28,6 +28,9 @@ tests = [{
 
 @pytest.mark.parametrize('test,dtype,device', product(tests, dtypes, devices))
 def test_grid_cluster(test, dtype, device):
+    if dtype == torch.bfloat16 and device == torch.device('cuda:0'):
+        return
+
     pos = tensor(test['pos'], dtype, device)
     size = tensor(test['size'], dtype, device)
     start = tensor(test.get('start'), dtype, device)

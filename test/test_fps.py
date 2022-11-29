@@ -4,8 +4,7 @@ import pytest
 import torch
 from torch import Tensor
 from torch_cluster import fps
-
-from .utils import grad_dtypes, devices, tensor
+from torch_cluster.testing import devices, grad_dtypes, tensor
 
 
 @torch.jit.script
