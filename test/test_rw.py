@@ -1,8 +1,7 @@
 import pytest
 import torch
 from torch_cluster import random_walk
-
-from .utils import devices, tensor
+from torch_cluster.testing import devices, tensor
 
 
 @pytest.mark.parametrize('device', devices)
@@ -41,7 +40,10 @@ def test_rw_large_with_edge_indices(device):
     walk_length = 10
 
     node_seq, edge_seq = random_walk(
-        row, col, start, walk_length,
+        row,
+        col,
+        start,
+        walk_length,
         return_edge_indices=True,
     )
     assert node_seq[:, 0].tolist() == start.tolist()
@@ -63,7 +65,10 @@ def test_rw_small_with_edge_indices(device):
     walk_length = 4
 
     node_seq, edge_seq = random_walk(
-        row, col, start, walk_length,
+        row,
+        col,
+        start,
+        walk_length,
         num_nodes=3,
         return_edge_indices=True,
     )

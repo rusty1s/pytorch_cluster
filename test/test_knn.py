@@ -1,11 +1,10 @@
 from itertools import product
 
 import pytest
-import torch
 import scipy.spatial
+import torch
 from torch_cluster import knn, knn_graph
-
-from .utils import grad_dtypes, devices, tensor
+from torch_cluster.testing import devices, grad_dtypes, tensor
 
 
 def to_set(edge_index):
