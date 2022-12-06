@@ -45,6 +45,8 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         batch_y = torch.tensor([0, 0])
         assign_index = radius(x, y, 1.5, batch_x, batch_y)
     """
+    if x.numel() == 0 or y.numel() == 0:
+        return torch.empty(2, 0, dtype=torch.long, device=x.device)
 
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
