@@ -287,7 +287,7 @@ pytest
 mkdir build
 cd build
 # Add -DWITH_CUDA=on support for the CUDA if needed
-cmake ..
+cmake -DCMAKE_PREFIX_PATH="..." ..
 make
 make install
 ```
