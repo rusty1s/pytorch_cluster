@@ -284,6 +284,7 @@ pytest
 `torch-cluster` also offers a C++ API that contains C++ equivalent of python models.
 
 ```
+export Torch_DIR=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'`
 mkdir build
 cd build
 # Add -DWITH_CUDA=on support for the CUDA if needed
