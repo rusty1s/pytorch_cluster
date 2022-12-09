@@ -282,13 +282,13 @@ pytest
 ## C++ API
 
 `torch-cluster` also offers a C++ API that contains C++ equivalent of python models.
-For this, we need to add `TorchLib` to the `-DCMAKE_PREFIX_PATH` (*e.g.*, it may exists in `{CONDA}/lib/python{X.X}/site-packages/torch` if installed via `conda`):
 
 ```
+export Torch_DIR=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'`
 mkdir build
 cd build
 # Add -DWITH_CUDA=on support for the CUDA if needed
-cmake -DCMAKE_PREFIX_PATH="..." ..
+cmake ..
 make
 make install
 ```
