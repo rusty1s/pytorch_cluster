@@ -1,9 +1,9 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
 #include "cluster.h"
 #include "macros.h"
+#include <torch/script.h>
 
 #ifdef WITH_CUDA
 #ifdef USE_ROCM
@@ -23,7 +23,6 @@ PyMODINIT_FUNC PyInit__version_cpu(void) { return NULL; }
 #endif
 #endif
 
-
 namespace cluster {
 CLUSTER_API int64_t cuda_version() noexcept {
 #ifdef WITH_CUDA
@@ -36,8 +35,7 @@ CLUSTER_API int64_t cuda_version() noexcept {
   return -1;
 #endif
 }
-} // namespace sparse
+} // namespace cluster
 
-
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::cuda_version", &cluster::cuda_version);
+static auto registry = torch::RegisterOperators().op(
+    "torch_cluster::cuda_version", [] { return cluster::cuda_version(); });
