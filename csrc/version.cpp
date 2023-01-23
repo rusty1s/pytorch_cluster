@@ -38,4 +38,4 @@ CLUSTER_API int64_t cuda_version() noexcept {
 } // namespace cluster
 
 static auto registry = torch::RegisterOperators().op(
-    "torch_cluster::cuda_version", [] { return scatter::cuda_version(); });
+    "torch_cluster::cuda_version", [] { return cluster::cuda_version(); });
