@@ -4,10 +4,12 @@ import scipy.cluster
 import torch
 
 
-def nearest(x: torch.Tensor,
-            y: torch.Tensor,
-            batch_x: Optional[torch.Tensor] = None,
-            batch_y: Optional[torch.Tensor] = None) -> torch.Tensor:
+def nearest(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    batch_x: Optional[torch.Tensor] = None,
+    batch_y: Optional[torch.Tensor] = None,
+) -> torch.Tensor:
     r"""Clusters points in :obj:`x` together which are nearest to a given query
     point in :obj:`y`.
 
