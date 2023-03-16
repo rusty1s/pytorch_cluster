@@ -42,6 +42,11 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
     y = y.view(-1, 1) if y.dim() == 1 else y
     assert x.size(1) == y.size(1)
 
+    if batch_x is not None and (batch_x[1:] - batch_x[:-1] < 0).any():
+        raise ValueError("batch_x is not sorted")
+    if batch_y is not None and (batch_y[1:] - batch_y[:-1] < 0).any():
+        raise ValueError("batch_y is not sorted")
+
     if x.is_cuda:
         if batch_x is not None:
             assert x.size(0) == batch_x.numel()

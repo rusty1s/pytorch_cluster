@@ -56,3 +56,15 @@ def test_nearest(dtype, device):
     batch_y = tensor([0, 1, 3, 3], torch.long, device)
     with pytest.raises(ValueError):
         out = nearest(x, y, batch_x, batch_y)
+
+    # Invalid input: batch_x unsorted
+    batch_x = tensor([0, 0, 1, 0, 0, 0, 0], torch.long, device)
+    batch_y = tensor([0, 0, 1, 1], torch.long, device)
+    with pytest.raises(ValueError):
+        out = nearest(x, y, batch_x, batch_y)
+
+    # Invalid input: batch_y unsorted
+    batch_x = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
+    batch_y = tensor([0, 0, 1, 0], torch.long, device)
+    with pytest.raises(ValueError):
+        out = nearest(x, y, batch_x, batch_y)
