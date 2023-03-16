@@ -67,10 +67,31 @@ def nearest(x: torch.Tensor, y: torch.Tensor,
         else:
             ptr_y = torch.tensor([0, y.size(0)], device=y.device)
 
+        # if an instance in batch_x is non-empty, it must be
+        # non-empty in batch_y as well
+        instance_nonempty_x = (ptr_x[:-1] != ptr_x[1:])
+        instance_nonempty_y = (ptr_y[:len(ptr_x)-1] != ptr_y[1:len(ptr_x)])
+        if (len(ptr_x) > len(ptr_y) or
+                (instance_nonempty_x & ~instance_nonempty_y).any()):
+            raise ValueError("Some batch index occurs in batch_x "
+                             "that does not occur in batch_y")
+
         return torch.ops.torch_cluster.nearest(x, y, ptr_x, ptr_y)
     else:
+        if (batch_x is None) != (batch_y is None):
+            raise ValueError("Either both or none of batch_x, batch_y "
+                             "may be None")
+
         # Translate and rescale x and y to [0, 1].
         if batch_x is not None and batch_y is not None:
+            # if an instance in batch_x is non-empty, it must be
+            # non-empty in batch_y as well
+            if not torch.isin(torch.unique_consecutive(batch_x),
+                              torch.unique_consecutive(batch_y),
+                              assume_unique=True).all():
+                raise ValueError("Some batch index occurs in batch_x "
+                                 "that does not occur in batch_y")
+
             assert x.dim() == 2 and batch_x.dim() == 1
             assert y.dim() == 2 and batch_y.dim() == 1
             assert x.size(0) == batch_x.size(0)
