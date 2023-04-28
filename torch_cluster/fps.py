@@ -6,20 +6,20 @@ from torch import Tensor
 
 @torch.jit._overload  # noqa
 def fps(src, batch, ratio, random_start, batch_size):  # noqa
-    # type: (Tensor, Optional[Tensor], float, bool, Optional[int]) -> Tensor  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
 @torch.jit._overload  # noqa
 def fps(src, batch, ratio, random_start, batch_size):  # noqa
-    # type: (Tensor, Optional[Tensor], Tensor, bool, Optional[int]) -> Tensor  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
 def fps(  # noqa
     src: torch.Tensor,
     batch: Optional[Tensor] = None,
-    ratio: Union[torch.Tensor, float] = 0.5,
+    ratio: Optional[Union[torch.Tensor, float]] = None,
     random_start: bool = True,
     batch_size: Optional[int] = None,
 ):
@@ -54,7 +54,9 @@ def fps(  # noqa
     """
 
     r: Optional[Tensor] = None
-    if isinstance(ratio, float):
+    if ratio is None:
+        r = torch.tensor(0.5, dtype=src.dtype, device=src.device)
+    elif isinstance(ratio, float):
         r = torch.tensor(ratio, dtype=src.dtype, device=src.device)
     else:
         r = ratio
