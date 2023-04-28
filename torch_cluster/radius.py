@@ -4,11 +4,16 @@ import torch
 
 
 @torch.jit.script
-def radius(x: torch.Tensor, y: torch.Tensor, r: float,
-           batch_x: Optional[torch.Tensor] = None,
-           batch_y: Optional[torch.Tensor] = None, max_num_neighbors: int = 32,
-           num_workers: int = 1,
-           batch_size: Optional[int] = None) -> torch.Tensor:
+def radius(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    r: float,
+    batch_x: Optional[torch.Tensor] = None,
+    batch_y: Optional[torch.Tensor] = None,
+    max_num_neighbors: int = 32,
+    num_workers: int = 1,
+    batch_size: Optional[int] = None,
+) -> torch.Tensor:
     r"""Finds for each element in :obj:`y` all points in :obj:`x` within
     distance :obj:`r`.
 
@@ -35,8 +40,7 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
             effect in case :obj:`batch_x` or :obj:`batch_y` is not
             :obj:`None`, or the input lies on the GPU. (default: :obj:`1`)
         batch_size (int, optional): The number of examples :math:`B`.
-                   Automatically calculated if not given.
-                   (default: :obj:`None`)
+            Automatically calculated if not given. (default: :obj:`None`)
 
     .. code-block:: python
 
@@ -64,7 +68,6 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
         if batch_y is not None:
             assert y.size(0) == batch_y.numel()
             batch_size = max(batch_size, int(batch_y.max()) + 1)
-
     assert batch_size > 0
 
     ptr_x: Optional[torch.Tensor] = None
@@ -82,11 +85,16 @@ def radius(x: torch.Tensor, y: torch.Tensor, r: float,
 
 
 @torch.jit.script
-def radius_graph(x: torch.Tensor, r: float,
-                 batch: Optional[torch.Tensor] = None, loop: bool = False,
-                 max_num_neighbors: int = 32, flow: str = 'source_to_target',
-                 num_workers: int = 1,
-                 batch_size: Optional[int] = None) -> torch.Tensor:
+def radius_graph(
+    x: torch.Tensor,
+    r: float,
+    batch: Optional[torch.Tensor] = None,
+    loop: bool = False,
+    max_num_neighbors: int = 32,
+    flow: str = 'source_to_target',
+    num_workers: int = 1,
+    batch_size: Optional[int] = None,
+) -> torch.Tensor:
     r"""Computes graph edges to all points within a given distance.
 
     Args:
@@ -111,8 +119,7 @@ def radius_graph(x: torch.Tensor, r: float,
             effect in case :obj:`batch` is not :obj:`None`, or the input lies
             on the GPU. (default: :obj:`1`)
         batch_size (int, optional): The number of examples :math:`B`.
-                   Automatically calculated if not given.
-                   (default: :obj:`None`)
+            Automatically calculated if not given. (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
 
