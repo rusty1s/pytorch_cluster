@@ -1,22 +1,28 @@
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 from torch import Tensor
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch=None, ratio=None, random_start=True):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[float], bool) -> Tensor
+def fps(src, batch, ratio, random_start, batch_size):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch=None, ratio=None, random_start=True):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool) -> Tensor
+def fps(src, batch, ratio, random_start, batch_size):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
-def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):  # noqa
+def fps(  # noqa
+    src: torch.Tensor,
+    batch: Optional[Tensor] = None,
+    ratio: Optional[Union[torch.Tensor, float]] = None,
+    random_start: bool = True,
+    batch_size: Optional[int] = None,
+):
     r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
     Learning on Point Sets in a Metric Space"
     <https://arxiv.org/abs/1706.02413>`_ paper, which iteratively samples the
@@ -32,9 +38,10 @@ def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):  # noqa
             (default: :obj:`0.5`)
         random_start (bool, optional): If set to :obj:`False`, use the first
             node in :math:`\mathbf{X}` as starting node. (default: obj:`True`)
+        batch_size (int, optional): The number of examples :math:`B`.
+            Automatically calculated if not given. (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
-
 
     .. code-block:: python
 
@@ -57,7 +64,8 @@ def fps(src: torch.Tensor, batch=None, ratio=None, random_start=True):  # noqa
 
     if batch is not None:
         assert src.size(0) == batch.numel()
-        batch_size = int(batch.max()) + 1
+        if batch_size is None:
+            batch_size = int(batch.max()) + 1
 
         deg = src.new_zeros(batch_size, dtype=torch.long)
         deg.scatter_add_(0, batch, torch.ones_like(batch))
