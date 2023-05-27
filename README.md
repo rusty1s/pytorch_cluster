@@ -48,7 +48,7 @@ We alternatively provide pip wheels for all major OS/PyTorch/CUDA combinations, 
 To install the binaries for PyTorch 2.0.0, simply run
 
 ```
-pip install torch-spline-conv -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
+pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
 ```
 
 where `${CUDA}` should be replaced by either `cpu`, `cu117`, or `cu118` depending on your PyTorch installation.
@@ -64,7 +64,7 @@ where `${CUDA}` should be replaced by either `cpu`, `cu117`, or `cu118` dependin
 To install the binaries for PyTorch 1.13.0, simply run
 
 ```
-pip install torch-spline-conv -f https://data.pyg.org/whl/torch-1.13.0+${CUDA}.html
+pip install torch-cluster -f https://data.pyg.org/whl/torch-1.13.0+${CUDA}.html
 ```
 
 where `${CUDA}` should be replaced by either `cpu`, `cu116`, or `cu117` depending on your PyTorch installation.
