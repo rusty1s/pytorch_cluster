@@ -1,27 +1,46 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 import torch
 from torch import Tensor
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int]) -> Tensor  # noqa
+def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int], Optional[Tensor]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
 @torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int]) -> Tensor  # noqa
+def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int], Optional[Tensor]) -> Tensor  # noqa
     pass  # pragma: no cover
 
 
-def fps(  # noqa
+@torch.jit._overload  # noqa
+def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int], Optional[List[int]]) -> Tensor  # noqa
+    pass  # pragma: no cover
+
+
+@torch.jit._overload  # noqa
+def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int], Optional[List[int]]) -> Tensor  # noqa
+    pass  # pragma: no cover
+
+
+@torch.jit._overload  # noqa
+def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
+    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int], Optional[List[int]]) -> Tensor  # noqa
+    pass  # pragma: no cover
+
+
+def fps_ptr_tensor(
     src: torch.Tensor,
     batch: Optional[Tensor] = None,
-    ratio: Optional[Union[torch.Tensor, float]] = None,
+    ratio: Optional[Union[Tensor, float]] = None,
     random_start: bool = True,
     batch_size: Optional[int] = None,
+    ptr: Optional[Union[Tensor, List[int]]] = None,
 ):
     r""""A sampling algorithm from the `"PointNet++: Deep Hierarchical Feature
     Learning on Point Sets in a Metric Space"
@@ -40,6 +59,9 @@ def fps(  # noqa
             node in :math:`\mathbf{X}` as starting node. (default: obj:`True`)
         batch_size (int, optional): The number of examples :math:`B`.
             Automatically calculated if not given. (default: :obj:`None`)
+        ptr (LongTensor or list of ints): Ptr vector, which defines nodes
+            ranges for consecutive batches, e.g. batch=[0,0,1,1,1,2] translates
+            to ptr=[0,2,5,6].
 
     :rtype: :class:`LongTensor`
 
@@ -52,7 +74,6 @@ def fps(  # noqa
         batch = torch.tensor([0, 0, 0, 0])
         index = fps(src, batch, ratio=0.5)
     """
-
     r: Optional[Tensor] = None
     if ratio is None:
         r = torch.tensor(0.5, dtype=src.dtype, device=src.device)
@@ -61,6 +82,7 @@ def fps(  # noqa
     else:
         r = ratio
     assert r is not None
+    assert batch is None or ptr is None
 
     if batch is not None:
         assert src.size(0) == batch.numel()
@@ -70,9 +92,33 @@ def fps(  # noqa
         deg = src.new_zeros(batch_size, dtype=torch.long)
         deg.scatter_add_(0, batch, torch.ones_like(batch))
 
-        ptr = deg.new_zeros(batch_size + 1)
-        torch.cumsum(deg, 0, out=ptr[1:])
+        p = deg.new_zeros(batch_size + 1)
+        torch.cumsum(deg, 0, out=p[1:])
     else:
-        ptr = torch.tensor([0, src.size(0)], device=src.device)
+        if ptr is None:
+            p = torch.tensor([0, src.size(0)], device=src.device)
+        else:
+            if isinstance(ptr, Tensor):
+                p = ptr
+            else:
+                p = torch.tensor(ptr, device=src.device)
 
-    return torch.ops.torch_cluster.fps(src, ptr, r, random_start)
+    return torch.ops.torch_cluster.fps(src, p, r, random_start)
+
+
+def fps_ptr_list(
+    src: torch.Tensor,
+    batch: Optional[Tensor] = None,
+    ratio: Optional[float] = None,
+    random_start: bool = True,
+    batch_size: Optional[int] = None,
+    ptr: Optional[List[int]] = None,
+):
+    if ptr is not None:
+        return torch.ops.torch_cluster.fps_ptr_list(src, ptr,
+                                                    ratio, random_start)
+    return fps_ptr_tensor(src, batch, ratio, random_start, batch_size, ptr)
+
+
+fps = fps_ptr_list if hasattr(  # noqa
+    torch.ops.torch_cluster, 'fp_ptr_list') else fps_ptr_tensor
