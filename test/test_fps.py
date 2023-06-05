@@ -25,6 +25,8 @@ def test_fps(dtype, device):
         [+2, -2],
     ], dtype, device)
     batch = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
+    ptr_list = [0, 4, 8]
+    ptr = torch.tensor(ptr_list, device=device)
 
     out = fps(x, batch, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
@@ -32,12 +34,18 @@ def test_fps(dtype, device):
     out = fps(x, batch, ratio=0.5, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
-    out = fps(x, batch, ratio=torch.tensor(0.5, device=device),
-              random_start=False)
+    ratio = torch.tensor(0.5, device=device)
+    out = fps(x, batch, ratio=ratio, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
-    out = fps(x, batch, ratio=torch.tensor([0.5, 0.5], device=device),
-              random_start=False)
+    out = fps(x, ptr=ptr_list, ratio=0.5, random_start=False)
+    assert out.tolist() == [0, 2, 4, 6]
+
+    out = fps(x, ptr=ptr, ratio=0.5, random_start=False)
+    assert out.tolist() == [0, 2, 4, 6]
+
+    ratio = torch.tensor([0.5, 0.5], device=device)
+    out = fps(x, batch, ratio=ratio, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
     out = fps(x, random_start=False)
