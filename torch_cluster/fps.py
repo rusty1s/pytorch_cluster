@@ -30,7 +30,7 @@ def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
     pass  # pragma: no cover
 
 
-def fps(
+def fps(  # noqa
     src: torch.Tensor,
     batch: Optional[Tensor] = None,
     ratio: Optional[Union[Tensor, float]] = None,
