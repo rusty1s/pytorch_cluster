@@ -44,6 +44,11 @@ def test_nearest(dtype, device):
     with pytest.raises(ValueError):
         nearest(x, y, batch_x, batch_y=None)
 
+    # Invalid input: instance 1 only in batch_y (implicitly as batch_x=None)
+    batch_y = tensor([0, 0, 1, 1], torch.long, device)
+    with pytest.raises(ValueError):
+        nearest(x, y, batch_x=None, batch_y=batch_y)
+
     # Invalid input: instance 2 only in batch_x
     # (i.e.instance in the middle missing)
     batch_x = tensor([0, 0, 1, 1, 2, 2, 3, 3], torch.long, device)

@@ -106,10 +106,6 @@ def get_extensions():
     return extensions
 
 
-install_requires = [
-    'scipy',
-]
-
 test_requires = [
     'pytest',
     'pytest-cov',
@@ -136,7 +132,6 @@ setup(
         'cluster-algorithms',
     ],
     python_requires='>=3.7',
-    install_requires=install_requires,
     extras_require={
         'test': test_requires,
     },

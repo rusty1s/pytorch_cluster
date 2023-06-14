@@ -67,6 +67,7 @@ install(FILES
   csrc/cpu/fps_cpu.h
   csrc/cpu/graclus_cpu.h
   csrc/cpu/grid_cpu.h
+  csrc/cpu/nearest_cpu.h
   csrc/cpu/rw_cpu.h
   csrc/cpu/sampler_cpu.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/cpu)
