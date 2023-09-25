@@ -1,6 +1,5 @@
 from typing import Optional
 
-import scipy.cluster
 import torch
 
 
@@ -86,39 +85,13 @@ def nearest(
         return torch.ops.torch_cluster.nearest(x, y, ptr_x, ptr_y)
 
     else:
-
-        if batch_x is None and batch_y is not None:
-            batch_x = x.new_zeros(x.size(0), dtype=torch.long)
-        if batch_y is None and batch_x is not None:
+        if batch_x is None:
+            if batch_y is None:
+                batch_x = torch.tensor([])
+                batch_y = torch.tensor([])
+            else:
+                batch_x = x.new_zeros(x.size(0), dtype=torch.long)
+        elif batch_y is None:
             batch_y = y.new_zeros(y.size(0), dtype=torch.long)
 
-        # Translate and rescale x and y to [0, 1].
-        if batch_x is not None and batch_y is not None:
-            # If an instance in `batch_x` is non-empty, it must be non-empty in
-            # `batch_y `as well:
-            unique_batch_x = batch_x.unique_consecutive()
-            unique_batch_y = batch_y.unique_consecutive()
-            if not torch.equal(unique_batch_x, unique_batch_y):
-                raise ValueError("Some batch indices occur in 'batch_x' "
-                                 "that do not occur in 'batch_y'")
-
-            assert x.dim() == 2 and batch_x.dim() == 1
-            assert y.dim() == 2 and batch_y.dim() == 1
-            assert x.size(0) == batch_x.size(0)
-            assert y.size(0) == batch_y.size(0)
-
-            min_xy = min(x.min().item(), y.min().item())
-            x, y = x - min_xy, y - min_xy
-
-            max_xy = max(x.max().item(), y.max().item())
-            x.div_(max_xy)
-            y.div_(max_xy)
-
-            # Concat batch/features to ensure no cross-links between examples.
-            D = x.size(-1)
-            x = torch.cat([x, 2 * D * batch_x.view(-1, 1).to(x.dtype)], -1)
-            y = torch.cat([y, 2 * D * batch_y.view(-1, 1).to(y.dtype)], -1)
-
-        return torch.from_numpy(
-            scipy.cluster.vq.vq(x.detach().cpu(),
-                                y.detach().cpu())[0]).to(torch.long)
+        return torch.ops.torch_cluster.nearest(x, y, batch_x, batch_y)
