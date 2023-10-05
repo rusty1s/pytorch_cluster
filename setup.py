@@ -11,7 +11,7 @@ from torch.__config__ import parallel_info
 from torch.utils.cpp_extension import (CUDA_HOME, BuildExtension, CppExtension,
                                        CUDAExtension)
 
-__version__ = '1.6.1'
+__version__ = '1.6.2'
 URL = 'https://github.com/rusty1s/pytorch_cluster'
 
 WITH_CUDA = False
@@ -135,7 +135,7 @@ setup(
         'graph-neural-networks',
         'cluster-algorithms',
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     install_requires=install_requires,
     extras_require={
         'test': test_requires,

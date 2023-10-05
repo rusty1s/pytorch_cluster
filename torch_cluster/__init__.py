@@ -3,7 +3,7 @@ import os.path as osp
 
 import torch
 
-__version__ = '1.6.1'
+__version__ = '1.6.2'
 
 for library in [
         '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler', '_nearest',
