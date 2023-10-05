@@ -36,6 +36,7 @@ jobs:
       - name: Upgrade pip
         run: |
           pip install --upgrade setuptools
+          pip install scipy==1.10.1  # Python 3.8 support
           pip list
 
       - name: Free Disk Space (Ubuntu)
