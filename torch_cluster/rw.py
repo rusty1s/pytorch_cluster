@@ -15,6 +15,7 @@ def random_walk(
     coalesced: bool = True,
     num_nodes: Optional[int] = None,
     return_edge_indices: bool = False,
+    edge_weight: Optional[Tensor] = None,
 ) -> Union[Tensor, Tuple[Tensor, Tensor]]:
     """Samples random walks of length :obj:`walk_length` from all node indices
     in :obj:`start` in the graph given by :obj:`(row, col)` as described in the
@@ -39,6 +40,8 @@ def random_walk(
         return_edge_indices (bool, optional): Whether to additionally return
             the indices of edges traversed during the random walk.
             (default: :obj:`False`)
+        edge_weight (Tensor, optional): Weights of edges given by `row` and
+            `col` (default: :obj:`None`)
 
     :rtype: :class:`LongTensor`
     """
@@ -54,9 +57,14 @@ def random_walk(
     rowptr = row.new_zeros(num_nodes + 1)
     torch.cumsum(deg, 0, out=rowptr[1:])
 
-    node_seq, edge_seq = torch.ops.torch_cluster.random_walk(
-        rowptr, col, start, walk_length, p, q,
-    )
+    if edge_weight is None:
+        node_seq, edge_seq = torch.ops.torch_cluster.random_walk(
+            rowptr, col, start, walk_length, p, q,
+        )
+    else:
+        node_seq, edge_seq = torch.ops.torch_cluster.random_walk_weighted(
+            rowptr, col, edge_weight, start, walk_length, p, q,
+        )
 
     if return_edge_indices:
         return node_seq, edge_seq
