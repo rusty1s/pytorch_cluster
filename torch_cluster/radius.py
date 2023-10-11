@@ -3,7 +3,6 @@ from typing import Optional
 import torch
 
 
-@torch.jit.script
 def radius(
     x: torch.Tensor,
     y: torch.Tensor,
@@ -84,7 +83,6 @@ def radius(
                                           max_num_neighbors, num_workers)
 
 
-@torch.jit.script
 def radius_graph(
     x: torch.Tensor,
     r: float,

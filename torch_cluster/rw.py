@@ -4,7 +4,6 @@ import torch
 from torch import Tensor
 
 
-@torch.jit.script
 def random_walk(
     row: Tensor,
     col: Tensor,
@@ -55,8 +54,7 @@ def random_walk(
     torch.cumsum(deg, 0, out=rowptr[1:])
 
     node_seq, edge_seq = torch.ops.torch_cluster.random_walk(
-        rowptr, col, start, walk_length, p, q,
-    )
+        rowptr, col, start, walk_length, p, q)
 
     if return_edge_indices:
         return node_seq, edge_seq

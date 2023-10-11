@@ -3,7 +3,6 @@ from typing import Optional
 import torch
 
 
-@torch.jit.script
 def knn(
     x: torch.Tensor,
     y: torch.Tensor,
@@ -83,7 +82,6 @@ def knn(
                                        num_workers)
 
 
-@torch.jit.script
 def knn_graph(
     x: torch.Tensor,
     k: int,

@@ -11,7 +11,7 @@ from torch.__config__ import parallel_info
 from torch.utils.cpp_extension import (CUDA_HOME, BuildExtension, CppExtension,
                                        CUDAExtension)
 
-__version__ = '1.6.2'
+__version__ = '1.6.3'
 URL = 'https://github.com/rusty1s/pytorch_cluster'
 
 WITH_CUDA = False
