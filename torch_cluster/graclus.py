@@ -3,8 +3,8 @@ from typing import Optional
 import torch
 
 
-@torch.jit.script
-def graclus_cluster(row: torch.Tensor, col: torch.Tensor,
+def graclus_cluster(row: torch.Tensor,
+                    col: torch.Tensor,
                     weight: Optional[torch.Tensor] = None,
                     num_nodes: Optional[int] = None) -> torch.Tensor:
     """A greedy clustering algorithm of picking an unmarked vertex and matching

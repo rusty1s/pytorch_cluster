@@ -34,6 +34,10 @@ def test_knn(dtype, device):
     edge_index = knn(x, y, 2)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 0), (1, 1)])
 
+    jit = torch.jit.script(knn)
+    edge_index = jit(x, y, 2)
+    assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 0), (1, 1)])
+
     edge_index = knn(x, y, 2, batch_x, batch_y)
     assert to_set(edge_index) == set([(0, 2), (0, 3), (1, 4), (1, 5)])
 
@@ -62,6 +66,11 @@ def test_knn_graph(dtype, device):
                                       (2, 3), (3, 0), (3, 2)])
 
     edge_index = knn_graph(x, k=2, flow='source_to_target')
+    assert to_set(edge_index) == set([(1, 0), (3, 0), (0, 1), (2, 1), (1, 2),
+                                      (3, 2), (0, 3), (2, 3)])
+
+    jit = torch.jit.script(knn_graph)
+    edge_index = jit(x, k=2, flow='source_to_target')
     assert to_set(edge_index) == set([(1, 0), (3, 0), (0, 1), (2, 1), (1, 2),
                                       (3, 2), (0, 3), (2, 3)])
 
