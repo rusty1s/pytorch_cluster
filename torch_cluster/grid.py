@@ -3,10 +3,12 @@ from typing import Optional
 import torch
 
 
-def grid_cluster(pos: torch.Tensor,
-                 size: torch.Tensor,
-                 start: Optional[torch.Tensor] = None,
-                 end: Optional[torch.Tensor] = None) -> torch.Tensor:
+def grid_cluster(
+    pos: torch.Tensor,
+    size: torch.Tensor,
+    start: Optional[torch.Tensor] = None,
+    end: Optional[torch.Tensor] = None,
+) -> torch.Tensor:
     """A clustering algorithm, which overlays a regular grid of user-defined
     size over a point cloud and clusters all points within a voxel.
 

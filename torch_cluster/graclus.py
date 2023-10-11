@@ -3,10 +3,12 @@ from typing import Optional
 import torch
 
 
-def graclus_cluster(row: torch.Tensor,
-                    col: torch.Tensor,
-                    weight: Optional[torch.Tensor] = None,
-                    num_nodes: Optional[int] = None) -> torch.Tensor:
+def graclus_cluster(
+    row: torch.Tensor,
+    col: torch.Tensor,
+    weight: Optional[torch.Tensor] = None,
+    num_nodes: Optional[int] = None,
+) -> torch.Tensor:
     """A greedy clustering algorithm of picking an unmarked vertex and matching
     it with one its unmarked neighbors (that maximizes its edge weight).
 
