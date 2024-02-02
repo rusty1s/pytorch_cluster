@@ -29,6 +29,11 @@ jobs:
         run: |
           pip install torch==${{ matrix.torch-version }} --extra-index-url https://download.pytorch.org/whl/cpu
 
+      - name: Install scipy
+        if: ${{ maxtrix.python-version == '3.8' }}
+        run: |
+          pip install scipy==1.10.1
+
       - name: Install main package
         run: |
           python setup.py develop
