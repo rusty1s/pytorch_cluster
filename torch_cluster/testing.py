@@ -7,6 +7,7 @@ dtypes = [
     torch.long
 ]
 grad_dtypes = [torch.half, torch.float, torch.double]
+floating_dtypes = grad_dtypes + [torch.bfloat16]
 
 devices = [torch.device('cpu')]
 if torch.cuda.is_available():
