@@ -81,13 +81,15 @@ torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
 
   auto stream = at::cuda::getCurrentCUDAStream();
   auto scalar_type = x.scalar_type();
-  AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::Half, scalar_type, "_", [&] {
-    radius_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
-        x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
-        ptr_x.value().data_ptr<int64_t>(), ptr_y.value().data_ptr<int64_t>(),
-        row.data_ptr<int64_t>(), col.data_ptr<int64_t>(), r * r, x.size(0),
-        y.size(0), x.size(1), ptr_x.value().numel() - 1, max_num_neighbors);
-  });
+  AT_DISPATCH_FLOATING_TYPES_AND2(
+      at::ScalarType::Half, at::ScalarType::BFloat16, scalar_type, "_", [&] {
+        radius_kernel<scalar_t><<<BLOCKS, THREADS, 0, stream>>>(
+            x.data_ptr<scalar_t>(), y.data_ptr<scalar_t>(),
+            ptr_x.value().data_ptr<int64_t>(),
+            ptr_y.value().data_ptr<int64_t>(), row.data_ptr<int64_t>(),
+            col.data_ptr<int64_t>(), r * r, x.size(0), y.size(0), x.size(1),
+            ptr_x.value().numel() - 1, max_num_neighbors);
+      });
 
   auto mask = row != -1;
   return torch::stack({row.masked_select(mask), col.masked_select(mask)}, 0);

@@ -4,14 +4,14 @@ import pytest
 import scipy.spatial
 import torch
 from torch_cluster import radius, radius_graph
-from torch_cluster.testing import devices, grad_dtypes, tensor
+from torch_cluster.testing import devices, floating_dtypes, tensor
 
 
 def to_set(edge_index):
     return set([(i, j) for i, j in edge_index.t().tolist()])
 
 
-@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+@pytest.mark.parametrize('dtype,device', product(floating_dtypes, devices))
 def test_radius(dtype, device):
     x = tensor([
         [-1, -1],
@@ -52,7 +52,7 @@ def test_radius(dtype, device):
                                       (1, 6)])
 
 
-@pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
+@pytest.mark.parametrize('dtype,device', product(floating_dtypes, devices))
 def test_radius_graph(dtype, device):
     x = tensor([
         [-1, -1],
