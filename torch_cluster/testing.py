@@ -6,7 +6,10 @@ dtypes = [
     torch.half, torch.bfloat16, torch.float, torch.double, torch.int,
     torch.long
 ]
-grad_dtypes = [torch.half, torch.float, torch.double]
+if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+    grad_dtypes = [torch.float, torch.double]
+else:
+    grad_dtypes = [torch.half, torch.float, torch.double]
 floating_dtypes = grad_dtypes + [torch.bfloat16]
 
 devices = [torch.device('cpu')]
