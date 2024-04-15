@@ -223,7 +223,7 @@ torch::Tensor graclus_cuda(torch::Tensor rowptr, torch::Tensor col,
     CHECK_INPUT(optional_weight.value().dim() == 1);
     CHECK_INPUT(optional_weight.value().numel() == col.numel());
   }
-  cudaSetDevice(rowptr.get_device());
+  c10::cuda::MaybeSetDevice(rowptr.get_device());
 
   int64_t num_nodes = rowptr.numel() - 1;
   auto out = torch::full(num_nodes, -1, rowptr.options());

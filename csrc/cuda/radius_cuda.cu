@@ -52,7 +52,7 @@ torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
   CHECK_INPUT(y.dim() == 2);
   CHECK_INPUT(x.size(1) == y.size(1));
 
-  cudaSetDevice(x.get_device());
+  c10::cuda::MaybeSetDevice(x.get_device());
 
   if (ptr_x.has_value()) {
     CHECK_CUDA(ptr_x.value());
@@ -69,8 +69,6 @@ torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
                           y.options().dtype(torch::kLong));
 
   CHECK_INPUT(ptr_x.value().numel() == ptr_y.value().numel());
-
-  cudaSetDevice(x.get_device());
 
   auto row =
       torch::full(y.size(0) * max_num_neighbors, -1, ptr_y.value().options());
