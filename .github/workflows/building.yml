@@ -17,9 +17,9 @@ jobs:
         exclude:
           - torch-version: 2.1.0
             python-version: '3.12'
-          - os: macos-11
+          - os: macos-14
             cuda-version: 'cu118'
-          - os: macos-11
+          - os: macos-14
             cuda-version: 'cu121'
 
     steps:
