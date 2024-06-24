@@ -9,11 +9,12 @@ inline torch::Tensor get_dist(torch::Tensor x, int64_t idx) {
 }
 
 torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
-                      bool random_start) {
+                      torch::Tensor num_points, bool random_start) {
 
   CHECK_CPU(src);
   CHECK_CPU(ptr);
   CHECK_CPU(ratio);
+  CHECK_CPU(num_points);
   CHECK_INPUT(ptr.dim() == 1);
 
   src = src.view({src.size(0), -1}).contiguous();
@@ -21,9 +22,17 @@ torch::Tensor fps_cpu(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
   auto batch_size = ptr.numel() - 1;
 
   auto deg = ptr.narrow(0, 1, batch_size) - ptr.narrow(0, 0, batch_size);
-  auto out_ptr = deg.toType(torch::kFloat) * ratio;
-  out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
-
+  torch::Tensor out_ptr;
+  if (num_points.sum().item<int64_t>() == 0) {
+    out_ptr = deg.toType(torch::kFloat) * ratio;
+    out_ptr = out_ptr.ceil().toType(torch::kLong).cumsum(0);
+  } else {
+    TORCH_CHECK((deg.toType(torch::kLong) >= num_points.toType(torch::kLong)).all().item<int64_t>(),
+      "Passed tensor has fewer elements than requested number of returned points.")
+    out_ptr = deg.toType(torch::kLong)
+                  .minimum(num_points.toType(torch::kLong))
+                  .cumsum(0);
+  }
   auto out = torch::empty({out_ptr[-1].data_ptr<int64_t>()[0]}, ptr.options());
 
   auto ptr_data = ptr.data_ptr<int64_t>();
