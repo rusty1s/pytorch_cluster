@@ -33,5 +33,23 @@ random_walk(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
   }
 }
 
+CLUSTER_API std::tuple<torch::Tensor, torch::Tensor>
+random_walk_weighted(torch::Tensor rowptr, torch::Tensor col,
+                     torch::Tensor edge_weight, torch::Tensor start,
+                     int64_t walk_length, double p, double q) {
+  if (rowptr.device().is_cuda()) {
+#ifdef WITH_CUDA
+    return random_walk_weighted_cuda(rowptr, col, edge_weight, start, walk_length, p, q);
+#else
+    AT_ERROR("Not compiled with CUDA support");
+#endif
+  } else {
+    return random_walk_weighted_cpu(rowptr, col, edge_weight, start, walk_length, p, q);
+  }
+}
+
 static auto registry =
-    torch::RegisterOperators().op("torch_cluster::random_walk", &random_walk);
+    torch::RegisterOperators().op("torch_cluster::random_walk", &random_walk)
+        .op("torch_cluster::random_walk_weighted", &random_walk_weighted);
+
+

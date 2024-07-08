@@ -38,6 +38,170 @@ __global__ void uniform_sampling_kernel(const int64_t *rowptr,
   }
 }
 
+
+__global__ void cdf_kernel(const int64_t *rowptr, const float_t *edge_weight,
+		           float_t *edge_weight_cdf, int64_t numel) {
+  const int64_t thread_idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (thread_idx < numel - 1) {
+    int64_t row_start = rowptr[thread_idx], row_end = rowptr[thread_idx + 1];
+
+    float_t sum = 0.0;
+
+    for(int64_t i = row_start; i < row_end; i++) {
+      sum += edge_weight[i];
+    }
+
+    float_t acc = 0.0;
+
+    for(int64_t i = row_start; i < row_end; i++) {
+      acc += edge_weight[i] / sum;
+      edge_weight_cdf[i] = acc;
+    }
+  }
+}
+
+__device__ void get_offset(const float_t *edge_weight, int64_t start, int64_t end,
+                           float_t value, int64_t *position_out) {
+  int64_t original_start = start;
+
+  while (start < end) {
+    const int64_t mid = start + ((end - start) >> 1);
+    const float_t mid_val = edge_weight[mid];
+    if (!(mid_val >= value)) {
+      start = mid + 1;
+    }
+    else {
+      end = mid;
+    }
+  }
+
+  *position_out = start - original_start;
+}
+
+__global__ void
+rejection_sampling_weighted_kernel(unsigned int seed, const int64_t *rowptr,
+                                   const int64_t *col, const float_t *edge_weight_cdf,
+                                   const int64_t *start, int64_t *n_out,
+                                   int64_t *e_out, const int64_t walk_length,
+                                   const int64_t numel, const double p,
+                                   const double q) {
+
+  curandState_t state;
+  curand_init(seed, 0, 0, &state);
+
+  double max_prob = fmax(fmax(1. / p, 1.), 1. / q);
+  double prob_0 = 1. / p / max_prob;
+  double prob_1 = 1. / max_prob;
+  double prob_2 = 1. / q / max_prob;
+
+  const int64_t thread_idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (thread_idx < numel) {
+    int64_t t = start[thread_idx], v, x, e_cur, row_start, row_end, offset;
+
+    n_out[thread_idx] = t;
+
+    row_start = rowptr[t], row_end = rowptr[t + 1];
+
+    if (row_end - row_start == 0) {
+      e_cur = -1;
+      v = t;
+    } else {
+      get_offset(edge_weight_cdf, row_start, row_end, curand_uniform(&state), &offset);
+      e_cur = row_start + offset;
+      v = col[e_cur];
+    }
+
+    n_out[numel + thread_idx] = v;
+    e_out[thread_idx] = e_cur;
+
+    for (int64_t l = 1; l < walk_length; l++) {
+      row_start = rowptr[v], row_end = rowptr[v + 1];
+
+      if (row_end - row_start == 0) {
+        e_cur = -1;
+        x = v;
+      } else if (row_end - row_start == 1) {
+        e_cur = row_start;
+        x = col[e_cur];
+      } else {
+        if (p == 1. && q == 1.) {
+          get_offset(edge_weight_cdf, row_start, row_end, curand_uniform(&state), &offset);
+          e_cur = row_start + offset;
+          x = col[e_cur];
+        }
+        else {
+          while (true) {
+            get_offset(edge_weight_cdf, row_start, row_end, curand_uniform(&state), &offset);
+            e_cur = row_start + offset;
+            x = col[e_cur];
+
+            double r = curand_uniform(&state); // (0, 1]
+
+            if (x == t && r < prob_0)
+              break;
+
+            bool is_neighbor = false;
+            row_start = rowptr[x], row_end = rowptr[x + 1];
+            for (int64_t i = row_start; i < row_end; i++) {
+              if (col[i] == t) {
+                is_neighbor = true;
+                break;
+              }
+            }
+
+            if (is_neighbor && r < prob_1)
+              break;
+            else if (r < prob_2)
+              break;
+          }
+        }
+      }
+
+      n_out[(l + 1) * numel + thread_idx] = x;
+      e_out[l * numel + thread_idx] = e_cur;
+      t = v;
+      v = x;
+    }
+  }
+}
+
+std::tuple<torch::Tensor, torch::Tensor>
+random_walk_weighted_cuda(torch::Tensor rowptr, torch::Tensor col,
+                          torch::Tensor edge_weight, torch::Tensor start,
+                          int64_t walk_length, double p, double q) {
+  CHECK_CUDA(rowptr);
+  CHECK_CUDA(col);
+  CHECK_CUDA(edge_weight);
+  CHECK_CUDA(start);
+  cudaSetDevice(rowptr.get_device());
+
+  CHECK_INPUT(rowptr.dim() == 1);
+  CHECK_INPUT(col.dim() == 1);
+  CHECK_INPUT(edge_weight.dim() == 1);
+  CHECK_INPUT(start.dim() == 1);
+
+  auto n_out = torch::empty({walk_length + 1, start.size(0)}, start.options());
+  auto e_out = torch::empty({walk_length, start.size(0)}, start.options());
+
+  auto stream = at::cuda::getCurrentCUDAStream();
+
+  auto edge_weight_cdf = torch::empty({edge_weight.size(0)}, edge_weight.options());
+
+  cdf_kernel<<<BLOCKS(rowptr.numel()), THREADS, 0, stream>>>(
+      rowptr.data_ptr<int64_t>(), edge_weight.data_ptr<float_t>(),
+      edge_weight_cdf.data_ptr<float_t>(), rowptr.numel());
+
+  rejection_sampling_weighted_kernel<<<BLOCKS(start.numel()), THREADS, 0, stream>>>(
+      time(NULL), rowptr.data_ptr<int64_t>(), col.data_ptr<int64_t>(),
+      edge_weight_cdf.data_ptr<float_t>(), start.data_ptr<int64_t>(),
+      n_out.data_ptr<int64_t>(), e_out.data_ptr<int64_t>(),
+      walk_length, start.numel(), p, q);
+
+  return std::make_tuple(n_out.t().contiguous(), e_out.t().contiguous());
+}
+
 __global__ void
 rejection_sampling_kernel(unsigned int seed, const int64_t *rowptr,
                           const int64_t *col, const int64_t *start,
