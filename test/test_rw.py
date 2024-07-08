@@ -84,7 +84,6 @@ def test_rw_small_with_edge_indices(device):
     ]
 
 
-
 @pytest.mark.parametrize('device', devices)
 def test_rw_large_with_edge_weights(device):
     row = tensor([0, 1, 1, 1, 2, 2, 3, 3, 4, 4], torch.long, device)
