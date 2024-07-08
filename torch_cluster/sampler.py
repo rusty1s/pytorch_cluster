@@ -1,7 +1,6 @@
 import torch
 
 
-@torch.jit.script
 def neighbor_sampler(start: torch.Tensor, rowptr: torch.Tensor, size: float):
     assert not start.is_cuda
 

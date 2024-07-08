@@ -29,7 +29,7 @@ torch::Tensor grid_cuda(torch::Tensor pos, torch::Tensor size,
                         torch::optional<torch::Tensor> optional_end) {
   CHECK_CUDA(pos);
   CHECK_CUDA(size);
-  cudaSetDevice(pos.get_device());
+  c10::cuda::MaybeSetDevice(pos.get_device());
 
   if (optional_start.has_value())
     CHECK_CUDA(optional_start.value());

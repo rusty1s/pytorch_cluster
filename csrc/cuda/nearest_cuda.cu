@@ -71,7 +71,7 @@ torch::Tensor nearest_cuda(torch::Tensor x, torch::Tensor y,
   CHECK_CUDA(y);
   CHECK_CUDA(ptr_x);
   CHECK_CUDA(ptr_y);
-  cudaSetDevice(x.get_device());
+  c10::cuda::MaybeSetDevice(x.get_device());
 
   x = x.view({x.size(0), -1}).contiguous();
   y = y.view({y.size(0), -1}).contiguous();

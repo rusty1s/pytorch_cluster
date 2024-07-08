@@ -71,7 +71,7 @@ torch::Tensor fps_cuda(torch::Tensor src, torch::Tensor ptr,
   CHECK_CUDA(ptr);
   CHECK_CUDA(ratio);
   CHECK_INPUT(ptr.dim() == 1);
-  cudaSetDevice(src.get_device());
+  c10::cuda::MaybeSetDevice(src.get_device());
 
   src = src.view({src.size(0), -1}).contiguous();
   ptr = ptr.contiguous();

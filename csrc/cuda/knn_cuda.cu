@@ -113,7 +113,7 @@ torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
 
   CHECK_INPUT(ptr_x.value().numel() == ptr_y.value().numel());
 
-  cudaSetDevice(x.get_device());
+  c10::cuda::MaybeSetDevice(x.get_device());
 
   auto row = torch::empty({y.size(0) * k}, ptr_y.value().options());
   auto col = torch::full(y.size(0) * k, -1, ptr_y.value().options());
