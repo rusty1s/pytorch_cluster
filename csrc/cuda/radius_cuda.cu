@@ -13,7 +13,8 @@ radius_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
               const int64_t *__restrict__ ptr_y, int64_t *__restrict__ row,
               int64_t *__restrict__ col, const scalar_t r, const int64_t n,
               const int64_t m, const int64_t dim, const int64_t num_examples,
-              const int64_t max_num_neighbors) {
+              const int64_t max_num_neighbors,
+              const bool ignore_same_index) {
 
   const int64_t n_y = blockIdx.x * blockDim.x + threadIdx.x;
   if (n_y >= m)
@@ -29,7 +30,7 @@ radius_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
               (x[n_x * dim + d] - y[n_y * dim + d]);
     }
 
-    if (dist < r) {
+    if (dist < r && !(ignore_same_index && n_y == n_x)) {
       row[n_y * max_num_neighbors + count] = n_y;
       col[n_y * max_num_neighbors + count] = n_x;
       count++;
@@ -43,7 +44,8 @@ radius_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
                           torch::optional<torch::Tensor> ptr_x,
                           torch::optional<torch::Tensor> ptr_y, const double r,
-                          const int64_t max_num_neighbors) {
+                          const int64_t max_num_neighbors,
+                          const bool ignore_same_index) {
   CHECK_CUDA(x);
   CHECK_CONTIGUOUS(x);
   CHECK_INPUT(x.dim() == 2);
@@ -86,7 +88,7 @@ torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
             ptr_x.value().data_ptr<int64_t>(),
             ptr_y.value().data_ptr<int64_t>(), row.data_ptr<int64_t>(),
             col.data_ptr<int64_t>(), r * r, x.size(0), y.size(0), x.size(1),
-            ptr_x.value().numel() - 1, max_num_neighbors);
+            ptr_x.value().numel() - 1, max_num_neighbors, ignore_same_index);
       });
 
   auto mask = row != -1;
