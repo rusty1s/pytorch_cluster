@@ -12,6 +12,7 @@ def radius(
     max_num_neighbors: int = 32,
     num_workers: int = 1,
     batch_size: Optional[int] = None,
+    ignore_same_index: bool = False
 ) -> torch.Tensor:
     r"""Finds for each element in :obj:`y` all points in :obj:`x` within
     distance :obj:`r`.
@@ -40,6 +41,9 @@ def radius(
             :obj:`None`, or the input lies on the GPU. (default: :obj:`1`)
         batch_size (int, optional): The number of examples :math:`B`.
             Automatically calculated if not given. (default: :obj:`None`)
+        ignore_same_index (bool, optional): If :obj:`True`, each element in
+            :obj:`y` ignores the point in :obj:`x` with the same index.
+            (default: :obj:`False`)
 
     .. code-block:: python
 
@@ -80,7 +84,8 @@ def radius(
         ptr_y = torch.bucketize(arange, batch_y)
 
     return torch.ops.torch_cluster.radius(x, y, ptr_x, ptr_y, r,
-                                          max_num_neighbors, num_workers)
+                                          max_num_neighbors, num_workers,
+                                          ignore_same_index)
 
 
 def radius_graph(
@@ -133,15 +138,11 @@ def radius_graph(
 
     assert flow in ['source_to_target', 'target_to_source']
     edge_index = radius(x, x, r, batch, batch,
-                        max_num_neighbors if loop else max_num_neighbors + 1,
-                        num_workers, batch_size)
+                        max_num_neighbors,
+                        num_workers, batch_size, not loop)
     if flow == 'source_to_target':
         row, col = edge_index[1], edge_index[0]
     else:
         row, col = edge_index[0], edge_index[1]
-
-    if not loop:
-        mask = row != col
-        row, col = row[mask], col[mask]
 
     return torch.stack([row, col], dim=0)

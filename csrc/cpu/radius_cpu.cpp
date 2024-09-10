@@ -7,7 +7,8 @@
 torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
                          torch::optional<torch::Tensor> ptr_x,
                          torch::optional<torch::Tensor> ptr_y, double r,
-                         int64_t max_num_neighbors, int64_t num_workers) {
+                         int64_t max_num_neighbors, int64_t num_workers,
+                         bool ignore_same_index) {
 
   CHECK_CPU(x);
   CHECK_INPUT(x.dim() == 2);
@@ -54,10 +55,14 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
         size_t num_matches = mat_index.index->radiusSearch(
             y_data + i * y.size(1), r * r, ret_matches, params);
 
-        for (size_t j = 0; j < std::min(num_matches, (size_t)max_num_neighbors);
-             j++) {
-          out_vec.push_back(ret_matches[j].first);
-          out_vec.push_back(i);
+        for (size_t j = 0, count = 0;
+              j < num_matches && count < (size_t)max_num_neighbors;
+              j++) {
+          if (!ignore_same_index || ret_matches[j].first != i) {
+            out_vec.push_back(ret_matches[j].first);
+            out_vec.push_back(i);
+            count++;
+          }
         }
       }
 
@@ -91,10 +96,14 @@ torch::Tensor radius_cpu(torch::Tensor x, torch::Tensor y,
           size_t num_matches = mat_index.index->radiusSearch(
               y_data + i * y.size(1), r * r, ret_matches, params);
 
-          for (size_t j = 0;
-               j < std::min(num_matches, (size_t)max_num_neighbors); j++) {
-            out_vec.push_back(x_start + ret_matches[j].first);
-            out_vec.push_back(i);
+          for (size_t j = 0, count = 0;
+              j < num_matches && count < (size_t)max_num_neighbors;
+              j++) {
+            if (!ignore_same_index || x_start + ret_matches[j].first != i) {
+              out_vec.push_back(x_start + ret_matches[j].first);
+              out_vec.push_back(i);
+              count++;
+            }
           }
         }
       }

@@ -11,6 +11,15 @@ def to_set(edge_index):
     return set([(i, j) for i, j in edge_index.t().tolist()])
 
 
+def to_degree(edge_index):
+    _, counts = torch.unique(edge_index[1], return_counts=True)
+    return counts.tolist()
+
+
+def to_batch(nodes):
+    return [int(i / 4) for i in nodes]
+
+
 @pytest.mark.parametrize('dtype,device', product(floating_dtypes, devices))
 def test_radius(dtype, device):
     x = tensor([
@@ -73,6 +82,38 @@ def test_radius_graph(dtype, device):
     edge_index = jit(x, r=2.5, flow='source_to_target')
     assert to_set(edge_index) == set([(1, 0), (3, 0), (0, 1), (2, 1), (1, 2),
                                       (3, 2), (0, 3), (2, 3)])
+
+    edge_index = radius_graph(x, r=100, flow='source_to_target',
+                              max_num_neighbors=1)
+    assert set(to_degree(edge_index)) == set([1])
+
+    x = tensor([
+        [-1, -1],
+        [-1, -1],
+        [-1, -1],
+        [-1, -1],
+    ], dtype, device)
+
+    edge_index = radius_graph(x, r=100, flow='source_to_target',
+                              max_num_neighbors=1)
+    assert set(to_degree(edge_index)) == set([1])
+
+    x = tensor([
+        [-1, -1],
+        [-1, +1],
+        [+1, +1],
+        [+1, -1],
+        [-1, -1],
+        [-1, +1],
+        [+1, +1],
+        [+1, -1],
+    ], dtype, device)
+    batch_x = tensor([0, 0, 0, 0, 1, 1, 1, 1], torch.long, device)
+
+    edge_index = radius_graph(x, r=100, batch=batch_x, flow='source_to_target',
+                              max_num_neighbors=1)
+    assert set(to_degree(edge_index)) == set([1])
+    assert to_batch(edge_index[0]) == batch_x.tolist()
 
 
 @pytest.mark.parametrize('dtype,device', product([torch.float], devices))
