@@ -9,7 +9,7 @@ from torch_cluster.testing import devices, grad_dtypes, tensor
 
 @torch.jit.script
 def fps2(x: Tensor, ratio: Tensor) -> Tensor:
-    return fps(x, None, ratio, False)
+    return fps(x, None, ratio, None, False)
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))
@@ -33,6 +33,11 @@ def test_fps(dtype, device):
 
     out = fps(x, batch, ratio=0.5, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
+    out = fps(x, batch, num_points=2, random_start=False)
+    assert out.tolist() == [0, 2, 4, 6]
+
+    out = fps(x, batch, num_points=4, random_start=False)
+    assert out.tolist() == [0, 2, 1, 3, 4, 6, 5, 7]
 
     ratio = torch.tensor(0.5, device=device)
     out = fps(x, batch, ratio=ratio, random_start=False)
@@ -40,7 +45,6 @@ def test_fps(dtype, device):
 
     out = fps(x, ptr=ptr_list, ratio=0.5, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
-
     out = fps(x, ptr=ptr, ratio=0.5, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
@@ -48,10 +52,16 @@ def test_fps(dtype, device):
     out = fps(x, batch, ratio=ratio, random_start=False)
     assert out.tolist() == [0, 2, 4, 6]
 
+    num = torch.tensor([2, 2], device=device)
+    out = fps(x, batch, num_points=num, random_start=False)
+    assert out.tolist() == [0, 2, 4, 6]
+
     out = fps(x, random_start=False)
     assert out.sort()[0].tolist() == [0, 5, 6, 7]
 
     out = fps(x, ratio=0.5, random_start=False)
+    assert out.sort()[0].tolist() == [0, 5, 6, 7]
+    out = fps(x, num_points=4, random_start=False)
     assert out.sort()[0].tolist() == [0, 5, 6, 7]
 
     out = fps(x, ratio=torch.tensor(0.5, device=device), random_start=False)
@@ -62,6 +72,17 @@ def test_fps(dtype, device):
 
     out = fps2(x, torch.tensor([0.5], device=device))
     assert out.sort()[0].tolist() == [0, 5, 6, 7]
+
+    # requesting too many points
+    with pytest.raises(RuntimeError):
+        out = fps(x, batch, num_points=100, random_start=False)
+
+    with pytest.raises(RuntimeError):
+        out = fps(x, batch, num_points=5, random_start=False)
+
+    # invalid argument combination
+    with pytest.raises(ValueError):
+        out = fps(x, batch, ratio=0.0, num_points=0, random_start=False)
 
 
 @pytest.mark.parametrize('device', devices)
