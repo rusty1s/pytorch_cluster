@@ -10,7 +10,7 @@ CLUSTER_INLINE_VARIABLE int64_t _cuda_version = cuda_version();
 } // namespace detail
 } // namespace cluster
 
-CLUSTER_API torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, double ratio,
+CLUSTER_API torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, torch::Tensor ratio,
                   bool random_start);
 
 CLUSTER_API torch::Tensor graclus(torch::Tensor rowptr, torch::Tensor col,
