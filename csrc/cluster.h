@@ -20,8 +20,10 @@ CLUSTER_API torch::Tensor grid(torch::Tensor pos, torch::Tensor size,
                    torch::optional<torch::Tensor> optional_start,
                    torch::optional<torch::Tensor> optional_end);
 
-CLUSTER_API torch::Tensor knn(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
-                  torch::Tensor ptr_y, int64_t k, bool cosine);
+CLUSTER_API torch::Tensor knn(torch::Tensor x, torch::Tensor y,
+                  torch::optional<torch::Tensor> ptr_x,
+                  torch::optional<torch::Tensor> ptr_y, int64_t k, bool cosine,
+                  int64_t num_workers);
 
 CLUSTER_API torch::Tensor nearest(torch::Tensor x, torch::Tensor y, torch::Tensor ptr_x,
                       torch::Tensor ptr_y);
