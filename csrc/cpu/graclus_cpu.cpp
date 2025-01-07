@@ -3,7 +3,7 @@
 #include "utils.h"
 
 torch::Tensor graclus_cpu(torch::Tensor rowptr, torch::Tensor col,
-                          torch::optional<torch::Tensor> optional_weight) {
+                          std::optional<torch::Tensor> optional_weight) {
   CHECK_CPU(rowptr);
   CHECK_CPU(col);
   CHECK_INPUT(rowptr.dim() == 1 && col.dim() == 1);

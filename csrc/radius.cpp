@@ -20,8 +20,8 @@ PyMODINIT_FUNC PyInit__radius_cpu(void) { return NULL; }
 #endif
 
 CLUSTER_API torch::Tensor radius(torch::Tensor x, torch::Tensor y,
-                     torch::optional<torch::Tensor> ptr_x,
-                     torch::optional<torch::Tensor> ptr_y, double r,
+                     std::optional<torch::Tensor> ptr_x,
+                     std::optional<torch::Tensor> ptr_y, double r,
                      int64_t max_num_neighbors, int64_t num_workers,
                      bool ignore_same_index) {
   if (x.device().is_cuda()) {

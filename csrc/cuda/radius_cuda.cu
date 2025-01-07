@@ -42,8 +42,8 @@ radius_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 }
 
 torch::Tensor radius_cuda(const torch::Tensor x, const torch::Tensor y,
-                          torch::optional<torch::Tensor> ptr_x,
-                          torch::optional<torch::Tensor> ptr_y, const double r,
+                          std::optional<torch::Tensor> ptr_x,
+                          std::optional<torch::Tensor> ptr_y, const double r,
                           const int64_t max_num_neighbors,
                           const bool ignore_same_index) {
   CHECK_CUDA(x);
