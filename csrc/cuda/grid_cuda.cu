@@ -25,8 +25,8 @@ __global__ void grid_kernel(const scalar_t *pos, const scalar_t *size,
 }
 
 torch::Tensor grid_cuda(torch::Tensor pos, torch::Tensor size,
-                        torch::optional<torch::Tensor> optional_start,
-                        torch::optional<torch::Tensor> optional_end) {
+                        std::optional<torch::Tensor> optional_start,
+                        std::optional<torch::Tensor> optional_end) {
   CHECK_CUDA(pos);
   CHECK_CUDA(size);
   c10::cuda::MaybeSetDevice(pos.get_device());

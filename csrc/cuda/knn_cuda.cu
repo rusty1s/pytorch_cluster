@@ -84,8 +84,8 @@ knn_kernel(const scalar_t *__restrict__ x, const scalar_t *__restrict__ y,
 }
 
 torch::Tensor knn_cuda(const torch::Tensor x, const torch::Tensor y,
-                       torch::optional<torch::Tensor> ptr_x,
-                       torch::optional<torch::Tensor> ptr_y, const int64_t k,
+                       std::optional<torch::Tensor> ptr_x,
+                       std::optional<torch::Tensor> ptr_y, const int64_t k,
                        const bool cosine) {
 
   CHECK_CUDA(x);
