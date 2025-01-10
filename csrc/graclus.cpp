@@ -20,7 +20,7 @@ PyMODINIT_FUNC PyInit__graclus_cpu(void) { return NULL; }
 #endif
 
 CLUSTER_API torch::Tensor graclus(torch::Tensor rowptr, torch::Tensor col,
-                      torch::optional<torch::Tensor> optional_weight) {
+                      std::optional<torch::Tensor> optional_weight) {
   if (rowptr.device().is_cuda()) {
 #ifdef WITH_CUDA
     return graclus_cuda(rowptr, col, optional_weight);
