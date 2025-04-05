@@ -17,7 +17,7 @@ jobs:
         exclude:
           - torch-version: 2.5.0
             cuda-version: 'cu126'
-          - torch-version: 2.5.0
+          - torch-version: 2.6.0
             cuda-version: 'cu121'
           - os: macos-14
             cuda-version: 'cu118'
