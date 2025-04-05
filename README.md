@@ -39,7 +39,7 @@ We provide pip wheels for all major OS/PyTorch/CUDA combinations, see [here](htt
 To install the binaries for PyTorch 2.6.0, simply run
 
 ```
-pip install torch-cluster -f https://data.pyg.org/whl/torch-2.5.0+${CUDA}.html
+pip install torch-cluster -f https://data.pyg.org/whl/torch-2.6.0+${CUDA}.html
 ```
 
 where `${CUDA}` should be replaced by either `cpu`, `cu118`, `cu124`, or `cu126` depending on your PyTorch installation.
