@@ -51,6 +51,9 @@ def graclus_cluster(
     row, col = row[perm], col[perm]
 
     if weight is not None:
+        if (weight < 0).any().item():
+            raise ValueError(f"PyG's implementation of Graclus clustering "
+                            f"does not support negative edge weights.")
         weight = weight[perm]
 
     deg = row.new_zeros(num_nodes)
