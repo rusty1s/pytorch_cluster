@@ -29,6 +29,11 @@ if os.getenv('FORCE_ONLY_CPU', '0') == '1':
 BUILD_DOCS = os.getenv('BUILD_DOCS', '0') == '1'
 
 
+def get_openmp_flag():
+    default_flag = '-fopenmp' if sys.platform != 'win32' else '/openmp'
+    return os.getenv("OPENMP_FLAG", default_flag)
+
+
 def get_extensions():
     extensions = []
 
@@ -52,11 +57,8 @@ def get_extensions():
         info = parallel_info()
         if ('backend: OpenMP' in info and 'OpenMP not found' not in info
                 and sys.platform != 'darwin'):
-            extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP']
-            if sys.platform == 'win32':
-                extra_compile_args['cxx'] += ['/openmp']
-            else:
-                extra_compile_args['cxx'] += ['-fopenmp']
+            extra_compile_args['cxx'] += ['-DAT_PARALLEL_OPENMP',
+                                          get_openmp_flag()]
         else:
             print('Compiling without OpenMP...')
 
