@@ -120,5 +120,7 @@ def nearest(
             y = torch.cat([y, 2 * D * batch_y.view(-1, 1).to(y.dtype)], -1)
 
         return torch.from_numpy(
-            scipy.cluster.vq.vq(x.detach().cpu(),
-                                y.detach().cpu())[0]).to(torch.long)
+            scipy.cluster.vq.vq(
+                x.detach().cpu().float(),
+                y.detach().cpu().float(),
+            )[0]).to(torch.long)
