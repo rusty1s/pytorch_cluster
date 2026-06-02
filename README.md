@@ -7,7 +7,7 @@
 [coverage-image]: https://codecov.io/gh/rusty1s/pytorch_cluster/branch/master/graph/badge.svg
 [coverage-url]: https://codecov.io/github/rusty1s/pytorch_cluster?branch=master
 
-# [DEPRECATED] PyTorch Cluster
+# PyTorch Cluster
 
 [![PyPI Version][pypi-image]][pypi-url]
 [![Testing Status][testing-image]][testing-url]
@@ -18,18 +18,6 @@
 
 > [!CAUTION]
 > ## ⚠️ This repository is deprecated in favor of [`pyg-lib`](https://github.com/pyg-team/pyg-lib)
->
-> **`torch-cluster` is no longer maintained.** Its graph cluster algorithms now
-> live in [**`pyg-lib`**](https://github.com/pyg-team/pyg-lib) — please migrate
-> to that package. See the
-> [`pyg-lib` README](https://github.com/pyg-team/pyg-lib#readme) for
-> installation and usage instructions.
->
-> - ❌ No new wheels will be published for future PyTorch or CUDA releases.
-> - 📦 Previously published wheels remain available at https://data.pyg.org/whl
->   for existing PyTorch versions.
-> - 🐛 Issues and pull requests in this repository will no longer be addressed —
->   please open them in [`pyg-lib`](https://github.com/pyg-team/pyg-lib) instead.
 
 --------------------------------------------------------------------------------
 
