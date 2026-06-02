@@ -1,9 +1,19 @@
 import importlib
 import os.path as osp
+import warnings
 
 import torch
 
 __version__ = '1.6.3'
+
+warnings.warn(
+    "'torch-cluster' is deprecated and no longer maintained. Its graph cluster "
+    "algorithms have moved to 'pyg-lib' (https://github.com/pyg-team/pyg-lib); "
+    "please migrate. No new wheels will be published for future PyTorch or CUDA "
+    "releases.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 for library in [
         '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler', '_nearest',
