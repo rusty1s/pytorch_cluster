@@ -20,12 +20,10 @@
 > ## ⚠️ This repository is deprecated in favor of [`pyg-lib`](https://github.com/pyg-team/pyg-lib)
 >
 > **`torch-cluster` is no longer maintained.** Its graph cluster algorithms now
-> live in [**`pyg-lib`**](https://github.com/pyg-team/pyg-lib) — please install
-> and use that package instead:
->
-> ```
-> pip install pyg-lib
-> ```
+> live in [**`pyg-lib`**](https://github.com/pyg-team/pyg-lib) — please migrate
+> to that package. See the
+> [`pyg-lib` README](https://github.com/pyg-team/pyg-lib#readme) for
+> installation and usage instructions.
 >
 > - ❌ No new wheels will be published for future PyTorch or CUDA releases.
 > - 📦 Previously published wheels remain available at https://data.pyg.org/whl
