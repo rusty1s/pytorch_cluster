@@ -7,10 +7,9 @@ import torch
 __version__ = '1.6.3'
 
 warnings.warn(
-    "'torch-cluster' is deprecated and no longer maintained. Its graph cluster "
-    "algorithms have moved to 'pyg-lib' (https://github.com/pyg-team/pyg-lib); "
-    "please migrate. No new wheels will be published for future PyTorch or CUDA "
-    "releases.",
+    "'torch-cluster' is deprecated and no longer maintained. All "
+    "functionality has been migrated to 'pyg-lib' "
+    "(https://github.com/pyg-team/pyg-lib).",
     DeprecationWarning,
     stacklevel=2,
 )
