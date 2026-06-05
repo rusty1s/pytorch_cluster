@@ -17,7 +17,7 @@
 --------------------------------------------------------------------------------
 
 > [!CAUTION]
-> #### ⚠️ This repository is deprecated in favor of [`pyg-team/pyg-lib`](https://github.com/pyg-team/pyg-lib)
+> #### ⚠️ This repository is deprecated in favor of [`pyg-lib>=0.7.0`](https://github.com/pyg-team/pyg-lib)
 
 --------------------------------------------------------------------------------
 
