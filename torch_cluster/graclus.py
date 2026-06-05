@@ -3,6 +3,17 @@ from typing import Optional
 import torch
 
 
+@torch.library.register_fake("torch_cluster::graclus")
+def _(rowptr, col, weight=None):
+    torch._check(rowptr.device == col.device)
+    torch._check(rowptr.ndim == 1)
+    torch._check(col.ndim == 1)
+    if weight is not None:
+        torch._check(weight.device == col.device)
+        torch._check(weight.ndim == 1)
+    return rowptr.new_empty((rowptr.numel() - 1,), dtype=torch.long)
+
+
 def graclus_cluster(
     row: torch.Tensor,
     col: torch.Tensor,

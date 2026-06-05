@@ -1,7 +1,18 @@
+import importlib.util
 from typing import Optional
 
 import scipy.cluster
 import torch
+
+
+@torch.library.register_fake("torch_cluster::nearest")
+def _(x, y, ptr_x, ptr_y):
+    torch._check(x.device == y.device)
+    torch._check(ptr_x.device == x.device)
+    torch._check(ptr_y.device == y.device)
+    torch._check(ptr_x.ndim == 1)
+    torch._check(ptr_y.ndim == 1)
+    return x.new_empty((y.size(0),), dtype=torch.long)
 
 
 def nearest(
@@ -9,6 +20,7 @@ def nearest(
     y: torch.Tensor,
     batch_x: Optional[torch.Tensor] = None,
     batch_y: Optional[torch.Tensor] = None,
+    use_triton: bool = False,
 ) -> torch.Tensor:
     r"""Clusters points in :obj:`x` together which are nearest to a given query
     point in :obj:`y`.
@@ -40,7 +52,6 @@ def nearest(
         batch_y = torch.tensor([0, 0])
         cluster = nearest(x, y, batch_x, batch_y)
     """
-
     x = x.view(-1, 1) if x.dim() == 1 else x
     y = y.view(-1, 1) if y.dim() == 1 else y
     assert x.size(1) == y.size(1)
@@ -51,6 +62,17 @@ def nearest(
         raise ValueError("'batch_y' is not sorted")
 
     if x.is_cuda:
+        if (use_triton and x.dtype is not torch.float64
+                and y.dtype is not torch.float64):
+            if importlib.util.find_spec("triton") is None:
+                print(
+                    "Triton is not available. Falling back to general "
+                    "implementation."
+                )
+            else:
+                from .triton.nearest import nearest as triton_nearest
+                return triton_nearest(x, y, batch_x, batch_y)
+
         if batch_x is not None:
             assert x.size(0) == batch_x.numel()
             batch_size = int(batch_x.max()) + 1
@@ -119,6 +141,10 @@ def nearest(
             x = torch.cat([x, 2 * D * batch_x.view(-1, 1).to(x.dtype)], -1)
             y = torch.cat([y, 2 * D * batch_y.view(-1, 1).to(y.dtype)], -1)
 
+        if x.dtype in (torch.float16, torch.bfloat16):
+            x = x.float()
+        if y.dtype in (torch.float16, torch.bfloat16):
+            y = y.float()
         return torch.from_numpy(
             scipy.cluster.vq.vq(
                 x.detach().cpu().float(),

@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "cpu/rw_cpu.h"
 
@@ -33,5 +34,16 @@ random_walk(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
   }
 }
 
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::random_walk", &random_walk);
+TORCH_LIBRARY_IMPL(torch_cluster, CPU, m) {
+  m.impl("random_walk", &random_walk_cpu);
+}
+
+#ifdef WITH_CUDA
+TORCH_LIBRARY_IMPL(torch_cluster, CUDA, m) {
+  m.impl("random_walk", &random_walk_cuda);
+}
+
+TORCH_LIBRARY_IMPL(torch_cluster, HIP, m) {
+  m.impl("random_walk", &random_walk_cuda);
+}
+#endif

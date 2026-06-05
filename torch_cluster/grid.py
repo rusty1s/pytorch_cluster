@@ -3,6 +3,16 @@ from typing import Optional
 import torch
 
 
+@torch.library.register_fake("torch_cluster::grid")
+def _(pos, size, start=None, end=None):
+    torch._check(pos.device == size.device)
+    if start is not None:
+        torch._check(start.device == pos.device)
+    if end is not None:
+        torch._check(end.device == pos.device)
+    return pos.new_empty((pos.size(0),), dtype=torch.long)
+
+
 def grid_cluster(
     pos: torch.Tensor,
     size: torch.Tensor,

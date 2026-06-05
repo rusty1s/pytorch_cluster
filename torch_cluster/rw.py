@@ -4,6 +4,19 @@ import torch
 from torch import Tensor
 
 
+@torch.library.register_fake("torch_cluster::random_walk")
+def _(rowptr, col, start, walk_length, p=1.0, q=1.0):
+    torch._check(rowptr.device == col.device)
+    torch._check(start.device == rowptr.device)
+    torch._check(rowptr.ndim == 1)
+    torch._check(col.ndim == 1)
+    torch._check(start.ndim == 1)
+    num_walks = start.numel()
+    node_seq = start.new_empty((num_walks, walk_length + 1), dtype=torch.long)
+    edge_seq = start.new_empty((num_walks, walk_length), dtype=torch.long)
+    return node_seq, edge_seq
+
+
 def random_walk(
     row: Tensor,
     col: Tensor,

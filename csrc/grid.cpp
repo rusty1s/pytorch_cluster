@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "cpu/grid_cpu.h"
 
@@ -33,5 +34,15 @@ CLUSTER_API torch::Tensor grid(torch::Tensor pos, torch::Tensor size,
   }
 }
 
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::grid", &grid);
+TORCH_LIBRARY_IMPL(torch_cluster, CPU, m) {
+    m.impl("grid", &grid_cpu);
+}
+
+#ifdef WITH_CUDA
+TORCH_LIBRARY_IMPL(torch_cluster, CUDA, m) {
+    m.impl("grid", &grid_cuda);
+}
+TORCH_LIBRARY_IMPL(torch_cluster, HIP, m) {
+    m.impl("grid", &grid_cuda);
+}
+#endif

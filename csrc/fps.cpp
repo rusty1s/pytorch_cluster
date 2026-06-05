@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "cpu/fps_cpu.h"
 
@@ -32,5 +33,15 @@ CLUSTER_API torch::Tensor fps(torch::Tensor src, torch::Tensor ptr, torch::Tenso
   }
 }
 
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::fps", &fps);
+TORCH_LIBRARY_IMPL(torch_cluster, CPU, m) {
+  m.impl("fps", &fps_cpu);
+}
+
+#ifdef WITH_CUDA
+TORCH_LIBRARY_IMPL(torch_cluster, CUDA, m) {
+  m.impl("fps", &fps_cuda);
+}
+TORCH_LIBRARY_IMPL(torch_cluster, HIP, m) {
+  m.impl("fps", &fps_cuda);
+}
+#endif

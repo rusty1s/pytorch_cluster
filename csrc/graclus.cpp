@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "cpu/graclus_cpu.h"
 
@@ -32,5 +33,15 @@ CLUSTER_API torch::Tensor graclus(torch::Tensor rowptr, torch::Tensor col,
   }
 }
 
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::graclus", &graclus);
+TORCH_LIBRARY_IMPL(torch_cluster, CPU, m) {
+  m.impl("graclus", &graclus_cpu);
+}
+
+#ifdef WITH_CUDA
+TORCH_LIBRARY_IMPL(torch_cluster, CUDA, m) {
+  m.impl("graclus", &graclus_cuda);
+}
+TORCH_LIBRARY_IMPL(torch_cluster, HIP, m) {
+  m.impl("graclus", &graclus_cuda);
+}
+#endif

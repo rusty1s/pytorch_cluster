@@ -4,12 +4,22 @@ import pytest
 import torch
 from torch import Tensor
 from torch_cluster import fps
-from torch_cluster.testing import devices, grad_dtypes, tensor
+from torch_cluster.testing import (
+    devices,
+    grad_dtypes,
+    has_compiler,
+    tensor,
+)
 
 
-@torch.jit.script
-def fps2(x: Tensor, ratio: Tensor) -> Tensor:
+def fps2_impl(x: Tensor, ratio: Tensor) -> Tensor:
     return fps(x, None, ratio, False)
+
+
+if has_compiler():
+    fps2 = torch.compile(fps2_impl)
+else:
+    fps2 = fps2_impl
 
 
 @pytest.mark.parametrize('dtype,device', product(grad_dtypes, devices))

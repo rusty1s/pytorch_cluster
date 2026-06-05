@@ -51,6 +51,4 @@ def test_graclus_cluster(test, dtype, device):
     cluster = graclus_cluster(row, col, weight)
     assert_correct(row, col, cluster)
 
-    jit = torch.jit.script(graclus_cluster)
-    cluster = jit(row, col, weight)
-    assert_correct(row, col, cluster)
+    # graclus is not torch.compile compatible.

@@ -3,7 +3,7 @@ from itertools import product
 import pytest
 import torch
 from torch_cluster import grid_cluster
-from torch_cluster.testing import devices, dtypes, tensor
+from torch_cluster.testing import devices, dtypes, has_compiler, tensor
 
 tests = [{
     'pos': [2, 6],
@@ -39,5 +39,6 @@ def test_grid_cluster(test, dtype, device):
     cluster = grid_cluster(pos, size, start, end)
     assert cluster.tolist() == test['cluster']
 
-    jit = torch.jit.script(grid_cluster)
-    assert torch.equal(jit(pos, size, start, end), cluster)
+    if has_compiler():
+        jit = torch.compile(grid_cluster)
+        assert torch.equal(jit(pos, size, start, end), cluster)

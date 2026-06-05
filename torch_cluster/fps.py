@@ -6,28 +6,14 @@ from torch import Tensor
 import torch_cluster.typing
 
 
-@torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int], Optional[Tensor]) -> Tensor  # noqa
-    pass  # pragma: no cover
+@torch.library.register_fake("torch_cluster::fps")
+def _(src, ptr, ratio, random_start=True):
+    torch._check(src.device == ptr.device)
+    torch._check(ptr.ndim == 1)
 
-
-@torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int], Optional[Tensor]) -> Tensor  # noqa
-    pass  # pragma: no cover
-
-
-@torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[float], bool, Optional[int], Optional[List[int]]) -> Tensor  # noqa
-    pass  # pragma: no cover
-
-
-@torch.jit._overload  # noqa
-def fps(src, batch, ratio, random_start, batch_size, ptr):  # noqa
-    # type: (Tensor, Optional[Tensor], Optional[Tensor], bool, Optional[int], Optional[List[int]]) -> Tensor  # noqa
-    pass  # pragma: no cover
+    ctx = torch.library.get_ctx()
+    nnz = ctx.new_dynamic_size()
+    return ptr.new_empty((nnz,))
 
 
 def fps(  # noqa

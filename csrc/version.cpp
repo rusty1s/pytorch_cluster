@@ -1,9 +1,11 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
+
+#include <torch/library.h>
+
 #include "cluster.h"
 #include "macros.h"
-#include <torch/script.h>
 
 #ifdef WITH_CUDA
 #ifdef USE_ROCM
@@ -37,5 +39,6 @@ CLUSTER_API int64_t cuda_version() noexcept {
 }
 } // namespace cluster
 
-static auto registry = torch::RegisterOperators().op(
-    "torch_cluster::cuda_version", [] { return cluster::cuda_version(); });
+TORCH_LIBRARY_IMPL(torch_cluster, CompositeImplicitAutograd, m) {
+  m.impl("cuda_version", [] { return cluster::cuda_version(); });
+}

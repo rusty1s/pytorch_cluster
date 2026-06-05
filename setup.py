@@ -11,7 +11,7 @@ from torch.__config__ import parallel_info
 from torch.utils.cpp_extension import (CUDA_HOME, BuildExtension, CppExtension,
                                        CUDAExtension)
 
-__version__ = '1.6.3'
+__version__ = '2.0.0'
 URL = 'https://github.com/rusty1s/pytorch_cluster'
 
 WITH_CUDA = False
@@ -25,7 +25,6 @@ if os.getenv('FORCE_ONLY_CUDA', '0') == '1':
     suffices = ['cuda']
 if os.getenv('FORCE_ONLY_CPU', '0') == '1':
     suffices = ['cpu']
-
 BUILD_DOCS = os.getenv('BUILD_DOCS', '0') == '1'
 
 

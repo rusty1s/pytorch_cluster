@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "cpu/sampler_cpu.h"
 
@@ -28,5 +29,6 @@ CLUSTER_API torch::Tensor neighbor_sampler(torch::Tensor start, torch::Tensor ro
   }
 }
 
-static auto registry = torch::RegisterOperators().op(
-    "torch_cluster::neighbor_sampler", &neighbor_sampler);
+TORCH_LIBRARY_IMPL(torch_cluster, CPU, m) {
+  m.impl("neighbor_sampler", &neighbor_sampler_cpu);
+}

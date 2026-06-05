@@ -1,4 +1,5 @@
 #pragma once
+#include <torch/library.h>
 
 #include "extensions.h"
 
@@ -37,3 +38,15 @@ random_walk(torch::Tensor rowptr, torch::Tensor col, torch::Tensor start,
 
 CLUSTER_API torch::Tensor neighbor_sampler(torch::Tensor start, torch::Tensor rowptr,
                                int64_t count, double factor);
+
+TORCH_LIBRARY(torch_cluster, m) {
+    m.def("fps(Tensor src, Tensor ptr, Tensor ratio, bool random_start = False) -> Tensor");
+    m.def("graclus(Tensor rowptr, Tensor col, Tensor? weight = None) -> Tensor");
+    m.def("grid(Tensor pos, Tensor size, Tensor? start = None, Tensor? end = None) -> Tensor");
+    m.def("knn(Tensor a, Tensor b, Tensor? ptr_x, Tensor? ptr_y, int k, bool cosine = False, int num_workers = 1) -> Tensor");
+    m.def("nearest(Tensor x, Tensor y, Tensor ptr_x, Tensor ptr_y) -> Tensor");
+    m.def("radius(Tensor x, Tensor y, Tensor? ptr_x, Tensor? ptr_y, float r, int max_num_neighbors, int num_workers = 1, bool ignore_same_index = False) -> Tensor");
+    m.def("random_walk(Tensor rowptr, Tensor col, Tensor start, int walk_length, float p = 1, float q = 1) -> (Tensor, Tensor)");
+    m.def("neighbor_sampler(Tensor start, Tensor rowptr, int count, float factor) -> Tensor");
+    m.def("cuda_version() -> int");
+}

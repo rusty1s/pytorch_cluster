@@ -1,7 +1,8 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #endif
-#include <torch/script.h>
+#include <torch/torch.h>
+#include <torch/library.h>
 
 #include "extensions.h"
 
@@ -32,5 +33,11 @@ CLUSTER_API torch::Tensor nearest(torch::Tensor x, torch::Tensor y, torch::Tenso
   }
 }
 
-static auto registry =
-    torch::RegisterOperators().op("torch_cluster::nearest", &nearest);
+#ifdef WITH_CUDA
+TORCH_LIBRARY_IMPL(torch_cluster, CUDA, m) {
+    m.impl("nearest", &nearest_cuda);
+}
+TORCH_LIBRARY_IMPL(torch_cluster, HIP, m) {
+  m.impl("nearest", &nearest_cuda);
+}
+#endif
