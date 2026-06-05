@@ -1,10 +1,7 @@
 name: Linting
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+# Repository deprecated: automatic triggers disabled, manual runs only.
+on: [workflow_dispatch]
 
 jobs:
 

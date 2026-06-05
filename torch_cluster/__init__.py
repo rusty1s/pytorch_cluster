@@ -1,9 +1,18 @@
 import importlib
 import os.path as osp
+import warnings
 
 import torch
 
 __version__ = '1.6.3'
+
+warnings.warn(
+    "'torch-cluster' is deprecated and no longer maintained. All "
+    "functionality has been migrated to 'pyg-lib>=0.7.0' "
+    "(https://github.com/pyg-team/pyg-lib).",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 for library in [
         '_version', '_grid', '_graclus', '_fps', '_rw', '_sampler', '_nearest',

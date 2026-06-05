@@ -16,6 +16,11 @@
 
 --------------------------------------------------------------------------------
 
+> [!CAUTION]
+> #### ⚠️ This repository is deprecated in favor of [`pyg-lib>=0.7.0`](https://github.com/pyg-team/pyg-lib)
+
+--------------------------------------------------------------------------------
+
 This package consists of a small extension library of highly optimized graph cluster algorithms for the use in [PyTorch](http://pytorch.org/).
 The package consists of the following clustering algorithms:
 
