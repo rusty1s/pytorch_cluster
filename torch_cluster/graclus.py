@@ -39,6 +39,9 @@ def graclus_cluster(
     row, col = row[mask], col[mask]
 
     if weight is not None:
+        if (weight < 0).any().item():
+            raise ValueError("PyG's implementation of Graclus clustering "
+                             "does not support negative edge weights.")
         weight = weight[mask]
 
     # Randomly shuffle nodes.
